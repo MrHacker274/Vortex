@@ -649,7 +649,7 @@ def main():
     dp.add_handler(CommandHandler("reset", reset_command))
     dp.add_handler(CommandHandler(["info", "infonum"], handle_info_command))
     dp.add_handler(CommandHandler("aol", aol))
-    dp.add_handler(CommandHandler("gmail", gmail_command))
+    dp.add_handler(CommandHandler("gmail", gmail))
     dp.add_handler(MessageHandler(Filters.text & ~Filters.command, handle_info_command))
 
     print("🤖 Bot is running...")
