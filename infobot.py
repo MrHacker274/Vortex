@@ -616,6 +616,29 @@ def aol(update, context):
             f"Username *{username}* is {result}",
             parse_mode='Markdown'
         )
+def gmail(update, context):
+    if not context.args:
+        update.message.reply_text(
+            "Please provide a username after the command.\nExample: /gmail example123"
+        )
+        return
+
+    username = context.args[0]
+    if not username.isalnum():
+        update.message.reply_text("Please provide a valid alphanumeric username.")
+        return
+
+    checker = Gm(username)
+    result = checker.check()
+
+    if result is None:
+        update.message.reply_text("Sorry, I couldn't check the username right now. Try again later.")
+    else:
+        availability = "✅ Available" if result["available"] else "❌ Taken"
+        update.message.reply_text(
+            f"Username *{username}@gmail.com* is {availability}",
+            parse_mode='Markdown'
+        )
  
 def main():
     updater = Updater(TELEGRAM_BOT_TOKEN, use_context=True)
@@ -626,6 +649,7 @@ def main():
     dp.add_handler(CommandHandler("reset", reset_command))
     dp.add_handler(CommandHandler(["info", "infonum"], handle_info_command))
     dp.add_handler(CommandHandler("aol", aol))
+    dp.add_handler(CommandHandler("gmail", gmail_command))
     dp.add_handler(MessageHandler(Filters.text & ~Filters.command, handle_info_command))
 
     print("🤖 Bot is running...")
