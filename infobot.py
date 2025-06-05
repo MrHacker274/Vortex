@@ -536,7 +536,7 @@ def fetch_instagram_info(username):
         return result_msg
 
     except Exception as e:
-        return f"ERROR Failed to fetch info for {username}. Reason: {str(e)}"
+        return f"USERNAME NOT FOUND OR API ERROR PLEASE CONTACT THE OWNER FOR FURTHER INFORMATION"
 import time
 import re
 from telegram import Update, ChatAction
