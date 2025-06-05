@@ -22,7 +22,7 @@ def start(update: Update, context: CallbackContext):
         f"👋 <b>Hello, {user_first_name}!</b>\n\n"
         "Welcome to <b>InstaInfo Bot</b> — your assistant to fetch public Instagram profile info 📸\n\n"
         "🔎 <b>What you can do:</b>\n"
-        "• Lookup public Instagram <b>username</b> 
+        "• Lookup public Instagram <b>username</b>\n"
         "• Check if an AOL username is available\n"
         "• Send Instagram password reset links\n\n"
         "⚙️ <b>Commands:</b>\n"
