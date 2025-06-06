@@ -211,18 +211,6 @@ import user_agent
 import requests
 import random
 import re
-def generate_user_agent():
-    platforms = [
-        "Windows NT 10.0; Win64; x64",
-        "Macintosh; Intel Mac OS X 11_3",
-        "iPhone; CPU iPhone OS 15_2 like Mac OS X",
-        "iPad; CPU OS 14_4 like Mac OS X"
-    ]
-    platform = random.choice(platforms)
-    chrome_version = f"{random.randint(90, 120)}.0.{random.randint(4000, 5000)}.{random.randint(100, 999)}"
-    edge_version = f"{random.randint(100, 125)}.0.0.0"
-    user_agent = f"Mozilla/5.0 ({platform}) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/{chrome_version} Safari/537.36 Edg/{edge_version}"
-    return user_agent
 def check_aol_username(username):
     def check_availability_from_text(response_text):
         response_text = response_text.strip()
@@ -249,16 +237,15 @@ def check_aol_username(username):
     # [YOUR COOKIES AND HEADERS HERE - ALREADY OK IN YOUR SCRIPT]
     cookies = {
     'weathergeo': '%2223.03%7C72.60%7CAhmedabad%7CGJ%7CIndia%7C0%7C29219630%22',
-    'GUCS': 'ATblFArI',
     'GUC': 'AQEBCAFoQrxoa0IdaQRU&s=AQAAAGsKHyP7&g=aEFsow',
     'A1': 'd=AQABBJe4NmgCEBTQJcSiUU8hK1heOS9q1ZQFEgEBCAG8QmhraFkPyyMA_eMDAAcIl7g2aC9q1ZQ&S=AQAAAoiOJ3tjABbT2_6BqH26jZA',
     'A3': 'd=AQABBJe4NmgCEBTQJcSiUU8hK1heOS9q1ZQFEgEBCAG8QmhraFkPyyMA_eMDAAcIl7g2aC9q1ZQ&S=AQAAAoiOJ3tjABbT2_6BqH26jZA',
     'A1S': 'd=AQABBJe4NmgCEBTQJcSiUU8hK1heOS9q1ZQFEgEBCAG8QmhraFkPyyMA_eMDAAcIl7g2aC9q1ZQ&S=AQAAAoiOJ3tjABbT2_6BqH26jZA',
-    'AS': 'v=1&s=fXGl2fuE&d=A6842c084|F5fkZcH.2TqOx3FZQHYR78BUZeJI_FqoQp7D_hT_9FBgPAdv72mhDn0T4qAh.G4DiOz6G5x.Db7R0hozzE7lQGWzzi5POuVvkYuuwqa6f1P0kRPp88kHvNMSeblE4N.0YRiOEANnQIH6TzScZQGqqL41DdZeJMgoJM.XLva0gs0DjW9yqKOKMtbSMFdmhH8HiX586Hde2.Rk5OR94LNvPmZcy5RbeuRzIvEyKzXQLe4sPH_Z5aVgCj8h3qG92tYBCRegbcI8xkAXcLmuFw9zpzkxEBngvMSl.388Xp.qWqHACM_3Xzd1.vIbsvs9SAz1uz5hxvXsnPSrshvpoSVIFg1wOeet7xJk45LYG2EI1u1TpkJgU4roBauiBME9L5JA2gQHu6gDMRkcWITbJLuMFtcV9vXQUcfePDlQeozUJSpKbjvp3maPXee3VeE0inuo6UvWdMJD1SHmh_w1KRX49OLdgE.I9vy7o0Q9FssJP9Coc.mAxxM0zWWXOH3u33nc7cm5N4tS93dchJtxd5mRrmRVvPamhai1QjbXHIHnKI42ki2WMjspar_R7e_koNU_NSAkKIb71tiYEr3Pqzg2ApE1EXJx7NcAP59mMMkkYsPVwI40ru_Re20wjwEKcSCGqcoNF8YKlKKwktYeFPyEs9XvTuGL3LOOiwgh_6LPGPCgx3kUkQr0iVrjbJKsW7pUdUezqdVvSQwDL.SAEmhoOA1onF7YW32On77qHl217AE6v2lI9Sf8m_DtZVcEm4.JkA1LBe2iE3kw_wrL5VoyrpHhva4n34gK0m3wCiF8koDgLAT0CVZLShswI8VbLSS3XHshMv4PGXAqBIyzLgVGIG6t0vl58u6Q.6jWYcAt.F1phAdfWdG.TsNFAmXVfX4YLcwVmQH6J5bnyHeY6vqMRa0p1JzNNmffrYz_.VUSUCzLJVVGBPM6HbcoMAvIXiX2BvG6qZMMkw2DCqfgvMr_RB27K18yrhgaGbQ1E9yvB.FtyVGOsq69RXnpV3aPc6d4vOVFXgRa7E4VnzE9CISkAL4C3vtc1teLldUoQc7.wyAk3n5GnFrEZ.qF9_U2ZfR0emZfRjLHsKfc2lByA72Azv0CoMgKEpFymz3b6dizvW6K9btlmxyHNVzuuFg6Y2Lo7FU-~A|C6842c07c|SJ7TIm_.2Tqhng.10OsyiZ82s5rkti1.AMqV5zThahuYBFk2emEgNRbhTas.q5IVMDnia178XQfbSHcJsDt.gdNFCBwmiiaIWPZZJcfcXKwhl9YZh4GXBUlMxUskarmdJNtDSD7CIoArfcdMN_TH5FMWcZSIcgFdaWKP14JsrUvOQXJqbcfakE2E5vYZb352nOqqtVaI7gXUDzgPna2mMCUaNq6rJcp9U.fjZepxdgmRWrKfJCFZ3knYuvH5be5p4KTrFcLwdGLGlVdJOtQr_GzIB_2Q_D.Siu93AQ2sK_coAWT.LKyWy1Ltnsw6TlCUZ14mhesXdtWrj6boYnSjpkDyWcQLWAC1MAsQK3c1u59y8rs2.uJOLgRhyHmVdq5kAToUMbRLt.U_pESLeSFGZOnJF2GpNvBNuNlogwVtrZ9PlCfMm7aK0meltlWpQTzIqA02Q7SszfODyIjnDM9KaxQv6mZu8CUbgXLBh9WVFx8_oRsWa_HDgOc6p7VwmS2ZSHzaDUiqgZO_gNjTNcZ9k8SDYNpsSQKOGNVB5dsXjNvaDOSY1w4_9YebINiDuz54PXll1fLx8MDGB1CElvTtgSx2rXFEb0S4kYvOALaig_SZop9hiS.gfBzsJUyjXac1OwUdz_hcNAtqmVjlMfwn98oFwFm2Vkat9c_3rhFVjxUNhIgiX.AsfvaXKML3pnPKR0MpaUhNPiDn1mLYRFBvKmJCmiMzyzuXnmPklT8Br.L8WcZrF.nFbKoSkHhSgWqooxYU65PikKmQ4dDKnLheGo45MQoRvLnNT22.N4ADlSdnx6f7XAD6YcqlxVRq5gQwnR8JI50k_3jkyCrgJdXEZ6RlRoIAtQROIwTsvw1ciykcK59s8j.mdXIA3CNg0smt6cTeY1mTzEFyrKh0gM.quSQ9hFyZWIbhmNYhTVlX7Xxx5M2l9FYjCGO0nSoCEbqDmTqL.gOgtjIGurtPZxChE88UiY0teEu_g9XG5_Yf.iSicSFzzlsENM3OMEuGX4La35NJs9h.0U4G0JFBf2kix6mihI5gQxWpHbhyLqj5HOcckOMAlr2PaYesImRWlEDvV.njT6ovL0pHbUMd2xBHOdjsSF54RAiYafesCbHMClwhKCaAt8_CSB53_CacxePUxB8M~A',
+    'AS': 'v=1&s=CXNFiCaf&d=A68441ce7|X4q.L_3.2ToHPB9jJv25S3fvsjKtaa6YB.V9e0nUyGpvJEp411b5LAh39lECeKbrK2U32o9DNEVo0dVR3LPsOrbfP8cj9g0faGnid_U2RvyN7guUG03ejPHpgZJsh.BJ_gNGiIwTiYt1ql3NLZyx38HvauyL8gKl91EBBu8ZNVfmaO5bZDKV_rzsmqzaJVBZZnagC2O.guU8kXfrk8X7X0OW1xfXwocM9JdDuZiwStBAomwB7Gf95E2LphxqmFQ7VoJPDJiJwuJ9Ih5kEuCT3mEuKYrMRn6ZRkebvahmSSxj6625apWFJ20gN_9ovKrItR24WvOOHjCdp8obcrGsgM9kPyP1CPzJsRtNsXZ8Csx64klj6P1Rtc.KbpsB5Uhx6jhJFPbOgEUt.2wnOoj8J_d2TkZiM5GjXqrmUrVzeCyQR0FEKWi9uYpC3ArBuW54ncA6KBXmd__svc1bnMH7avBu1GE4Gu4Db2xWZlSGeJqiRb52kTUryGaN.DB8ANHGdmjCquXZusJ9ERlVLVpNupdYxtP6iM4ea3Zn70thXORYTCQIdl9x9hBbXTTVl_98ipylBIxa7UoIyR1ZIXZESXyrO7K6M7YAmYtRENPP.mQeiJLpFDDhANQ83RSWI0RXn5Fu.INFTEThA.Z3Jl8r2DzODb.bsTaCm47E2gtMHqap6prgiL23MHKJSmk1WhfMHp0BnWf_aIxAtZfwchCfGZ_pnMU7T6SOHM.G6aGjd2G9k_cd.onAoyy1HhnyLA9r9oXHYLhwR50Dwp.ZY3nkweEnbY5H.Tb29z958jvMCGS367NndKULJDnqWz5MxnRUqo7e_oj5SZsZWIfjqHzUvO5GiU9nsUc_lGb7sS7XnF2EWMK3QZva81Zl0CY1pW16qXBpKZd4Y0pDq14dZde4b.xyWqrnGV3e.d467RtfWrK4t6B_Ocm9mMAapK5dwwz8bxLvieVdarYIJmGrO6BWu54BooWD9Q.8BZ8QcdRqJk0BJ8TMZ0F6T_0xSzh073_kq2qbbZ1Dfpk59.8JpV3ViFdAdMNyDgH6Y8BFXDc12L2hbhWANrzkIYb9G_aXx8K14LDkx0L3lONeyn9Hd39eQVc7SdG4vIxbXWbQ5xu2xh5boF.jFNY1vCx29w5VC_vDHZd.~A|B68442021|AVlOk_L.2TqOmDMvLI3qgvOncwH3GmqQh2WQ4ddctGJQZWWbQpQB91rC0GIQz47BeR7UBSfIIVGFLD2okyv.z7u5i6aqtedC4ovxN82KC5U3m1AYOoascqrh1CNyHtt8lcFywUHAv2t4FMABfTmZMKbtOV1eXBgWG5E_PUrZIXJxwI5IfcYWewV98WUyPAar9SwiuQXEGJLNX1qYcnwyS3BRuI7EhUqNRF2VOJt.jgIfI0Y_tQLBY5_wV5RX5sDUQkMeGFH4dndUqmQOAzajijmDWMoSXHoKzfNU_SMvFaA6qjR4_ZKKW_6dl4z4VBwc85VU9inCqQBBSBwkbn3sNwzhh1tgnqPobJ0rovm.kiZ6PicthfXU1BIfpCx_AkSmzc6ugWnUhPBEgXx.IiSFz1lNBcAjn3fmb7wgaufSWez5oUDuXK330CuTUd87wCKZar5MmVMzdHwkAiAZ1Fm86kH0mVZuVmNVA0zMOrN.FxbzL1sIBkFqyNmMQ9XHymWqaoj9epMGjZLAsGTrvs1eICMwHayjfygDTvtmv9QxB3XsoU6RxTLdEZ3mw8IgWQMmzYnSYZliVYYVQ6e41bwqhDrecXiGAzCVXiaJ52k1Fk.0XdcvkhNcwbAxt1ZoKVK76lBdym4cT9LOLlJkrQNzzpAXSUpQsgLpMbN1FxYxoXwFoRbb1_.gFQBDQCcdQPJSywd.yA7oTMFZB4h8b4Ts5tI92mtlrS9jGiKZ8_CY3ECWglJQYqhVoV_FFLDKxySio9dkBX53gm56a66fdC5pGeak4vzXAYuMEsykdTsK9uY6fefwMNeYwfyJHhci7JiGJz.Y2UW7UK0OAQbblxYtztlM3UOyJjMFk1C6Qqq9jynix3aR4CiVfNeyr8YQldpjLzwcmJ08CCicwrsBh3aPqoErSZPlSVVwtVX4zVJvfKxZd4R57P85oeGhKgrugERYHjsuojVKcd3dSeGEvVvlXB4UZdSgGBtvQLt5kHZatrmtRSCENqMiUanew5N1II3qhOzOAPw89uK0t9Bsh7aU91jm.F6zNR.HjQCOg6aD27kQnSvGRPJxPaNz_jX7X1f7ZXGVrMqn0Jxc28Y9P5LxpiR15McNQ0lAngoT3xIK.bdTHm3Tl7DmbL.nck2nNimYnI76KQ--~A',
     }  
     headers = {
     'accept': '*/*',
-    'accept-language': 'en-US,en;q=0.8',
+    'accept-language': 'en-US,en;q=0.9',
     'content-type': 'application/x-www-form-urlencoded; charset=UTF-8',
     'origin': 'https://login.aol.com',
     'priority': 'u=1, i',
@@ -270,14 +257,14 @@ def check_aol_username(username):
     'sec-fetch-mode': 'cors',
     'sec-fetch-site': 'same-origin',
     'sec-gpc': '1',
-    'user-agent': generate_user_agent(),
+    'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36',
     'x-requested-with': 'XMLHttpRequest',
-    'cookie': 'weathergeo=%2223.03%7C72.60%7CAhmedabad%7CGJ%7CIndia%7C0%7C29219630%22; GUCS=ATblFArI; GUC=AQEBCAFoQrxoa0IdaQRU&s=AQAAAGsKHyP7&g=aEFsow; A1=d=AQABBJe4NmgCEBTQJcSiUU8hK1heOS9q1ZQFEgEBCAG8QmhraFkPyyMA_eMDAAcIl7g2aC9q1ZQ&S=AQAAAoiOJ3tjABbT2_6BqH26jZA; A3=d=AQABBJe4NmgCEBTQJcSiUU8hK1heOS9q1ZQFEgEBCAG8QmhraFkPyyMA_eMDAAcIl7g2aC9q1ZQ&S=AQAAAoiOJ3tjABbT2_6BqH26jZA; A1S=d=AQABBJe4NmgCEBTQJcSiUU8hK1heOS9q1ZQFEgEBCAG8QmhraFkPyyMA_eMDAAcIl7g2aC9q1ZQ&S=AQAAAoiOJ3tjABbT2_6BqH26jZA; AS=v=1&s=fXGl2fuE&d=A6842c084|F5fkZcH.2TqOx3FZQHYR78BUZeJI_FqoQp7D_hT_9FBgPAdv72mhDn0T4qAh.G4DiOz6G5x.Db7R0hozzE7lQGWzzi5POuVvkYuuwqa6f1P0kRPp88kHvNMSeblE4N.0YRiOEANnQIH6TzScZQGqqL41DdZeJMgoJM.XLva0gs0DjW9yqKOKMtbSMFdmhH8HiX586Hde2.Rk5OR94LNvPmZcy5RbeuRzIvEyKzXQLe4sPH_Z5aVgCj8h3qG92tYBCRegbcI8xkAXcLmuFw9zpzkxEBngvMSl.388Xp.qWqHACM_3Xzd1.vIbsvs9SAz1uz5hxvXsnPSrshvpoSVIFg1wOeet7xJk45LYG2EI1u1TpkJgU4roBauiBME9L5JA2gQHu6gDMRkcWITbJLuMFtcV9vXQUcfePDlQeozUJSpKbjvp3maPXee3VeE0inuo6UvWdMJD1SHmh_w1KRX49OLdgE.I9vy7o0Q9FssJP9Coc.mAxxM0zWWXOH3u33nc7cm5N4tS93dchJtxd5mRrmRVvPamhai1QjbXHIHnKI42ki2WMjspar_R7e_koNU_NSAkKIb71tiYEr3Pqzg2ApE1EXJx7NcAP59mMMkkYsPVwI40ru_Re20wjwEKcSCGqcoNF8YKlKKwktYeFPyEs9XvTuGL3LOOiwgh_6LPGPCgx3kUkQr0iVrjbJKsW7pUdUezqdVvSQwDL.SAEmhoOA1onF7YW32On77qHl217AE6v2lI9Sf8m_DtZVcEm4.JkA1LBe2iE3kw_wrL5VoyrpHhva4n34gK0m3wCiF8koDgLAT0CVZLShswI8VbLSS3XHshMv4PGXAqBIyzLgVGIG6t0vl58u6Q.6jWYcAt.F1phAdfWdG.TsNFAmXVfX4YLcwVmQH6J5bnyHeY6vqMRa0p1JzNNmffrYz_.VUSUCzLJVVGBPM6HbcoMAvIXiX2BvG6qZMMkw2DCqfgvMr_RB27K18yrhgaGbQ1E9yvB.FtyVGOsq69RXnpV3aPc6d4vOVFXgRa7E4VnzE9CISkAL4C3vtc1teLldUoQc7.wyAk3n5GnFrEZ.qF9_U2ZfR0emZfRjLHsKfc2lByA72Azv0CoMgKEpFymz3b6dizvW6K9btlmxyHNVzuuFg6Y2Lo7FU-~A|C6842c07c|SJ7TIm_.2Tqhng.10OsyiZ82s5rkti1.AMqV5zThahuYBFk2emEgNRbhTas.q5IVMDnia178XQfbSHcJsDt.gdNFCBwmiiaIWPZZJcfcXKwhl9YZh4GXBUlMxUskarmdJNtDSD7CIoArfcdMN_TH5FMWcZSIcgFdaWKP14JsrUvOQXJqbcfakE2E5vYZb352nOqqtVaI7gXUDzgPna2mMCUaNq6rJcp9U.fjZepxdgmRWrKfJCFZ3knYuvH5be5p4KTrFcLwdGLGlVdJOtQr_GzIB_2Q_D.Siu93AQ2sK_coAWT.LKyWy1Ltnsw6TlCUZ14mhesXdtWrj6boYnSjpkDyWcQLWAC1MAsQK3c1u59y8rs2.uJOLgRhyHmVdq5kAToUMbRLt.U_pESLeSFGZOnJF2GpNvBNuNlogwVtrZ9PlCfMm7aK0meltlWpQTzIqA02Q7SszfODyIjnDM9KaxQv6mZu8CUbgXLBh9WVFx8_oRsWa_HDgOc6p7VwmS2ZSHzaDUiqgZO_gNjTNcZ9k8SDYNpsSQKOGNVB5dsXjNvaDOSY1w4_9YebINiDuz54PXll1fLx8MDGB1CElvTtgSx2rXFEb0S4kYvOALaig_SZop9hiS.gfBzsJUyjXac1OwUdz_hcNAtqmVjlMfwn98oFwFm2Vkat9c_3rhFVjxUNhIgiX.AsfvaXKML3pnPKR0MpaUhNPiDn1mLYRFBvKmJCmiMzyzuXnmPklT8Br.L8WcZrF.nFbKoSkHhSgWqooxYU65PikKmQ4dDKnLheGo45MQoRvLnNT22.N4ADlSdnx6f7XAD6YcqlxVRq5gQwnR8JI50k_3jkyCrgJdXEZ6RlRoIAtQROIwTsvw1ciykcK59s8j.mdXIA3CNg0smt6cTeY1mTzEFyrKh0gM.quSQ9hFyZWIbhmNYhTVlX7Xxx5M2l9FYjCGO0nSoCEbqDmTqL.gOgtjIGurtPZxChE88UiY0teEu_g9XG5_Yf.iSicSFzzlsENM3OMEuGX4La35NJs9h.0U4G0JFBf2kix6mihI5gQxWpHbhyLqj5HOcckOMAlr2PaYesImRWlEDvV.njT6ovL0pHbUMd2xBHOdjsSF54RAiYafesCbHMClwhKCaAt8_CSB53_CacxePUxB8M~A',
+    # 'cookie': 'weathergeo=%2223.03%7C72.60%7CAhmedabad%7CGJ%7CIndia%7C0%7C29219630%22; GUC=AQEBCAFoQrxoa0IdaQRU&s=AQAAAGsKHyP7&g=aEFsow; A1=d=AQABBJe4NmgCEBTQJcSiUU8hK1heOS9q1ZQFEgEBCAG8QmhraFkPyyMA_eMDAAcIl7g2aC9q1ZQ&S=AQAAAoiOJ3tjABbT2_6BqH26jZA; A3=d=AQABBJe4NmgCEBTQJcSiUU8hK1heOS9q1ZQFEgEBCAG8QmhraFkPyyMA_eMDAAcIl7g2aC9q1ZQ&S=AQAAAoiOJ3tjABbT2_6BqH26jZA; A1S=d=AQABBJe4NmgCEBTQJcSiUU8hK1heOS9q1ZQFEgEBCAG8QmhraFkPyyMA_eMDAAcIl7g2aC9q1ZQ&S=AQAAAoiOJ3tjABbT2_6BqH26jZA; AS=v=1&s=CXNFiCaf&d=A68441ce7|X4q.L_3.2ToHPB9jJv25S3fvsjKtaa6YB.V9e0nUyGpvJEp411b5LAh39lECeKbrK2U32o9DNEVo0dVR3LPsOrbfP8cj9g0faGnid_U2RvyN7guUG03ejPHpgZJsh.BJ_gNGiIwTiYt1ql3NLZyx38HvauyL8gKl91EBBu8ZNVfmaO5bZDKV_rzsmqzaJVBZZnagC2O.guU8kXfrk8X7X0OW1xfXwocM9JdDuZiwStBAomwB7Gf95E2LphxqmFQ7VoJPDJiJwuJ9Ih5kEuCT3mEuKYrMRn6ZRkebvahmSSxj6625apWFJ20gN_9ovKrItR24WvOOHjCdp8obcrGsgM9kPyP1CPzJsRtNsXZ8Csx64klj6P1Rtc.KbpsB5Uhx6jhJFPbOgEUt.2wnOoj8J_d2TkZiM5GjXqrmUrVzeCyQR0FEKWi9uYpC3ArBuW54ncA6KBXmd__svc1bnMH7avBu1GE4Gu4Db2xWZlSGeJqiRb52kTUryGaN.DB8ANHGdmjCquXZusJ9ERlVLVpNupdYxtP6iM4ea3Zn70thXORYTCQIdl9x9hBbXTTVl_98ipylBIxa7UoIyR1ZIXZESXyrO7K6M7YAmYtRENPP.mQeiJLpFDDhANQ83RSWI0RXn5Fu.INFTEThA.Z3Jl8r2DzODb.bsTaCm47E2gtMHqap6prgiL23MHKJSmk1WhfMHp0BnWf_aIxAtZfwchCfGZ_pnMU7T6SOHM.G6aGjd2G9k_cd.onAoyy1HhnyLA9r9oXHYLhwR50Dwp.ZY3nkweEnbY5H.Tb29z958jvMCGS367NndKULJDnqWz5MxnRUqo7e_oj5SZsZWIfjqHzUvO5GiU9nsUc_lGb7sS7XnF2EWMK3QZva81Zl0CY1pW16qXBpKZd4Y0pDq14dZde4b.xyWqrnGV3e.d467RtfWrK4t6B_Ocm9mMAapK5dwwz8bxLvieVdarYIJmGrO6BWu54BooWD9Q.8BZ8QcdRqJk0BJ8TMZ0F6T_0xSzh073_kq2qbbZ1Dfpk59.8JpV3ViFdAdMNyDgH6Y8BFXDc12L2hbhWANrzkIYb9G_aXx8K14LDkx0L3lONeyn9Hd39eQVc7SdG4vIxbXWbQ5xu2xh5boF.jFNY1vCx29w5VC_vDHZd.~A|B68442021|AVlOk_L.2TqOmDMvLI3qgvOncwH3GmqQh2WQ4ddctGJQZWWbQpQB91rC0GIQz47BeR7UBSfIIVGFLD2okyv.z7u5i6aqtedC4ovxN82KC5U3m1AYOoascqrh1CNyHtt8lcFywUHAv2t4FMABfTmZMKbtOV1eXBgWG5E_PUrZIXJxwI5IfcYWewV98WUyPAar9SwiuQXEGJLNX1qYcnwyS3BRuI7EhUqNRF2VOJt.jgIfI0Y_tQLBY5_wV5RX5sDUQkMeGFH4dndUqmQOAzajijmDWMoSXHoKzfNU_SMvFaA6qjR4_ZKKW_6dl4z4VBwc85VU9inCqQBBSBwkbn3sNwzhh1tgnqPobJ0rovm.kiZ6PicthfXU1BIfpCx_AkSmzc6ugWnUhPBEgXx.IiSFz1lNBcAjn3fmb7wgaufSWez5oUDuXK330CuTUd87wCKZar5MmVMzdHwkAiAZ1Fm86kH0mVZuVmNVA0zMOrN.FxbzL1sIBkFqyNmMQ9XHymWqaoj9epMGjZLAsGTrvs1eICMwHayjfygDTvtmv9QxB3XsoU6RxTLdEZ3mw8IgWQMmzYnSYZliVYYVQ6e41bwqhDrecXiGAzCVXiaJ52k1Fk.0XdcvkhNcwbAxt1ZoKVK76lBdym4cT9LOLlJkrQNzzpAXSUpQsgLpMbN1FxYxoXwFoRbb1_.gFQBDQCcdQPJSywd.yA7oTMFZB4h8b4Ts5tI92mtlrS9jGiKZ8_CY3ECWglJQYqhVoV_FFLDKxySio9dkBX53gm56a66fdC5pGeak4vzXAYuMEsykdTsK9uY6fefwMNeYwfyJHhci7JiGJz.Y2UW7UK0OAQbblxYtztlM3UOyJjMFk1C6Qqq9jynix3aR4CiVfNeyr8YQldpjLzwcmJ08CCicwrsBh3aPqoErSZPlSVVwtVX4zVJvfKxZd4R57P85oeGhKgrugERYHjsuojVKcd3dSeGEvVvlXB4UZdSgGBtvQLt5kHZatrmtRSCENqMiUanew5N1II3qhOzOAPw89uK0t9Bsh7aU91jm.F6zNR.HjQCOg6aD27kQnSvGRPJxPaNz_jX7X1f7ZXGVrMqn0Jxc28Y9P5LxpiR15McNQ0lAngoT3xIK.bdTHm3Tl7DmbL.nck2nNimYnI76KQ--~A',
     }
     params = {
         'validateField': 'userId',
     }
-    data = F'browser-fp-data=%7B%22language%22%3A%22en-US%22%2C%22colorDepth%22%3A24%2C%22deviceMemory%22%3A4%2C%22pixelRatio%22%3A1%2C%22hardwareConcurrency%22%3A3%2C%22timezoneOffset%22%3A-330%2C%22timezone%22%3A%22Asia%2FCalcutta%22%2C%22sessionStorage%22%3A1%2C%22localStorage%22%3A1%2C%22indexedDb%22%3A1%2C%22cpuClass%22%3A%22unknown%22%2C%22platform%22%3A%22Win32%22%2C%22doNotTrack%22%3A%22unknown%22%2C%22plugins%22%3A%7B%22count%22%3A4%2C%22hash%22%3A%227ccc5fd5ea228d6b49c9fa7879809a37%22%7D%2C%22canvas%22%3A%22canvas%20winding%3Ayes~canvas%22%2C%22webgl%22%3A1%2C%22webglVendorAndRenderer%22%3A%22Google%20Inc.%20(Intel)~ANGLE%20(Intel%2C%20Intel(R)%20HD%20Graphics%20Direct3D9Ex%20vs_3_0%20ps_3_0%2C%20igdumd64.dll)%22%2C%22adBlock%22%3A0%2C%22hasLiedLanguages%22%3A0%2C%22hasLiedResolution%22%3A0%2C%22hasLiedOs%22%3A0%2C%22hasLiedBrowser%22%3A0%2C%22touchSupport%22%3A%7B%22points%22%3A0%2C%22event%22%3A0%2C%22start%22%3A0%7D%2C%22fonts%22%3A%7B%22count%22%3A29%2C%22hash%22%3A%2290ead5fa1a480b09b5b0239bd273a529%22%7D%2C%22audio%22%3A%22122.82769647920213%22%2C%22resolution%22%3A%7B%22w%22%3A%221680%22%2C%22h%22%3A%221050%22%7D%2C%22availableResolution%22%3A%7B%22w%22%3A%221050%22%2C%22h%22%3A%221680%22%7D%2C%22ts%22%3A%7B%22serve%22%3A1749118716684%2C%22render%22%3A1749118719276%7D%7D&specId=yidregsimplified&context=REGISTRATION&cacheStored=&crumb=v%2FnkkKGtxP3126Cthy3k3A&acrumb=fXGl2fuE&sessionIndex=Qw--&done=https%3A%2F%2Fapi.login.aol.com%2Foauth2%2Fauthorize%3Fclient_id%3Ddj0yJmk9ZXRrOURhMkt6bkl5JnM9Y29uc3VtZXJzZWNyZXQmc3Y9MCZ4PWQ2%26intl%3Dus%26nonce%3DWSbk8RiHKdR86BSpvlDJfvkkiG7yZfSz%26redirect_uri%3Dhttps%253A%252F%252Foidc.www.aol.com%252Fcallback%26response_type%3Dcode%26scope%3Dmail-r%2Bopenid%2Bguce-w%2Bopenid2%2Bsdps-r%26src%3Dfp-us%26state%3DeyJhbGciOiJSUzI1NiIsImtpZCI6IjZmZjk0Y2RhZDExZTdjM2FjMDhkYzllYzNjNDQ4NDRiODdlMzY0ZjcifQ.eyJyZWRpcmVjdFVyaSI6Imh0dHBzOi8vd3d3LmFvbC5jb20vIn0.hlDqNBD0JrMZmY2k9lEi6-BfRidXnogtJt8aI-q2FdbvKg9c9EhckG0QVK5frTlhV8HY7Mato7D3ek-Nt078Z_i9Ug0gn53H3vkBoYG-J-SMqJt5MzG34rxdOa92nZlQ7nKaNrAI7K9s72YQchPBn433vFbOGBCkU_ZC_4NXa9E&googleIdToken=&authCode=&attrSetIndex=0&specData=&deviceCapability=%7B%22pa%22%3A%7B%22status%22%3Afalse%7D%2C%22isWebAuthnSupported%22%3Atrue%7D&tos0=oath_freereg%7Cus%7Cen-US&multiDomain=&asId=752a5565-478d-4203-afbf-957a3c32c115&fingerprintCaptured=&firstName=zuck&lastName=zuck&userid-domain=yahoo&userId={username}&password=&mm=&dd=&yyyy=&signup='
+    data = F'browser-fp-data=%7B%22language%22%3A%22en-US%22%2C%22colorDepth%22%3A24%2C%22deviceMemory%22%3A8%2C%22pixelRatio%22%3A1%2C%22hardwareConcurrency%22%3A4%2C%22timezoneOffset%22%3A-330%2C%22timezone%22%3A%22Asia%2FCalcutta%22%2C%22sessionStorage%22%3A1%2C%22localStorage%22%3A1%2C%22indexedDb%22%3A1%2C%22cpuClass%22%3A%22unknown%22%2C%22platform%22%3A%22Win32%22%2C%22doNotTrack%22%3A%22unknown%22%2C%22plugins%22%3A%7B%22count%22%3A4%2C%22hash%22%3A%22879774623977b14ab013aceca855878d%22%7D%2C%22canvas%22%3A%22canvas%20winding%3Ayes~canvas%22%2C%22webgl%22%3A1%2C%22webglVendorAndRenderer%22%3A%22Google%20Inc.%20(Intel)~ANGLE%20(Intel%2C%20Intel(R)%20HD%20Graphics%20Direct3D9Ex%20vs_3_0%20ps_3_0%2C%20igdumd64.dll)%22%2C%22adBlock%22%3A0%2C%22hasLiedLanguages%22%3A0%2C%22hasLiedResolution%22%3A0%2C%22hasLiedOs%22%3A0%2C%22hasLiedBrowser%22%3A0%2C%22touchSupport%22%3A%7B%22points%22%3A0%2C%22event%22%3A0%2C%22start%22%3A0%7D%2C%22fonts%22%3A%7B%22count%22%3A29%2C%22hash%22%3A%2290ead5fa1a480b09b5b0239bd273a529%22%7D%2C%22audio%22%3A%22123.79177350061218%22%2C%22resolution%22%3A%7B%22w%22%3A%221680%22%2C%22h%22%3A%221050%22%7D%2C%22availableResolution%22%3A%7B%22w%22%3A%221050%22%2C%22h%22%3A%221680%22%7D%2C%22ts%22%3A%7B%22serve%22%3A1749207911538%2C%22render%22%3A1749207913247%7D%7D&specId=yidregsimplified&context=REGISTRATION&cacheStored=&crumb=v%2FnkkKGtxP3126Cthy3k3A&acrumb=CXNFiCaf&sessionIndex=QQ--&done=https%3A%2F%2Fapi.login.aol.com%2Foauth2%2Fauthorize%3Fclient_id%3Ddj0yJmk9ZXRrOURhMkt6bkl5JnM9Y29uc3VtZXJzZWNyZXQmc3Y9MCZ4PWQ2%26intl%3Dus%26nonce%3DWSbk8RiHKdR86BSpvlDJfvkkiG7yZfSz%26redirect_uri%3Dhttps%253A%252F%252Foidc.www.aol.com%252Fcallback%26response_type%3Dcode%26scope%3Dmail-r%2Bopenid%2Bguce-w%2Bopenid2%2Bsdps-r%26src%3Dfp-us%26state%3DeyJhbGciOiJSUzI1NiIsImtpZCI6IjZmZjk0Y2RhZDExZTdjM2FjMDhkYzllYzNjNDQ4NDRiODdlMzY0ZjcifQ.eyJyZWRpcmVjdFVyaSI6Imh0dHBzOi8vd3d3LmFvbC5jb20vIn0.hlDqNBD0JrMZmY2k9lEi6-BfRidXnogtJt8aI-q2FdbvKg9c9EhckG0QVK5frTlhV8HY7Mato7D3ek-Nt078Z_i9Ug0gn53H3vkBoYG-J-SMqJt5MzG34rxdOa92nZlQ7nKaNrAI7K9s72YQchPBn433vFbOGBCkU_ZC_4NXa9E&googleIdToken=&authCode=&attrSetIndex=0&specData=&deviceCapability=%7B%22pa%22%3A%7B%22status%22%3Afalse%7D%2C%22isWebAuthnSupported%22%3Atrue%7D&tos0=oath_freereg%7Cus%7Cen-US&multiDomain=&asId=97162952-9bce-4222-9b60-0eea2cf76bb6&fingerprintCaptured=&firstName=zuck&lastName=zuck&userid-domain=yahoo&userId={username}&password=&mm=&dd=&yyyy=&signup='
     response = requests.post(
         'https://login.aol.com/account/module/create',
         params=params,
@@ -357,7 +344,6 @@ def send_recovery_request(email_or_username):
         'ps_n': '1',
         'wd': '891x896',
     }
-
     headers = {
         'authority': 'www.instagram.com',
         'accept': '*/*',
@@ -369,12 +355,10 @@ def send_recovery_request(email_or_username):
         'x-ig-app-id': '936619743392459',
         'x-requested-with': 'XMLHttpRequest',
     }
-
     data = {
         'email_or_username': email_or_username,
         'jazoest': '21965',
     }
-
     try:
         response = requests.post(
             'https://www.instagram.com/api/v1/web/accounts/account_recovery_send_ajax/',
@@ -382,13 +366,11 @@ def send_recovery_request(email_or_username):
             headers=headers,
             data=data,
         )
-
         if response.status_code == 200:
             response_json = response.json()
             return response_json.get("contact_point", "No Reset")
         else:
             return "No Reset"
-
     except json.JSONDecodeError:
         return "No Reset"
     except requests.RequestException:
@@ -397,14 +379,10 @@ def send_recovery_request(email_or_username):
 def fetch_instagram_info(username):
     try:
         profile = instaloader.Profile.from_username(L.context, username)
-        user_id = profile.userid
-
-        # --- Cookies ---
+        user_id = profile.userid    
         cookies = {
             'sessionid': '5545662104%3ATSmn4hQ082l5P1%3A2%3AAYdHSaNBx20fZ845bJCugBgkJUma3TckTlONXimRcw','ds_user_id': '5545662104',
         }
-
-        # --- Headers ---
         headers = {
            'accept': '*/*',
     'accept-language': 'en-US,en;q=0.8',
@@ -430,8 +408,6 @@ def fetch_instagram_info(username):
     'type': 'app',
     '__bkv': 'f4e32caf235c4c3198ceb3d7599c397741599ea3447ec2f785d4575aeb99766b',
         }
-
-        # --- Data ---
         data = {
             '__d': 'www',
     '__user': '0',
@@ -457,7 +433,6 @@ def fetch_instagram_info(username):
     '__crn': 'comet.igweb.PolarisProfilePostsTabRoute',
     'params': f'{{"referer_type":"ProfileMore","target_user_id":{user_id} }}',
         }
-
         response = requests.post(
             'https://www.instagram.com/async/wbloks/fetch/',
             params=params,
@@ -465,8 +440,6 @@ def fetch_instagram_info(username):
             headers=headers,
             data=data
         )
-
-        # Extract details
         texts = re.findall(r'"text":"(.*?)"', response.text)
         results = {}
         for i in range(len(texts) - 1):
@@ -477,29 +450,24 @@ def fetch_instagram_info(username):
                 results["Verified On"] = texts[i + 1]
             elif texts[i] == "Former usernames":
                 results["Former usernames"] = texts[i + 1]
-
-        # Extract country
         country = re.search(r'"initial"\s*:\s*"([^"]+)"', response.text)
         country = country.group(1) if country else "N/A"
         reset_email = send_recovery_request(username)
         result = check_aol_username(username)
         gmail_checker = Gm(username)
         gmail_result = gmail_checker.check()
-        
         reset_check = "🔐 Reset not available"  # default value
-
         if reset_email and "@" in reset_email and username:
             visible = reset_email.split("@")[0]
             domain = reset_email.split("@")[1].lower()
             first_visible = visible[0]
             last_visible = visible[-1]
-
             if username[0].lower() == first_visible.lower() and username[-1].lower() == last_visible.lower():
                 if "gmail" in domain:
                     if gmail_result is None:reset_check = "❌ Unable to check Gmail"
                     elif gmail_result.get("available"):reset_check = "Gmail is ✅ Available"
                     else:reset_check = "Gmail is ❌ Taken"
-                elif "a**" and "aol" in domain:reset_check = f"AOL is {(result)}"
+                elif "a**" in domain:reset_check = f"AOL is {(result)}"
                 else:reset_check = "Unknown domain"
             else:reset_check = "🔐 Reset is different"
         result_msg = f"""
