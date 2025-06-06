@@ -22,13 +22,14 @@ def start(update: Update, context: CallbackContext):
         f"👋 <b>Hello, {user_first_name}!</b>\n\n"
         "Welcome to <b>InstaInfo Bot</b> — your assistant to fetch public Instagram profile info 📸\n\n"
         "🔎 <b>What you can do:</b>\n"
-        "• Lookup public Instagram <b>username</b>\n"
+        "• Lookup public Instagram <b>username</b> or <b>user ID</b>\n"
         "• Check if an AOL username is available\n"
         "• Send Instagram password reset links\n\n"
         "⚙️ <b>Commands:</b>\n"
         "• <code>/start</code> — Show welcome message\n"
         "• <code>/help</code> — How to use the bot\n"
         "• <code>/info &lt;username&gt;</code> — Get Instagram info by username\n"
+        "• <code>/infonum &lt;userid&gt;</code> — Get Instagram info by user ID\n"
         "• <code>/reset &lt;username&gt;</code> — Send IG reset link\n"
         "• <code>/aol &lt;username&gt;</code> — Check AOL username availability\n\n"
         "══════════════════════════════\n"
@@ -46,6 +47,7 @@ def help_command(update: Update, context: CallbackContext):
         "📖 <b>Help & Usage Guide</b>\n\n"
         "🔍 <b>Main Commands:</b>\n"
         "• <code>/info &lt;username&gt;</code> → Get Instagram info by username\n"
+        "• <code>/infonum &lt;userid&gt;</code> → Get Instagram info by user ID\n"
         "• <code>/reset &lt;username&gt;</code> → Send password reset link to IG account\n"
         "• <code>/aol &lt;username&gt;</code> → Check if an AOL email (username@aol.com) is available\n\n"
         "📦 <b>Instagram Info Includes:</b>\n"
@@ -207,8 +209,20 @@ def get_username_from_user_id(user_id: str) -> str:
 import secrets
 import user_agent
 import requests
+import random
 import re
-
+def generate_user_agent():
+    platforms = [
+        "Windows NT 10.0; Win64; x64",
+        "Macintosh; Intel Mac OS X 11_3",
+        "iPhone; CPU iPhone OS 15_2 like Mac OS X",
+        "iPad; CPU OS 14_4 like Mac OS X"
+    ]
+    platform = random.choice(platforms)
+    chrome_version = f"{random.randint(90, 120)}.0.{random.randint(4000, 5000)}.{random.randint(100, 999)}"
+    edge_version = f"{random.randint(100, 125)}.0.0.0"
+    user_agent = f"Mozilla/5.0 ({platform}) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/{chrome_version} Safari/537.36 Edg/{edge_version}"
+    return user_agent
 def check_aol_username(username):
     def check_availability_from_text(response_text):
         response_text = response_text.strip()
@@ -256,7 +270,7 @@ def check_aol_username(username):
     'sec-fetch-mode': 'cors',
     'sec-fetch-site': 'same-origin',
     'sec-gpc': '1',
-    'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36',
+    'user-agent': generate_user_agent(),
     'x-requested-with': 'XMLHttpRequest',
     'cookie': 'weathergeo=%2223.03%7C72.60%7CAhmedabad%7CGJ%7CIndia%7C0%7C29219630%22; GUCS=ATblFArI; GUC=AQEBCAFoQrxoa0IdaQRU&s=AQAAAGsKHyP7&g=aEFsow; A1=d=AQABBJe4NmgCEBTQJcSiUU8hK1heOS9q1ZQFEgEBCAG8QmhraFkPyyMA_eMDAAcIl7g2aC9q1ZQ&S=AQAAAoiOJ3tjABbT2_6BqH26jZA; A3=d=AQABBJe4NmgCEBTQJcSiUU8hK1heOS9q1ZQFEgEBCAG8QmhraFkPyyMA_eMDAAcIl7g2aC9q1ZQ&S=AQAAAoiOJ3tjABbT2_6BqH26jZA; A1S=d=AQABBJe4NmgCEBTQJcSiUU8hK1heOS9q1ZQFEgEBCAG8QmhraFkPyyMA_eMDAAcIl7g2aC9q1ZQ&S=AQAAAoiOJ3tjABbT2_6BqH26jZA; AS=v=1&s=fXGl2fuE&d=A6842c084|F5fkZcH.2TqOx3FZQHYR78BUZeJI_FqoQp7D_hT_9FBgPAdv72mhDn0T4qAh.G4DiOz6G5x.Db7R0hozzE7lQGWzzi5POuVvkYuuwqa6f1P0kRPp88kHvNMSeblE4N.0YRiOEANnQIH6TzScZQGqqL41DdZeJMgoJM.XLva0gs0DjW9yqKOKMtbSMFdmhH8HiX586Hde2.Rk5OR94LNvPmZcy5RbeuRzIvEyKzXQLe4sPH_Z5aVgCj8h3qG92tYBCRegbcI8xkAXcLmuFw9zpzkxEBngvMSl.388Xp.qWqHACM_3Xzd1.vIbsvs9SAz1uz5hxvXsnPSrshvpoSVIFg1wOeet7xJk45LYG2EI1u1TpkJgU4roBauiBME9L5JA2gQHu6gDMRkcWITbJLuMFtcV9vXQUcfePDlQeozUJSpKbjvp3maPXee3VeE0inuo6UvWdMJD1SHmh_w1KRX49OLdgE.I9vy7o0Q9FssJP9Coc.mAxxM0zWWXOH3u33nc7cm5N4tS93dchJtxd5mRrmRVvPamhai1QjbXHIHnKI42ki2WMjspar_R7e_koNU_NSAkKIb71tiYEr3Pqzg2ApE1EXJx7NcAP59mMMkkYsPVwI40ru_Re20wjwEKcSCGqcoNF8YKlKKwktYeFPyEs9XvTuGL3LOOiwgh_6LPGPCgx3kUkQr0iVrjbJKsW7pUdUezqdVvSQwDL.SAEmhoOA1onF7YW32On77qHl217AE6v2lI9Sf8m_DtZVcEm4.JkA1LBe2iE3kw_wrL5VoyrpHhva4n34gK0m3wCiF8koDgLAT0CVZLShswI8VbLSS3XHshMv4PGXAqBIyzLgVGIG6t0vl58u6Q.6jWYcAt.F1phAdfWdG.TsNFAmXVfX4YLcwVmQH6J5bnyHeY6vqMRa0p1JzNNmffrYz_.VUSUCzLJVVGBPM6HbcoMAvIXiX2BvG6qZMMkw2DCqfgvMr_RB27K18yrhgaGbQ1E9yvB.FtyVGOsq69RXnpV3aPc6d4vOVFXgRa7E4VnzE9CISkAL4C3vtc1teLldUoQc7.wyAk3n5GnFrEZ.qF9_U2ZfR0emZfRjLHsKfc2lByA72Azv0CoMgKEpFymz3b6dizvW6K9btlmxyHNVzuuFg6Y2Lo7FU-~A|C6842c07c|SJ7TIm_.2Tqhng.10OsyiZ82s5rkti1.AMqV5zThahuYBFk2emEgNRbhTas.q5IVMDnia178XQfbSHcJsDt.gdNFCBwmiiaIWPZZJcfcXKwhl9YZh4GXBUlMxUskarmdJNtDSD7CIoArfcdMN_TH5FMWcZSIcgFdaWKP14JsrUvOQXJqbcfakE2E5vYZb352nOqqtVaI7gXUDzgPna2mMCUaNq6rJcp9U.fjZepxdgmRWrKfJCFZ3knYuvH5be5p4KTrFcLwdGLGlVdJOtQr_GzIB_2Q_D.Siu93AQ2sK_coAWT.LKyWy1Ltnsw6TlCUZ14mhesXdtWrj6boYnSjpkDyWcQLWAC1MAsQK3c1u59y8rs2.uJOLgRhyHmVdq5kAToUMbRLt.U_pESLeSFGZOnJF2GpNvBNuNlogwVtrZ9PlCfMm7aK0meltlWpQTzIqA02Q7SszfODyIjnDM9KaxQv6mZu8CUbgXLBh9WVFx8_oRsWa_HDgOc6p7VwmS2ZSHzaDUiqgZO_gNjTNcZ9k8SDYNpsSQKOGNVB5dsXjNvaDOSY1w4_9YebINiDuz54PXll1fLx8MDGB1CElvTtgSx2rXFEb0S4kYvOALaig_SZop9hiS.gfBzsJUyjXac1OwUdz_hcNAtqmVjlMfwn98oFwFm2Vkat9c_3rhFVjxUNhIgiX.AsfvaXKML3pnPKR0MpaUhNPiDn1mLYRFBvKmJCmiMzyzuXnmPklT8Br.L8WcZrF.nFbKoSkHhSgWqooxYU65PikKmQ4dDKnLheGo45MQoRvLnNT22.N4ADlSdnx6f7XAD6YcqlxVRq5gQwnR8JI50k_3jkyCrgJdXEZ6RlRoIAtQROIwTsvw1ciykcK59s8j.mdXIA3CNg0smt6cTeY1mTzEFyrKh0gM.quSQ9hFyZWIbhmNYhTVlX7Xxx5M2l9FYjCGO0nSoCEbqDmTqL.gOgtjIGurtPZxChE88UiY0teEu_g9XG5_Yf.iSicSFzzlsENM3OMEuGX4La35NJs9h.0U4G0JFBf2kix6mihI5gQxWpHbhyLqj5HOcckOMAlr2PaYesImRWlEDvV.njT6ovL0pHbUMd2xBHOdjsSF54RAiYafesCbHMClwhKCaAt8_CSB53_CacxePUxB8M~A',
     }
@@ -387,40 +401,29 @@ def fetch_instagram_info(username):
 
         # --- Cookies ---
         cookies = {
-            'datr': 'f8Y6aLcIj6142U1O_fT3iuqu',
-    'ig_did': 'E67A15CE-C690-4C49-95C3-0A78681C907B',
-    'mid': 'aDrGfwABAAE5QO1YTXQAEyIiCJN_',
-    'ig_nrcb': '1',
-    'ps_l': '1',
-    'ps_n': '1',
-    'csrftoken': '7m1nZgERN9d2hM465W0wDv05vPxqullE',
-    'ds_user_id': '3542169352',
-    'dpr': '2.9673609733581543',
-    'sessionid': '3542169352%3AX3uE2n9Zx7SVUF%3A6%3AAYfpmGW8Kyw1CHuv9UonZccaMXYhuheC6cxTFvpJ-w',
-    'rur': '"CLN\\0543542169352\\0541780672563:01fefbe83bff7f300567081d46a835792097699c0bc8924bdf7bb48a22bf2d9d8f0fd9ef"',
-    'wd': '990x2061',
+            'sessionid': '5545662104%3ATSmn4hQ082l5P1%3A2%3AAYdHSaNBx20fZ845bJCugBgkJUma3TckTlONXimRcw','ds_user_id': '5545662104',
         }
 
         # --- Headers ---
         headers = {
-           'authority': 'www.instagram.com',
-    'accept': '*/*',
-    'accept-language': 'en-GB,en-US;q=0.9,en;q=0.8',
+           'accept': '*/*',
+    'accept-language': 'en-US,en;q=0.8',
     'content-type': 'application/x-www-form-urlencoded;charset=UTF-8',
-    # 'cookie': 'datr=f8Y6aLcIj6142U1O_fT3iuqu; ig_did=E67A15CE-C690-4C49-95C3-0A78681C907B; mid=aDrGfwABAAE5QO1YTXQAEyIiCJN_; ig_nrcb=1; ps_l=1; ps_n=1; csrftoken=7m1nZgERN9d2hM465W0wDv05vPxqullE; ds_user_id=3542169352; dpr=2.9673609733581543; sessionid=3542169352%3AX3uE2n9Zx7SVUF%3A6%3AAYfpmGW8Kyw1CHuv9UonZccaMXYhuheC6cxTFvpJ-w; rur="CLN\\0543542169352\\0541780672563:01fefbe83bff7f300567081d46a835792097699c0bc8924bdf7bb48a22bf2d9d8f0fd9ef"; wd=990x2061',
     'origin': 'https://www.instagram.com',
-    'referer': 'https://www.instagram.com/zuck/',
-    'sec-ch-prefers-color-scheme': 'dark',
-    'sec-ch-ua': '"Chromium";v="137", "Not/A)Brand";v="24"',
-    'sec-ch-ua-full-version-list': '"Chromium";v="137.0.7337.0", "Not/A)Brand";v="24.0.0.0"',
+    'priority': 'u=1, i',
+    'referer': f'https://www.instagram.com/{username}/',
+    'sec-ch-ua': '"Brave";v="137", "Chromium";v="137", "Not/A)Brand";v="24"',
+    'sec-ch-ua-full-version-list': '"Brave";v="137.0.0.0", "Chromium";v="137.0.0.0", "Not/A)Brand";v="24.0.0.0"',
     'sec-ch-ua-mobile': '?0',
     'sec-ch-ua-model': '""',
-    'sec-ch-ua-platform': '"Linux"',
-    'sec-ch-ua-platform-version': '""',
+    'sec-ch-ua-platform': '"Windows"',
+    'sec-ch-ua-platform-version': '"10.0.0"',
     'sec-fetch-dest': 'empty',
     'sec-fetch-mode': 'cors',
     'sec-fetch-site': 'same-origin',
-    'user-agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36',
+    'sec-gpc': '1',
+    'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36',
+    'cookie': 'datr=GAgjaB5R_liEM-dpATRTgjMj; ig_did=114B8FDB-7673-4860-A1D8-E88C655B9DD8; dpr=0.8999999761581421; ig_nrcb=1; ps_l=1; ps_n=1; mid=aDaRiAALAAFk8TVh8AGAIMVtWO_F; csrftoken=Pf0Us3q173jfLfTXAurrhCD8uY5KpFlf; ds_user_id=5545662104; sessionid=5545662104%3ATSmn4hQ082l5P1%3A2%3AAYdHSaNBx20fZ845bJCugBgkJUma3TckTlONXimRcw; rur="CCO\\0545545662104\\0541780721438:01fec0abacd78f29d5feb9da71aa1e6f6b6222122e6686c4e1957ceb3f35e2e1705ce8fd"; wd=1160x865',
         }
         params = {
             'appid': 'com.bloks.www.ig.about_this_account',
@@ -433,26 +436,26 @@ def fetch_instagram_info(username):
             '__d': 'www',
     '__user': '0',
     '__a': '1',
-    '__req': '1j',
-    '__hs': '20244.HYP:instagram_web_pkg.2.1...0',
-    'dpr': '3',
-    '__ccg': 'GOOD',
-    '__rev': '1023525661',
-    '__s': '064lel:tdy8yr:w22061',
-    '__hsi': '7512484284550719409',
+    '__req': '15',
+    '__hs': '20245.HYP:instagram_web_pkg.2.1...0',
+    'dpr': '1',
+    '__ccg': 'EXCELLENT',
+    '__rev': '1023555608',
+    '__s': 'lctubq:aedh80:9l3naw',
+    '__hsi': '7512694227045913317',
     '__dyn': '7xeUjG1mxu1syUbFp41twWwIxu13wvoKewSAwHwNw9G2S7o2vwa24o0B-q1ew6ywaq0yE462mcw5Mx62G5UswoEcE7O2l0Fwqo31w9O1TwQzXwae4UaEW2G0AEco5G1Wxfxm16wUwtE1wEbUGdG1QwTU9UaQ0Lo6-3u2WE5B08-269wr86C1mgcEed6goK2O4Xxui2K7E5y4UrwHwcObyohw4rxO2Cq',
-    '__csr': 'gggnNI889gH5l2_kykArOPQRbkV6glqahZazivBP4JGiKS4k9BDhazdaTbVvqzF5J4ydddZkLAUylGOahKqih5m9UCjhqyQ9GciFeKnm4uKjAA-nhJ6UlwL_gjDiChWAKm8G8Z6KiKcmax28yEkK8p8PGHBzoJ12b-9yAh6gS6kaUO3y-dCxScUGfBxC00lgF0rywamveLzk4Ro9EmwjE8Q1gwaave1mK3e3VDg7-5d04pCgmw3NU0gAw35A9g8O0fu0C41hpi6wMypQaP1m1Ag5C18wJh31209pEE2DhpUG10o1di4Dx60dRw081G08lwfy030q',
-    '__hsdp': 'geXh1i9O_5hIlvNfUxHMJm558NcLeNc3tljI8hcYyi9hj9ljCK54d7F2iIE6Qky1HBwpUzocaxu13zi7Qaz4bomjwHxaqfzbyU98N1oUvxO223e2CUkwWwLxC2u0xUpyU98-qfw4mxd0mE1xo2gwby0Jo881XAdw9S0gm3iu1ew860N40N85OOo3-woC2i221mzVEtwyy82uyoO1dxDc9y84q',
-    '__hblp': '1a18g563i4Uxa15wv-qu2lopwcu6bxyq48HGEvxim3N7zEa8txeidwyCBwBx95yp4cKbByokyo4278G5Eny8hx7xnUCamUaVXDyEogowyAU25xCby8oGfCzUswdem7uEggO1dw4_zEdE2gwby2K0wpu220u2dgS3G3K5UWu0UEqwQDwgoO0wo5G1Fg34wnb9wppo4e1ewKUhxZwAxadK7od8-qUpwj8gwxwXzECcyU46i4bP248UWE-2a',
+    '__csr': 'jgan91x5T2Bp0yzhcZsBjn_qahnki89kyH8BREDhrGUOGtSbBAgCQ4p4Z6WF2fRDAHQiGBWleKBnAAF4hrzHnKGCWVSmkwXVFohBWKbiLG8-9BGGDoCcKBxO9zqiyFy7mEhAgKpyrGiQegiyU9rjAWQiUKdwJUKnKp4gW-3yt3EyEaoC48y2C6801kTQ1jy8Gl0cW4OwSzo4W3Gt0DVYU6y38WFo2VDyJ1ObK1FDQ1HyFA0UQ0fbw3_E0Fbo6Z2k7o1f83OCwFwskqt2F20aB4eEKl36npE0HEM94muawgm0jh6DgG0dZw085m08kw5Nw0LGw',
+    '__hsdp': 'geXp1lWkIJhYpvN54Gj3wSzhEwShp0ekB8ci9NcP4QAOO0zC7ykimkq1CkgqbzF8vwm6vwrEa4owy9CxudoV5xOhe48gG4E4N10g2G2O7UG2yawhu1vAyFUcuUbE563l1d3FU16o4m2V3U16U-0bowbi1og4S1HwcK4E4S1mwu82Axq0Ky0Exx0uo5-0x85W3i484Z0i8y0x8c84Q-4oy3i',
+    '__hblp': '4zE4y3O1fgC9wiU7efxGiaKFUkwko7CFE8UyqeCAHwEDxm3WEnUiwNxal0VKUih94Ugx2KbAwjVVpUK7EG26u5oOES5aCK5UCm7vwQwEzVV8vAUK2W1hwRgjgWu1Uwa2226ozwIQfxa0grzU6K1XxC7U1rU4q0J85x0RyoS13xi9Gm0yo464E4S17zE885u0F8mwbExo8Eog7Cu2-dxemU7ibwywXDwIx2q27xy8F0g88E5G9zoc89EsyjUWEyewBw',
     '__comet_req': '7',
-    'fb_dtsg': 'NAfsisCCpyMz9VSd0k1ElDN4vEqupQxBlZgHf-lLSOyXtHfBN07pyVg:17865379441060568:1749131910',
-    'jazoest': '26409',
-    'lsd': 'gUOB48G9KjrTABQmCPWH5t',
-    '__spin_r': '1023525661',
+    'fb_dtsg': 'NAftakOGNZTeuXFvCvlMnE009R_FA_exIa-FIt17Q7yMlYlt8t8FYZA:17843671327157124:1748946019',
+    'jazoest': '26196',
+    'lsd': 'nBC_SbrTDEE-0Osm5JQYsd',
+    '__spin_r': '1023555608',
     '__spin_b': 'trunk',
-    '__spin_t': '1749136551',
+    '__spin_t': '1749185431',
     '__crn': 'comet.igweb.PolarisProfilePostsTabRoute',
-   'params': f'{{"referer_type":"ProfileMore","target_user_id":{user_id} }}',
+    'params': f'{{"referer_type":"ProfileMore","target_user_id":{user_id} }}',
         }
 
         response = requests.post(
@@ -493,24 +496,18 @@ def fetch_instagram_info(username):
 
             if username[0].lower() == first_visible.lower() and username[-1].lower() == last_visible.lower():
                 if "gmail" in domain:
-                    if gmail_result is None:
-                        reset_check = "❌ Unable to check Gmail"
-                    elif gmail_result.get("available"):
-                        reset_check = "Gmail is ✅ Available"
-                    else:
-                        reset_check = "Gmail is ❌ Taken"
-                elif "a**" in domain:
-                    reset_check = f"AOL is {(result)}"
-                else:
-                    reset_check = "Unknown domain"
-            else:
-                reset_check = "🔐 Reset is different"
-
+                    if gmail_result is None:reset_check = "❌ Unable to check Gmail"
+                    elif gmail_result.get("available"):reset_check = "Gmail is ✅ Available"
+                    else:reset_check = "Gmail is ❌ Taken"
+                elif "a**" and "aol" in domain:reset_check = f"AOL is {(result)}"
+                else:reset_check = "Unknown domain"
+            else:reset_check = "🔐 Reset is different"
         result_msg = f"""
 ══════════════════════════════        
 🌟 𝗜ɢ 𝗙ᴇᴛᴄʜᴇʀ 𝗙ʀᴏᴍ <b>ᎮᗯᑎᗩGƐ | Ѵᴏʀᴛᴇx •</b> 🌟
 ══════════════════════════════
 ✨ <b>{'Username'.ljust(23)}</b> ➟ <code>{profile.username}</code>
+📡  <b>{'Name'.ljust(23)}</b> ➟ <code>{profile.full_name or 'N/A'}</code>
 🆔 <b>{'User ID'.ljust(23)}</b> ➟ <code>{profile.userid}</code>
 🔗 <b>{'Profile Link'.ljust(23)}</b> ➟ <a href="https://www.instagram.com/{profile.username}">Click Here</a>
 📊 <b>{'Followers'.ljust(23)}</b> ➟ <b>{profile.followers}</b>
@@ -536,7 +533,7 @@ def fetch_instagram_info(username):
         return result_msg
 
     except Exception as e:
-        return f"USERNAME NOT FOUND OR API ERROR PLEASE CONTACT THE OWNER FOR FURTHER INFORMATION"
+        return f"ERROR Failed to fetch info for {username}. Reason: {str(e)}"
 import time
 import re
 from telegram import Update, ChatAction
