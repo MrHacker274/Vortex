@@ -339,16 +339,18 @@ from telegram.ext import Updater, CommandHandler, CallbackContext
 logging.basicConfig(level=logging.INFO)
 
 def send_recovery_request(email_or_username):
-    results = []
-    for method in [method_1, method_2, method_3, method_4, method_5, method_6, method_7]:
+    methods = [method_1, method_2, method_3, method_4, method_5, method_6, method_7]
+
+    for method in methods:
         try:
             result = method(email_or_username)
             if result not in ["No Reset", "Failed", "Error"]:
-                results.append(result)
-                break
-        except Exception as e:
+                return [result]
+        except:
             continue
-    return results if results else ["No Reset"]
+
+    return ["No Reset"]
+
 
 def method_1(email_or_username):
     try:
