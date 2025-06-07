@@ -639,7 +639,8 @@ def fetch_instagram_info(username):
                 results["Former usernames"] = texts[i + 1]
         country = re.search(r'"initial"\s*:\s*"([^"]+)"', response.text)
         country = country.group(1) if country else "N/A"
-        reset_email = send_recovery_request(username)
+        result = send_recovery_request(username)
+        reset_email = result[0].replace("Email: ", "").replace("Phone: ", "").strip() if result and result[0] not in ["No Reset", "Failed", "Error"] else "Not Found"
         result = check_aol_username(username)
         gmail_checker = Gm(username)
         gmail_result = gmail_checker.check()
