@@ -682,7 +682,7 @@ def gmail(update, context):
             f"Username *{username}@gmail.com* is {availability}",
             parse_mode='Markdown'
         )
- def reset_command(update: Update, context: CallbackContext):
+def reset_command(update: Update, context: CallbackContext):
     if not context.args:
         update.message.reply_text("⚠️ Please provide a username.\nUsage: /reset <instagram_username>")
         return
