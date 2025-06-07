@@ -672,6 +672,7 @@ def fetch_instagram_info(username):
 📡  <b>{'Name'.ljust(23)}</b> ➟ <code>{profile.full_name or 'N/A'}</code>
 🆔 <b>{'User ID'.ljust(23)}</b> ➟ <code>{profile.userid}</code>
 🔗 <b>{'Profile Link'.ljust(23)}</b> ➟ <a href="https://www.instagram.com/{profile.username}">Click Here</a>
+👤 <b>{'Profile Picture'.ljust(23)}</b> ➟ <a href="{profile.profile_pic_url}">📷 View</a>
 📊 <b>{'Followers'.ljust(23)}</b> ➟ <b>{profile.followers}</b>
 🔄 <b>{'Following'.ljust(23)}</b> ➟ <b>{profile.followees}</b>
 📸 <b>{'Total Posts'.ljust(23)}</b> ➟ <b>{profile.mediacount}</b>
