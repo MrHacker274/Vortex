@@ -660,7 +660,10 @@ def fetch_instagram_info(username):
                     if gmail_result is None:reset_check = "❌ Unable to check Gmail"
                     elif gmail_result.get("available"):reset_check = "Gmail is ✅ Available"
                     else:reset_check = "Gmail is ❌ Taken"
-                elif "a**" in domain:reset_check = f"AOL is {(result)}"
+                elif "a**" in domain or "aol" in domain.lower():
+                    reset_check = f"AOL is {(result)}"
+                elif domain.startswith("+") or any(c.isdigit() for c in domain):
+                    reset_check = "📱 Reset is Phone Number"
                 else:reset_check = "Unknown domain"
             else:reset_check = "🔐 Reset is different"
         result_msg = f"""
