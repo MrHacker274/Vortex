@@ -504,67 +504,6 @@ def method_7(email_or_username):
         return "Failed"
     except:
         return "Error"
-# Cooldown tracker
-user_last_used = {}
-COMMAND_COOLDOWN = 25
-
-def escape_markdown(text):
-    return re.sub(r'([_*\[\]()~`>#+\-=|{}.!\\])', r'\\\1', text)
-
-def reset_command(update: Update, context: CallbackContext):
-    user_id = update.effective_user.id
-    now = time.time()
-
-    # Cooldown check
-    if user_id in user_last_used and now - user_last_used[user_id] < COMMAND_COOLDOWN:
-        wait_time = int(COMMAND_COOLDOWN - (now - user_last_used[user_id]))
-        update.message.reply_text(f"⏳ Please wait {wait_time}s before using /reset again.")
-        return
-    user_last_used[user_id] = now
-
-    if not context.args:
-        update.message.reply_text("⚠️ Please provide a username.\nUsage: /reset <instagram_username>")
-        return
-
-    email_or_username = context.args[0].strip().lstrip("@")
-    if not re.match(r'^[a-zA-Z0-9._]{1,30}$', email_or_username):
-        update.message.reply_text("❌ Invalid username format. Only letters, numbers, dots, and underscores allowed.")
-        return
-
-    context.bot.send_chat_action(chat_id=update.effective_chat.id, action=ChatAction.TYPING)
-    time.sleep(10)  # Optional delay
-
-    contact_points = send_recovery_request(email_or_username)
-    contact_raw = contact_points[0] if contact_points else "No Reset"
-
-    username_md = escape_markdown(email_or_username)
-
-    if "@" in contact_raw:
-        contact_point = contact_raw.replace("Email: ", "").strip()
-        recovery_method = "Email"
-        status = "✅ Success"
-    elif re.search(r'\d', contact_raw):
-        contact_point = contact_raw.replace("Phone: ", "").strip()
-        recovery_method = "Phone"
-        status = "✅ Success"
-    elif contact_raw == "No Reset":
-        contact_point = "Not Found"
-        recovery_method = "Unavailable"
-        status = "❌ Failed"
-    else:
-        contact_point = contact_raw
-        recovery_method = "Unknown"
-        status = "⚠️ Unknown"
-
-    message = (
-        f"🔄 *Instagram Reset Info*\n"
-        f"👤 *Username:* `{username_md}`\n"
-        f"📌 *Status:* `{status}`\n"
-        f"📬 *Contact Point:* `{escape_markdown(contact_point)}`\n"
-        f"🛠️ *Recovery Method:* `{recovery_method}`"
-    )
-
-    update.message.reply_text(message, parse_mode="MarkdownV2")
 
 def fetch_instagram_info(username):
     try:
@@ -743,7 +682,42 @@ def gmail(update, context):
             f"Username *{username}@gmail.com* is {availability}",
             parse_mode='Markdown'
         )
- 
+ def reset_command(update: Update, context: CallbackContext):
+    if not context.args:
+        update.message.reply_text("⚠️ Please provide a username.\nUsage: /reset <instagram_username>")
+        return
+
+    username = context.args[0].strip().lstrip("@")
+    result = send_recovery_request(username)
+
+    if not result or result[0] in ["No Reset", "Failed", "Error"]:
+        reset_email = "❌ Not Found"
+        recovery_type = "Unavailable"
+        status = "❌ Failed"
+    else:
+        raw = result[0]
+        if "Email:" in raw:
+            reset_email = raw.replace("Email: ", "").strip()
+            recovery_type = "📧 Email"
+        elif "Phone:" in raw:
+            reset_email = raw.replace("Phone: ", "").strip()
+            recovery_type = "📱 Phone"
+        else:
+            reset_email = raw.strip()
+            recovery_type = "ℹ️ Unknown"
+
+        status = "✅ Success"
+
+    message = (
+        f"🔁 *Instagram Reset Info*\n"
+        f"👤 *Username:* `{username}`\n"
+        f"📌 *Status:* `{status}`\n"
+        f"📬 *Contact Point:* `{reset_email}`\n"
+        f"🛠️ *Recovery Method:* `{recovery_type}`"
+    )
+
+    update.message.reply_text(message, parse_mode="MarkdownV2")
+
 def main():
     updater = Updater(TELEGRAM_BOT_TOKEN, use_context=True)
     dp = updater.dispatcher
