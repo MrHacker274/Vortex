@@ -330,51 +330,238 @@ class Gm:
 
         except:
             return None
+import logging
+import requests
+import json
+import re
+from uuid import uuid4
+from secrets import token_hex
+from telegram import Update, Bot
+from telegram.ext import Updater, CommandHandler, CallbackContext
+logging.basicConfig(level=logging.INFO)
 
-ua = UserAgent()
 def send_recovery_request(email_or_username):
-    cookies = {
-        'csrftoken': 'gpexs0wL6nxpdY955MzDDX',
-        'datr': '_s3HZ5T-vg2PnLjgub9fdKw4',
-        'ig_did': '6D20CB61-D866-4513-8735-F6E4488FF4BB',
-        'mid': 'Z8fOAAABAAHq9LOzjjUU7ImwpR_6',
-        'ig_nrcb': '1',
-        'dpr': '2.1988937854766846',
-        'ps_l': '1',
-        'ps_n': '1',
-        'wd': '891x896',
-    }
-    headers = {
-        'authority': 'www.instagram.com',
-        'accept': '*/*',
-        'content-type': 'application/x-www-form-urlencoded',
-        'origin': 'https://www.instagram.com',
-        'referer': 'https://www.instagram.com/accounts/password/reset/?hl=ar',
-        'user-agent': ua.random,
-        'x-csrftoken': 'gpexs0wL6nxpdY955MzDDX',
-        'x-ig-app-id': '936619743392459',
-        'x-requested-with': 'XMLHttpRequest',
-    }
-    data = {
-        'email_or_username': email_or_username,
-        'jazoest': '21965',
-    }
+    results = []
+    for method in [method_1, method_2, method_3, method_4, method_5, method_6, method_7]:
+        try:
+            result = method(email_or_username)
+            if result not in ["No Reset", "Failed", "Error"]:
+                results.append(result)
+                break
+        except Exception as e:
+            continue
+    return results if results else ["No Reset"]
+
+def method_1(email_or_username):
     try:
-        response = requests.post(
-            'https://www.instagram.com/api/v1/web/accounts/account_recovery_send_ajax/',
-            cookies=cookies,
-            headers=headers,
-            data=data,
-        )
-        if response.status_code == 200:
-            response_json = response.json()
-            return response_json.get("contact_point", "No Reset")
-        else:
-            return "No Reset"
-    except json.JSONDecodeError:
+        headers = {
+            'authority': 'www.instagram.com',
+            'accept': '*/*',
+            'content-type': 'application/x-www-form-urlencoded',
+            'origin': 'https://www.instagram.com',
+            'referer': 'https://www.instagram.com/accounts/password/reset/?hl=ar',
+            'user-agent': 'Mozilla/5.0',
+            'x-csrftoken': 'gpexs0wL6nxpdY955MzDDX',
+            'x-ig-app-id': '936619743392459',
+            'x-requested-with': 'XMLHttpRequest',
+        }
+        data = {'email_or_username': email_or_username, 'jazoest': '21965'}
+        res = requests.post('https://www.instagram.com/api/v1/web/accounts/account_recovery_send_ajax/', headers=headers, data=data)
+        if res.status_code == 200:
+            contact = res.json().get("contact_point")
+            if contact:
+                if "@" in contact:
+                    return f"Email: {contact}"
+                return f"Phone: {contact}"
         return "No Reset"
-    except requests.RequestException:
+    except:
         return "No Reset"
+
+def method_2(email_or_username):
+    try:
+        headers = {
+            'Referer': 'https://www.instagram.com/accounts/password/reset/',
+            'X-CSRFToken': 'csrftoken',
+            'User-Agent': 'Mozilla/5.0'
+        }
+        data = {'email_or_username': email_or_username, 'recaptcha_challenge_field': ''}
+        res = requests.post('https://www.instagram.com/accounts/account_recovery_send_ajax/', headers=headers, data=data)
+        if res.status_code == 200:
+            match = re.search('<b>(.*?)</b>', res.text)
+            return f"Contact: {match.group(1)}" if match else 'Unknown'
+        return 'Failed'
+    except:
+        return 'Error'
+
+def method_3(email_or_username):
+    try:
+        headers = {
+            'accept': '*/*',
+            'referer': 'https://www.instagram.com/accounts/password/reset/?source=fxcal&hl=en',
+            'content-type': 'application/x-www-form-urlencoded',
+            'x-csrftoken': 'umwHlWf6r3AGDowkZQb47m',
+            'x-ig-app-id': '936619743392459'
+        }
+        data = {'email_or_username': email_or_username, 'flow': 'fxcal'}
+        res = requests.post('https://www.instagram.com/api/v1/web/accounts/account_recovery_send_ajax/', headers=headers, data=data)
+        result = res.json()
+        return f"{result.get('message')}" if result.get("status") == "ok" else "Failed"
+    except:
+        return "Error"
+
+def method_4(email_or_username):
+    try:
+        headers = {
+            'User-Agent': 'Instagram 6.12.1 Android',
+            'Cookie': 'csrftoken=u6c8M4zaneeZBfR5scLVY43lYSIoUhxL'
+        }
+        res = requests.get(f"https://www.instagram.com/api/v1/users/web_profile_info/?username={email_or_username}", headers=headers)
+        user_id = res.json()['data']['user']['id']
+        payload = {'user_id': user_id, 'device_id': str(uuid4())}
+        res2 = requests.post('https://i.instagram.com/api/v1/accounts/send_password_reset/', headers=headers, data=payload)
+        contact = res2.json().get('obfuscated_email')
+        return f"Email: {contact}" if contact else 'No Reset'
+    except:
+        return 'Failed'
+
+def method_5(email_or_username):
+    try:
+        headers = {
+            'User-Agent': 'Instagram 100.0.0.17.129 Android',
+            'X-Bloks-Version-Id': 'c80c5fb30dfae9e273e4009f03b18280bb343b0862d663f31a3c63f13a9f31c0',
+            'X-IG-App-ID': '567067343352427',
+            'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
+        }
+        body = json.dumps({
+            "_csrftoken": "9y3N5kLqzialQA7z96AMiyAKLMBWpqVj",
+            "adid": str(uuid4()),
+            "guid": str(uuid4()),
+            "device_id": "android-b93ddb37e983481c",
+            "query": email_or_username
+        })
+        data = {
+            'signed_body': f'0d067c2f86cac2c17d655631c9cec2402012fb0a329bcafb3b1f4c0bb56b1f1f.{body}',
+            'ig_sig_key_version': '4',
+        }
+        res = requests.post('https://i.instagram.com/api/v1/accounts/send_recovery_flow_email/', headers=headers, data=data)
+        contact = res.json().get("email")
+        return f"Email: {contact}" if contact else "No Reset"
+    except:
+        return 'Error'
+
+def method_6(email_or_username):
+    try:
+        headers = {
+            'User-Agent': 'Instagram 100.0.0.17.129 Android',
+            'X-Bloks-Version-Id': '009f03b18280bb343b0862d663f31ac80c5fb30dfae9e273e43c63f13a9f31c0',
+            'X-IG-App-ID': '567067343352427',
+            'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
+        }
+        signed_data = json.dumps({
+            "_csrftoken": token_hex(8) * 2,
+            "adid": str(uuid4()),
+            "guid": str(uuid4()),
+            "device_id": f"android-{uuid4().hex[:16]}",
+            "query": email_or_username
+        })
+        data = {
+            "signed_body": f"sig.{signed_data}",
+            "ig_sig_key_version": "4"
+        }
+        res = requests.post('https://i.instagram.com/api/v1/accounts/send_recovery_flow_email/', headers=headers, data=data)
+        contact = res.json().get("email")
+        return f"Email: {contact}" if contact else "No Reset"
+    except:
+        return "Error"
+
+def method_7(email_or_username):
+    try:
+        for num in range(1, 4):
+            headers = {
+                'authority': 'www.instagram.com',
+                'accept': '*/*',
+                'content-type': 'application/x-www-form-urlencoded',
+                'origin': 'https://www.instagram.com',
+                'referer': 'https://www.instagram.com/accounts/password/reset/',
+                'user-agent': 'Mozilla/5.0 (Linux; Android 10)',
+                'x-asbd-id': '129477',
+                'x-csrftoken': 'missing',
+                'x-ig-app-id': '936619743392459',
+                'x-requested-with': 'XMLHttpRequest',
+            }
+            data = {'email_or_username': email_or_username, 'jazoest': '22210'}
+            res = requests.post("https://www.instagram.com/api/v1/web/accounts/account_recovery_send_ajax/", headers=headers, data=data).text
+            if '"status":"ok"' in res:
+                if 'contact_point' in res:
+                    contact = res.split('"contact_point":"')[1].split('"')[0]
+                    if "@" in contact:
+                        return f"Email: {contact}"
+                    return f"Phone: {contact}"
+                return "Not visible"
+        return "Failed"
+    except:
+        return "Error"
+# Cooldown tracker
+user_last_used = {}
+COMMAND_COOLDOWN = 25
+
+def escape_markdown(text):
+    return re.sub(r'([_*\[\]()~`>#+\-=|{}.!\\])', r'\\\1', text)
+
+def reset_command(update: Update, context: CallbackContext):
+    user_id = update.effective_user.id
+    now = time.time()
+
+    # Cooldown check
+    if user_id in user_last_used and now - user_last_used[user_id] < COMMAND_COOLDOWN:
+        wait_time = int(COMMAND_COOLDOWN - (now - user_last_used[user_id]))
+        update.message.reply_text(f"⏳ Please wait {wait_time}s before using /reset again.")
+        return
+    user_last_used[user_id] = now
+
+    if not context.args:
+        update.message.reply_text("⚠️ Please provide a username.\nUsage: /reset <instagram_username>")
+        return
+
+    email_or_username = context.args[0].strip().lstrip("@")
+    if not re.match(r'^[a-zA-Z0-9._]{1,30}$', email_or_username):
+        update.message.reply_text("❌ Invalid username format. Only letters, numbers, dots, and underscores allowed.")
+        return
+
+    context.bot.send_chat_action(chat_id=update.effective_chat.id, action=ChatAction.TYPING)
+    time.sleep(10)  # Optional delay
+
+    contact_points = send_recovery_request(email_or_username)
+    contact_raw = contact_points[0] if contact_points else "No Reset"
+
+    username_md = escape_markdown(email_or_username)
+
+    if "@" in contact_raw:
+        contact_point = contact_raw.replace("Email: ", "").strip()
+        recovery_method = "Email"
+        status = "✅ Success"
+    elif re.search(r'\d', contact_raw):
+        contact_point = contact_raw.replace("Phone: ", "").strip()
+        recovery_method = "Phone"
+        status = "✅ Success"
+    elif contact_raw == "No Reset":
+        contact_point = "Not Found"
+        recovery_method = "Unavailable"
+        status = "❌ Failed"
+    else:
+        contact_point = contact_raw
+        recovery_method = "Unknown"
+        status = "⚠️ Unknown"
+
+    message = (
+        f"🔄 *Instagram Reset Info*\n"
+        f"👤 *Username:* `{username_md}`\n"
+        f"📌 *Status:* `{status}`\n"
+        f"📬 *Contact Point:* `{escape_markdown(contact_point)}`\n"
+        f"🛠️ *Recovery Method:* `{recovery_method}`"
+    )
+
+    update.message.reply_text(message, parse_mode="MarkdownV2")
 
 def fetch_instagram_info(username):
     try:
@@ -502,64 +689,6 @@ def fetch_instagram_info(username):
 
     except Exception as e:
         return f"ERROR Failed to fetch info for {username}. Reason: {str(e)}"
-import time
-import re
-from telegram import Update, ChatAction
-from telegram.ext import CallbackContext
-
-# Cooldown tracker
-user_last_used = {}
-COMMAND_COOLDOWN = 25
-
-def escape_markdown(text):
-    return re.sub(r'([_*\[\]()~`>#+\-=|{}.!\\])', r'\\\1', text)
-
-def reset_command(update: Update, context: CallbackContext):
-    user_id = update.effective_user.id
-    now = time.time()
-
-    # Cooldown check
-    if user_id in user_last_used and now - user_last_used[user_id] < COMMAND_COOLDOWN:
-        wait_time = int(COMMAND_COOLDOWN - (now - user_last_used[user_id]))
-        update.message.reply_text(f"⏳ Please wait {wait_time}s before using /reset again.")
-        return
-    user_last_used[user_id] = now
-
-    if not context.args:
-        update.message.reply_text("⚠️ Please provide a username.\nUsage: /reset <instagram_username>")
-        return
-
-    username = context.args[0].strip().lstrip("@")
-    if not re.match(r'^[a-zA-Z0-9._]{1,30}$', username):
-        update.message.reply_text("❌ Invalid username format. Only letters, numbers, dots, and underscores allowed.")
-        return
-
-    context.bot.send_chat_action(chat_id=update.effective_chat.id, action=ChatAction.TYPING)
-
-    time.sleep(10)  # 10-second delay
-
-    contact_point = send_recovery_request(username)
-
-    username_md = escape_markdown(username)
-    if contact_point and contact_point != "No Reset":
-        recovery_method = "Email" if "@" in contact_point else "Phone"
-        status = "✅ Success"
-    else:
-        contact_point = "Not Found"
-        recovery_method = "Unavailable"
-        status = "❌ Failed"
-
-    message = (
-        f"🔄 *Instagram Reset Info*\n"
-        f"👤 *Username:* `{username_md}`\n"
-        f"📌 *Status:* `{status}`\n"
-        f"📬 *Contact Point:* `{contact_point}`\n"
-        f"🛠️ *Recovery Method:* `{recovery_method}`"
-    )
-
-    update.message.reply_text(message, parse_mode="MarkdownV2")
-
-
 def aol(update, context):
     if not context.args:
         update.message.reply_text(
@@ -608,7 +737,6 @@ def gmail(update, context):
 def main():
     updater = Updater(TELEGRAM_BOT_TOKEN, use_context=True)
     dp = updater.dispatcher
-
     dp.add_handler(CommandHandler("start", start))
     dp.add_handler(CommandHandler("help", help_command))
     dp.add_handler(CommandHandler("reset", reset_command))
@@ -616,10 +744,8 @@ def main():
     dp.add_handler(CommandHandler("aol", aol))
     dp.add_handler(CommandHandler("gmail", gmail))
     dp.add_handler(MessageHandler(Filters.text & ~Filters.command, handle_info_command))
-
-    print("🤖 Bot is running...")
+    print("🤖 Bot is running...ENJOY")
     updater.start_polling()
     updater.idle()
-
 if __name__ == "__main__":
     main()
