@@ -405,7 +405,12 @@ def method_3(email_or_username):
         data = {'email_or_username': email_or_username, 'flow': 'fxcal'}
         res = requests.post('https://www.instagram.com/api/v1/web/accounts/account_recovery_send_ajax/', headers=headers, data=data)
         result = res.json()
-        return f"{result.get('message')}" if result.get("status") == "ok" else "Failed"
+        message = result.get('message', '')
+        if result.get("status") == "ok":
+            # Extract just the number using regex
+            match = re.search(r'(\+\d[\d\s\-\*]+)', message)
+            return match.group(1).strip() if match else message
+        return "Failed"
     except:
         return "Error"
 
