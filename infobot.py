@@ -647,6 +647,8 @@ def fetch_instagram_info(username):
         result = check_aol_username(username)
         gmail_checker = Gm(username)
         gmail_result = gmail_checker.check()
+        has_pic = "Yes" if profile.profile_pic_url else "No"
+        pic_view = f'<a href="{profile.profile_pic_url}">📷 View</a>' if profile.profile_pic_url else ''
         reset_check = "🔐 Reset not available"  # default value
         if reset_email and "@" in reset_email and username:
             visible = reset_email.split("@")[0]
@@ -672,7 +674,7 @@ def fetch_instagram_info(username):
 📡  <b>{'Name'.ljust(23)}</b> ➟ <code>{profile.full_name or 'N/A'}</code>
 🆔 <b>{'User ID'.ljust(23)}</b> ➟ <code>{profile.userid}</code>
 🔗 <b>{'Profile Link'.ljust(23)}</b> ➟ <a href="https://www.instagram.com/{profile.username}">Click Here</a>
-👤 <b>{'Profile Picture'.ljust(23)}</b> ➟ <a href="{profile.profile_pic_url}">📷 View</a>
+👤 <b>{'Profile Picture'.ljust(23)}</b> ➟ <b>{has_pic}</b> {pic_view}
 📊 <b>{'Followers'.ljust(23)}</b> ➟ <b>{profile.followers}</b>
 🔄 <b>{'Following'.ljust(23)}</b> ➟ <b>{profile.followees}</b>
 📸 <b>{'Total Posts'.ljust(23)}</b> ➟ <b>{profile.mediacount}</b>
