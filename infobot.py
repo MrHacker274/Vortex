@@ -451,7 +451,7 @@ def send_recovery_request(email_or_username):
             result = method(email_or_username)
             if result not in ["No Reset", "Failed", "Error"]:
                 print(f"[✅] {name} succeeded: {result}")
-                return [f"{result})"]
+                return [f"{result}"]
             else:
                 print(f"[❌] {name} returned: {result}")
         except Exception as e:
