@@ -667,7 +667,7 @@ def fetch_instagram_info(username):
     'content-type': 'application/x-www-form-urlencoded;charset=UTF-8',
     # 'cookie': 'datr=f8Y6aLcIj6142U1O_fT3iuqu; ig_did=E67A15CE-C690-4C49-95C3-0A78681C907B; mid=aDrGfwABAAE5QO1YTXQAEyIiCJN_; ig_nrcb=1; ps_l=1; ps_n=1; csrftoken=7m1nZgERN9d2hM465W0wDv05vPxqullE; ds_user_id=3542169352; dpr=2.698957920074463; wd=400x770; sessionid=3542169352%3AX3uE2n9Zx7SVUF%3A6%3AAYdZg8AzoCK5nkoMue4vysqzuCQ52kIu7S1QkIKD6g; rur="EAG\\0543542169352\\0541781017764:01fe5aaacce202cd5cee2696d861b563fab740cfb09c0a3ed1762409aefbcf429c81277e"',
     'origin': 'https://www.instagram.com',
-    'referer': 'https://www.instagram.com/zuck/',
+    'referer': f'https://www.instagram.com/{username}/',
     'sec-ch-prefers-color-scheme': 'dark',
     'sec-ch-ua': '"Chromium";v="137", "Not/A)Brand";v="24"',
     'sec-ch-ua-full-version-list': '"Chromium";v="137.0.7337.0", "Not/A)Brand";v="24.0.0.0"',
