@@ -350,8 +350,6 @@ def send_recovery_request(email_or_username):
             continue
 
     return ["No Reset"]
-
-
 def method_1(email_or_username):
     try:
         headers = {
@@ -370,12 +368,10 @@ def method_1(email_or_username):
         if res.status_code == 200:
             contact = res.json().get("contact_point")
             if contact:
-                if "@" in contact:
-                    return f"Email: {contact}"
-                return f"Phone: {contact}"
+                return f"Email: {contact}" if "@" in contact else f"Phone: {contact}"
         return "No Reset"
     except:
-        return "No Reset"
+        return "Error"
 
 def method_2(email_or_username):
     try:
@@ -388,10 +384,12 @@ def method_2(email_or_username):
         res = requests.post('https://www.instagram.com/accounts/account_recovery_send_ajax/', headers=headers, data=data)
         if res.status_code == 200:
             match = re.search('<b>(.*?)</b>', res.text)
-            return f"Contact: {match.group(1)}" if match else 'Unknown'
-        return 'Failed'
+            contact = match.group(1) if match else None
+            if contact:
+                return f"Email: {contact}" if "@" in contact else f"Phone: {contact}"
+        return "No Reset"
     except:
-        return 'Error'
+        return "Error"
 
 def method_3(email_or_username):
     try:
@@ -404,13 +402,14 @@ def method_3(email_or_username):
         }
         data = {'email_or_username': email_or_username, 'flow': 'fxcal'}
         res = requests.post('https://www.instagram.com/api/v1/web/accounts/account_recovery_send_ajax/', headers=headers, data=data)
-        result = res.json()
-        message = result.get('message', '')
-        if result.get("status") == "ok":
-            # Extract just the number using regex
-            match = re.search(r'(\+\d[\d\s\-\*]+)', message)
-            return match.group(1).strip() if match else message
-        return "Failed"
+        if res.status_code == 200:
+            result = res.json()
+            message = result.get('message', '')
+            match = re.search(r'(\+\d[\d\s\-\*]+|[\w\.\*]+@[\w\.\*]+)', message)
+            if match:
+                contact = match.group(1).strip()
+                return f"Email: {contact}" if "@" in contact else f"Phone: {contact}"
+        return "No Reset"
     except:
         return "Error"
 
@@ -425,9 +424,11 @@ def method_4(email_or_username):
         payload = {'user_id': user_id, 'device_id': str(uuid4())}
         res2 = requests.post('https://i.instagram.com/api/v1/accounts/send_password_reset/', headers=headers, data=payload)
         contact = res2.json().get('obfuscated_email')
-        return f"Email: {contact}" if contact else 'No Reset'
+        if contact:
+            return f"Email: {contact}" if "@" in contact else f"Phone: {contact}"
+        return "No Reset"
     except:
-        return 'Failed'
+        return "Error"
 
 def method_5(email_or_username):
     try:
@@ -450,9 +451,11 @@ def method_5(email_or_username):
         }
         res = requests.post('https://i.instagram.com/api/v1/accounts/send_recovery_flow_email/', headers=headers, data=data)
         contact = res.json().get("email")
-        return f"Email: {contact}" if contact else "No Reset"
+        if contact:
+            return f"Email: {contact}"
+        return "No Reset"
     except:
-        return 'Error'
+        return "Error"
 
 def method_6(email_or_username):
     try:
@@ -475,13 +478,15 @@ def method_6(email_or_username):
         }
         res = requests.post('https://i.instagram.com/api/v1/accounts/send_recovery_flow_email/', headers=headers, data=data)
         contact = res.json().get("email")
-        return f"Email: {contact}" if contact else "No Reset"
+        if contact:
+            return f"Email: {contact}"
+        return "No Reset"
     except:
         return "Error"
 
 def method_7(email_or_username):
     try:
-        for num in range(1, 4):
+        for _ in range(3):
             headers = {
                 'authority': 'www.instagram.com',
                 'accept': '*/*',
@@ -496,16 +501,13 @@ def method_7(email_or_username):
             }
             data = {'email_or_username': email_or_username, 'jazoest': '22210'}
             res = requests.post("https://www.instagram.com/api/v1/web/accounts/account_recovery_send_ajax/", headers=headers, data=data).text
-            if '"status":"ok"' in res:
-                if 'contact_point' in res:
-                    contact = res.split('"contact_point":"')[1].split('"')[0]
-                    if "@" in contact:
-                        return f"Email: {contact}"
-                    return f"Phone: {contact}"
-                return "Not visible"
-        return "Failed"
+            if '"status":"ok"' in res and 'contact_point' in res:
+                contact = res.split('"contact_point":"')[1].split('"')[0]
+                return f"Email: {contact}" if "@" in contact else f"Phone: {contact}"
+        return "No Reset"
     except:
         return "Error"
+
 
 def fetch_instagram_info(username):
     try:
@@ -614,8 +616,6 @@ def fetch_instagram_info(username):
                     else:reset_check = "Gmail is ❌ Taken"
                 elif "a**" in domain or "aol" in domain.lower():
                     reset_check = f"AOL is {(result)}"
-                elif domain.startswith("+") or any(c.isdigit() for c in domain):
-                    reset_check = "📱 Reset is Phone Number"
                 else:reset_check = "Unknown domain"
             else:reset_check = "🔐 Reset is different"
         result_msg = f"""
@@ -704,19 +704,19 @@ def reset_command(update: Update, context: CallbackContext):
     result = send_recovery_request(username)
 
     if not result or result[0] in ["No Reset", "Failed", "Error"]:
-        reset_email = "❌ Not Found"
+        reset_contact = "❌ Not Found"
         recovery_type = "Unavailable"
         status = "❌ Failed"
     else:
         raw = result[0]
         if "Email:" in raw:
-            reset_email = raw.replace("Email: ", "").strip()
+            reset_contact = raw.replace("Email:", "").strip()
             recovery_type = "📧 Email"
         elif "Phone:" in raw:
-            reset_email = raw.replace("Phone: ", "").strip()
+            reset_contact = raw.replace("Phone:", "").strip()
             recovery_type = "📱 Phone"
         else:
-            reset_email = raw.strip()
+            reset_contact = raw.strip()
             recovery_type = "ℹ️ Unknown"
 
         status = "✅ Success"
@@ -725,11 +725,12 @@ def reset_command(update: Update, context: CallbackContext):
         f"🔁 *Instagram Reset Info*\n"
         f"👤 *Username:* `{username}`\n"
         f"📌 *Status:* `{status}`\n"
-        f"📬 *Contact Point:* `{reset_email}`\n"
+        f"📬 *Contact Point:* `{reset_contact}`\n"
         f"🛠️ *Recovery Method:* `{recovery_type}`"
     )
 
-    update.message.reply_text(message, parse_mode="MarkdownV2")
+    update.message.reply_text(message, parse_mode="Markdown")
+
 
 def main():
     updater = Updater(TELEGRAM_BOT_TOKEN, use_context=True)
