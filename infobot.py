@@ -59,33 +59,135 @@ def help_command(update: Update, context: CallbackContext):
         "Need help? Contact the dev:<a href=\"https://t.me/PrayagRajj\">ＰｒａｙａｇＲａｊｊ</a>"
     )
     update.message.reply_text(help_text, parse_mode=ParseMode.HTML)
-
-from telegram import Update, ChatAction, ParseMode, Message
-from telegram.ext import CallbackContext
+import csv
+import requests
 import time
 import re
-import requests
+from datetime import datetime
+from telegram import Update, ParseMode, ChatAction
+from telegram.ext import Updater, CommandHandler, CallbackContext
 
-OWNER_ID = 5851767478
+# === Configuration ===
+CSV_URL = "https://raw.githubusercontent.com/MrHacker274/Vortex/main/Member.csv"
+BOT_TOKEN = "7697054311:AAFfRUW-ImoGGB1weCB_j_Je0C2k05ywzaw"
+ADMIN_CHAT_ID = 5851767478
 user_last_used = {}
 
+# ===== Helper: Format Time Left =====
+def format_remaining_time(expiry_str, user=None):
+    now = datetime.now()
+    try:
+        expiry = datetime.strptime(expiry_str, "%Y-%m-%d %H:%M:%S")
+    except ValueError:
+        return "⚠️ Invalid expiry format."
+
+    full_name = f"{user.first_name or ''} {user.last_name or ''}".strip() if user else "Unknown"
+    user_info = (
+        f"🙍‍♂️ <b>Name:</b> {full_name}\n"
+        f"🆔 <b>User ID:</b> <code>{user.id}</code>\n"
+        f"🔗 <b>Profile:</b> {user.mention_html()}" if user else ""
+    )
+
+    if expiry <= now:
+        return (
+            f"❌ <b>Subscription Expired</b>\n"
+            f"⏰ <b>Expired On:</b> <code>{expiry_str}</code>\n\n{user_info}"
+        )
+
+    delta = expiry - now
+    days = delta.days
+    hours, rem = divmod(delta.seconds, 3600)
+    minutes, seconds = divmod(rem, 60)
+
+    time_parts = []
+    if days: time_parts.append(f"{days}d")
+    if hours: time_parts.append(f"{hours}h")
+    if minutes: time_parts.append(f"{minutes}m")
+    if seconds: time_parts.append(f"{seconds}s")
+
+    return (
+        f"✅ <b>Subscription Active</b>\n"
+        f"⏳ <b>Time Left:</b> {', '.join(time_parts)}\n"
+        f"📅 <b>Expires On:</b> <code>{expiry_str}</code>\n\n{user_info}"
+    )
+
+# ===== CSV Expiry Fetch =====
+def get_expiry_from_csv(user_id):
+    try:
+        response = requests.get(CSV_URL, timeout=10)
+        response.raise_for_status()
+        reader = csv.DictReader(response.text.splitlines())
+
+        for row in reader:
+            if row.get("id") == str(user_id):
+                return row.get("expiry")
+    except:
+        pass
+    return None
+
+# ===== Paid Membership Check =====
+def is_user_paid(user_id: int) -> bool:
+    try:
+        response = requests.get(CSV_URL)
+        response.raise_for_status()
+        reader = csv.DictReader(response.text.splitlines())
+        for row in reader:
+            if row.get("id") == str(user_id):
+                expiry_str = row.get("expiry", "")
+                expiry = datetime.strptime(expiry_str, "%Y-%m-%d %H:%M:%S")
+                return expiry > datetime.now()
+    except:
+        pass
+    return False
+
+# ===== Dummy Placeholder: Convert ID to Username =====
+def get_username_from_user_id(user_id):
+    # This requires an external API or database access in reality.
+    # For now, return dummy data:
+    return f"user{user_id}"
+
+# ===== Dummy Placeholder: Fetch Instagram Info =====
+def fetch_instagram_info(username):
+    # Placeholder for actual IG scraping or API call.
+    # Return sample HTML-formatted data:
+    return (
+        f"<b>👤 Username:</b> @{username}\n"
+        f"<b>🧾 Bio:</b> Sample bio for {username}\n"
+        f"<b>🔢 Followers:</b> 12.3K\n"
+        f"<b>📷 Posts:</b> 215"
+    )
+
+# ===== Subscription Status Command =====
+def subscription_command(update: Update, context: CallbackContext):
+    user = update.effective_user
+    expiry_str = get_expiry_from_csv(user.id)
+
+    if not expiry_str:
+        update.message.reply_text(
+            f"🚫 <b>No subscription found</b> for <b>{user.full_name}</b> (ID: <code>{user.id}</code>).\n📞 Please contact support.",
+            parse_mode=ParseMode.HTML
+        )
+        return
+
+    status = format_remaining_time(expiry_str, user=user)
+    update.message.reply_text(status, parse_mode=ParseMode.HTML)
 def handle_info_command(update: Update, context: CallbackContext):
     message_text = update.message.text or ""
     command = message_text.lower().split()[0]
-
     if command not in ["/info", "/infonum"]:
         return
 
     user = update.effective_user
     user_id = user.id
     now = time.time()
-
+    if command == "/infonum" and not is_user_paid(user_id):
+        update.message.reply_text("⛔ This command is for paid members only.\nPlease contact admin to subscribe.")
+        return
     if user_id in user_last_used and now - user_last_used[user_id] < 25:
         wait_time = int(25 - (now - user_last_used[user_id]))
-        update.message.reply_text(f"⏳ Please wait {wait_time}s before making another request.")
+        update.message.reply_text(f"⏳ Please wait {wait_time}s before trying again.")
         return
     user_last_used[user_id] = now
-
     parts = message_text.split(maxsplit=1)
     if len(parts) < 2:
         usage = "Example: <code>/info instagram</code>\nOr: <code>/infonum 1234567890</code>"
@@ -96,7 +198,7 @@ def handle_info_command(update: Update, context: CallbackContext):
     is_userid = command == "/infonum"
 
     context.bot.send_chat_action(chat_id=update.effective_chat.id, action=ChatAction.TYPING)
-    loading_message: Message = update.message.reply_text("🔍 Processing your request...", parse_mode=ParseMode.HTML)
+    loading_message = update.message.reply_text("🔍 Processing your request...", parse_mode=ParseMode.HTML)
     time.sleep(1.5)
 
     try:
@@ -108,7 +210,7 @@ def handle_info_command(update: Update, context: CallbackContext):
             time.sleep(1.5)
             username = get_username_from_user_id(input_value)
             if not username:
-                loading_message.edit_text("❌ Could not find username for that user ID.", parse_mode=ParseMode.HTML)
+                loading_message.edit_text("❌ Could not resolve username for this ID.", parse_mode=ParseMode.HTML)
                 return
         else:
             if not re.match(r"^[a-zA-Z0-9._]{1,30}$", input_value):
@@ -116,38 +218,24 @@ def handle_info_command(update: Update, context: CallbackContext):
                 return
             username = input_value
 
-        loading_message.edit_text(f"🔍 Fetching info for Instagram user: <code>@{username}</code>", parse_mode=ParseMode.HTML)
+        loading_message.edit_text(f"🔍 Fetching info for <code>@{username}</code>", parse_mode=ParseMode.HTML)
         time.sleep(1.5)
 
         info = fetch_instagram_info(username)
-
         loading_message.edit_text(info, parse_mode=ParseMode.HTML, disable_web_page_preview=True)
 
-        telegram_username = user.username
-        full_name = user.full_name
-        requester_text = (
-            f'<a href="https://t.me/{telegram_username}">@{telegram_username}</a>'
-            if telegram_username else f'{full_name} (ID: <code>{user.id}</code>)'
-        )
-
+        requester = f'<a href="https://t.me/{user.username}">@{user.username}</a>' if user.username else f"{user.full_name} (ID: <code>{user.id}</code>)"
         context.bot.send_message(
-            chat_id=OWNER_ID,
-            text=(
-                f"📩 <b>Request by:</b> {requester_text}\n"
-                f"🔍 <b>Searched IG:</b> <code>{username}</code>\n\n"
-                f"{info}"
-            ),
+            chat_id=ADMIN_CHAT_ID,
+            text=(f"📩 <b>Request by:</b> {requester}\n"
+                  f"🔎 <b>Searched IG:</b> <code>{username}</code>\n\n{info}"),
             parse_mode=ParseMode.HTML,
             disable_web_page_preview=True
         )
 
     except Exception as e:
-        loading_message.edit_text(f"❌ Error occurred:\n<code>{str(e)}</code>", parse_mode=ParseMode.HTML)
-
-
-# -------- Helper: Convert user ID to username -------- #
+        loading_message.edit_text(f"❌ Error:\n<code>{str(e)}</code>", parse_mode=ParseMode.HTML)
 def get_username_from_user_id(user_id: str) -> str:
-    # This must match your working Instagram request logic
     cookies = {
         'datr': 'GAgjaB5R_liEM-dpATRTgjMj',
     'ig_did': '114B8FDB-7673-4860-A1D8-E88C655B9DD8',
@@ -158,17 +246,17 @@ def get_username_from_user_id(user_id: str) -> str:
     'mid': 'aDaRiAALAAFk8TVh8AGAIMVtWO_F',
     'csrftoken': 'Pf0Us3q173jfLfTXAurrhCD8uY5KpFlf',
     'ds_user_id': '5545662104',
-    'sessionid': '5545662104%3ATSmn4hQ082l5P1%3A2%3AAYdHSaNBx20fZ845bJCugBgkJUma3TckTlONXimRcw',
+    'sessionid': '5545662104%3ATSmn4hQ082l5P1%3A2%3AAYfGQJkf9uoykg9E_EqpP4vuo--TjaReYFdz8ClhDCE',
+    'rur': '"CCO\\0545545662104\\0541780979422:01fe117434d511dfb250ee87303ff8299cf0902d289cc28615e1b2dfef597cb2f073fd8d"',
     'wd': '1160x865',
-    'rur': '"CCO\\0545545662104\\0541780650755:01fe20666d0d31af9d4735d51a08c1b53e680e93a8784173b044eaa054e0b6cb73376cdb"',
     }
     headers = {
         'accept': '*/*',
-    'accept-language': 'en-US,en;q=0.8',
+    'accept-language': 'en-US,en;q=0.6',
     'content-type': 'application/x-www-form-urlencoded;charset=UTF-8',
     'origin': 'https://www.instagram.com',
     'priority': 'u=1, i',
-    'referer': 'https://www.instagram.com/nishval.x_17/',
+    'referer': 'https://www.instagram.com/cristiano/',
     'sec-ch-ua': '"Brave";v="137", "Chromium";v="137", "Not/A)Brand";v="24"',
     'sec-ch-ua-full-version-list': '"Brave";v="137.0.0.0", "Chromium";v="137.0.0.0", "Not/A)Brand";v="24.0.0.0"',
     'sec-ch-ua-mobile': '?0',
@@ -180,6 +268,7 @@ def get_username_from_user_id(user_id: str) -> str:
     'sec-fetch-site': 'same-origin',
     'sec-gpc': '1',
     'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36',
+    'cookie': 'datr=GAgjaB5R_liEM-dpATRTgjMj; ig_did=114B8FDB-7673-4860-A1D8-E88C655B9DD8; dpr=0.8999999761581421; ig_nrcb=1; ps_l=1; ps_n=1; mid=aDaRiAALAAFk8TVh8AGAIMVtWO_F; csrftoken=Pf0Us3q173jfLfTXAurrhCD8uY5KpFlf; ds_user_id=5545662104; sessionid=5545662104%3ATSmn4hQ082l5P1%3A2%3AAYfGQJkf9uoykg9E_EqpP4vuo--TjaReYFdz8ClhDCE; rur="CCO\\0545545662104\\0541780979422:01fe117434d511dfb250ee87303ff8299cf0902d289cc28615e1b2dfef597cb2f073fd8d"; wd=1160x865',
     }
     params = {
         'appid': 'com.bloks.www.ig.about_this_account',
@@ -187,16 +276,28 @@ def get_username_from_user_id(user_id: str) -> str:
     '__bkv': 'f4e32caf235c4c3198ceb3d7599c397741599ea3447ec2f785d4575aeb99766b',
     }
     data = {
-        '__d': 'www','__user': '0','__a': '1','__req': '31','__hs': '20244.HYP:instagram_web_pkg.2.1...0','dpr': '1','__ccg': 'EXCELLENT','__rev': '1023521818','__s': 'jq5p2x:eibgln:k18zzf','__hsi': '7512390373916991035','__dyn': '7xeUjG1mxu1syaxG4Vp41twWwIxu13wvoKewSAx-bwNw9G2Saxa0DU6u3y4o0B-q1ew6ywMwto2awgo9oO0n24oaEnxO1ywOwv89k2C1Fwc60AEC0H8-U2exi4UaEW2G0AEco4i5o7G4-5o4q3y261kx-0ma2-azqwt8d-2u2J08O321LwTwKG1pg2fwxyo6O1FwlA3a3zhA6bwQyXxui2qiUqwm8jxK2K2G0EoK9x60hK78uyFE',
-    '__csr': 'ghg8s8T6gJfdlNI_6RN74FiOn8IoHqd4ridq9fjBBkKteUJ2czZ4l9ykmh9piamJq_L8GsTH8ycF2AZi4mjWvDHVaiXQ-i8GZqGblbHUJ6iUPDbdySlblCBhQVRUGky8CdG9AyprGiFpWRTCl4Gjgz_ULKh24imXGZopVu-jDzUjCDhFbKuy5hV9_-9wHGq58kUoAGEGjKi5VF8x6xuvw05eww81cD-q0KUy1qO1Ki3mbg4igAWx51ip28bo9ogg8945A3yu1wwTpU-gAw4a5U-3K4EyuQvwOIuaKA4Wx50YEUK7FQ2y48o65gGhyUyF6fxlzoiwoA2yca0j63a8z40EbwfO0bzyA0jS0cgyki5VBwfq0AFE89no9mt0WU-FhoqgK1ig5q1bwEQjecg0wm15zYE2MDyaCwRo1e9VQaGi1wg0IO10wsE0Hu0vx04zxe17wTgC4Uzx2lojg0qYzE04g2cBRFk0Torwoo9o1zo2nUoLwuU3yAuA0JEiw0zPm0WVobU',
-    '__hsdp': 'geXX59OOiRf5Enq4qhdpgKqQbQyugahJgdzY8nsZ9gIVl2p8Ex0z7590W8Q8suSSGbIKhb6CPcxoxBadCCD24b14wcW8iQy4gwUG216x1Clwj9UeU4i1WyE1hEarw6QU0wS0mi0S83rBw5swCwQwqodE4C0ja0im0he4oao',
-    '__hblp': '1a18g4212Upz4bwGyE25Bx28yEKE-12wqQ4okV98N3oCFVVRBDx2umaz89-chrxS-aExbkKUF3rzoFeeCC-i5K6qoFDHGUym5SmFqixSejKaDUDS9m-2em22luQV8y9yfF2okz5yEbEN1N289Hye4rykq3uEW6EO0wU2_wywyUFa7U-0x9E43xy2icwPw821hwn888bQegOi7U8o8o2CzUdo8pEC1lz8-mVFUK7jVEoUboy5pQmmq26U4acxqayF8Jd2Upy8lwPx-3qbwyzEJ122ufwPwMwBx6bzUbUkDzUc8dEqzE6q2CcwioN2UigGU8Uy4K4Uhxq4k225orzZQ4CUjwyxl0ABxC',
+        '__d': 'www',
+    '__user': '0',
+    '__a': '1',
+    '__req': '1f',
+    '__hs': '20248.HYP:instagram_web_pkg.2.1...0',
+    'dpr': '1',
+    '__ccg': 'EXCELLENT',
+    '__rev': '1023623731',
+    '__s': '499qrl:ctig8q:csc88m',
+    '__hsi': '7513802066483034222',
+    '__dyn': '7xeUjG1mxu1syUbFp41twWwIxu13wvoKewSAwHwNw9G2S7o2vwa24o0B-q1ew6ywaq0yE462mcw5Mx62G5UswoEcE7O2l0Fwqo31w9O0H8-U2zxe2GewGw9a361qwuEjUlwhEe87q0oa2-azqwt8d-2u2J0bS1LwTwKG1pg2fwxyo6O1FwlA3a3zhA6bwgbxui2K7E5y4UrwHwcObyohw4rxO2C',
+    '__csr': 'iMigtEp3QrOgxOAl4dldbHf-JQWaWWty8CKnUgCYzBzaWjKrGmVGQhAK_BrJi4RgzCADiiDD9GHuulykiQ9iWAh5ZafgGuaHBgvUKJ38yu4Fb8VRjCF6CyoyUOuFCcy8-4ogigLzkiRx28zrABmE-aUO7F4iEC48tx2UoKt2Erw05kng4iut2E3VwHg5q3Gcg9-ve1EwEA9eW80NSt1GWyE565k0wA0L80V22K6U0i3w2fVZ0oK4FF84V7Pwh40Sp62C0x9U9k1PDDgHe0GkkOy8x36no13ouEE4a0jqlQ0BFkdgBk0KFF8qwCg0V-00wI80PO030i',
+    '__hsdp': 'gcI9cx2-xsQhONZEIKFbb34-d4hQtp0d5FHsdEmOoBPt8g2fC7yrG1T73onxGdxcOG3C0y44O0XwMpKh1i0XU1Ko1dEaE2Nw4_w3CE7m4U21wdq0BU2bwbi3m0bmwcWE7a5o2dxq',
+    '__hblp': '4g5m13wgk8wIxuqE2eyEkGayqxK0J8iCxq4pEWcBqwNUK1bzt5xm2eh6wiELG4mcAGh2EyazFEgyErG224EjxaU9ppoZa8wwRwEzEc99oapUS5omwFwEwOw8u1hxm15wGDyoK1bCwg81b8iy84i1RhEnw-zE1A84C0zo8Ud9Ukxe14wyxlaUlwn85ebw9uEdU520J8do2KAt6xq2dwiUtwgEO4GwwwTBgcUuwjFU88yq6o9kEy3S7E5GeDzo5eeggB4krCzUW2u',
     '__comet_req': '7',
-    'fb_dtsg': 'NAfu0VZ-V7EA9l7Ji_RteyFgJUUrqZ-zaFOV1HB4AY-dORWJxtLnBIw:17843671327157124:1748946019',
-    'jazoest': '26123',
-    'lsd': '4n00rbnIGJIiuc4l8kqL2b',
-    '__spin_r': '1023521818',
-    '__spin_b': 'trunk','__spin_t': '1749114686','__crn': 'comet.igweb.PolarisProfilePostsTabRoute',
+    'fb_dtsg': 'NAft8PCC95bUa6gG43Ooiu-xcZobNgkxRKPE6gn2LAtOuc1Qc3jPlnQ:17843671327157124:1748946019',
+    'jazoest': '26205',
+    'lsd': 'vg_3IThEEP07uATl42SAxX',
+    '__spin_r': '1023623731',
+    '__spin_b': 'trunk',
+    '__spin_t': '1749443371',
+    '__crn': 'comet.igweb.PolarisProfilePostsTabRoute',
         'params': f'{{"referer_type":"ProfileUsername","target_user_id":"{user_id}"}}'
     }
 
@@ -257,7 +358,7 @@ def check_aol_username(username):
     'sec-gpc': '1',
     'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36',
     'x-requested-with': 'XMLHttpRequest',
-    # 'cookie': 'weathergeo=%2223.03%7C72.60%7CAhmedabad%7CGJ%7CIndia%7C0%7C29219630%22; GUC=AQEBCAFoQrxoa0IdaQRU&s=AQAAAGsKHyP7&g=aEFsow; A1=d=AQABBJe4NmgCEBTQJcSiUU8hK1heOS9q1ZQFEgEBCAG8QmhraFkPyyMA_eMDAAcIl7g2aC9q1ZQ&S=AQAAAoiOJ3tjABbT2_6BqH26jZA; A3=d=AQABBJe4NmgCEBTQJcSiUU8hK1heOS9q1ZQFEgEBCAG8QmhraFkPyyMA_eMDAAcIl7g2aC9q1ZQ&S=AQAAAoiOJ3tjABbT2_6BqH26jZA; A1S=d=AQABBJe4NmgCEBTQJcSiUU8hK1heOS9q1ZQFEgEBCAG8QmhraFkPyyMA_eMDAAcIl7g2aC9q1ZQ&S=AQAAAoiOJ3tjABbT2_6BqH26jZA; AS=v=1&s=CXNFiCaf&d=A68441ce7|X4q.L_3.2ToHPB9jJv25S3fvsjKtaa6YB.V9e0nUyGpvJEp411b5LAh39lECeKbrK2U32o9DNEVo0dVR3LPsOrbfP8cj9g0faGnid_U2RvyN7guUG03ejPHpgZJsh.BJ_gNGiIwTiYt1ql3NLZyx38HvauyL8gKl91EBBu8ZNVfmaO5bZDKV_rzsmqzaJVBZZnagC2O.guU8kXfrk8X7X0OW1xfXwocM9JdDuZiwStBAomwB7Gf95E2LphxqmFQ7VoJPDJiJwuJ9Ih5kEuCT3mEuKYrMRn6ZRkebvahmSSxj6625apWFJ20gN_9ovKrItR24WvOOHjCdp8obcrGsgM9kPyP1CPzJsRtNsXZ8Csx64klj6P1Rtc.KbpsB5Uhx6jhJFPbOgEUt.2wnOoj8J_d2TkZiM5GjXqrmUrVzeCyQR0FEKWi9uYpC3ArBuW54ncA6KBXmd__svc1bnMH7avBu1GE4Gu4Db2xWZlSGeJqiRb52kTUryGaN.DB8ANHGdmjCquXZusJ9ERlVLVpNupdYxtP6iM4ea3Zn70thXORYTCQIdl9x9hBbXTTVl_98ipylBIxa7UoIyR1ZIXZESXyrO7K6M7YAmYtRENPP.mQeiJLpFDDhANQ83RSWI0RXn5Fu.INFTEThA.Z3Jl8r2DzODb.bsTaCm47E2gtMHqap6prgiL23MHKJSmk1WhfMHp0BnWf_aIxAtZfwchCfGZ_pnMU7T6SOHM.G6aGjd2G9k_cd.onAoyy1HhnyLA9r9oXHYLhwR50Dwp.ZY3nkweEnbY5H.Tb29z958jvMCGS367NndKULJDnqWz5MxnRUqo7e_oj5SZsZWIfjqHzUvO5GiU9nsUc_lGb7sS7XnF2EWMK3QZva81Zl0CY1pW16qXBpKZd4Y0pDq14dZde4b.xyWqrnGV3e.d467RtfWrK4t6B_Ocm9mMAapK5dwwz8bxLvieVdarYIJmGrO6BWu54BooWD9Q.8BZ8QcdRqJk0BJ8TMZ0F6T_0xSzh073_kq2qbbZ1Dfpk59.8JpV3ViFdAdMNyDgH6Y8BFXDc12L2hbhWANrzkIYb9G_aXx8K14LDkx0L3lONeyn9Hd39eQVc7SdG4vIxbXWbQ5xu2xh5boF.jFNY1vCx29w5VC_vDHZd.~A|B68442021|AVlOk_L.2TqOmDMvLI3qgvOncwH3GmqQh2WQ4ddctGJQZWWbQpQB91rC0GIQz47BeR7UBSfIIVGFLD2okyv.z7u5i6aqtedC4ovxN82KC5U3m1AYOoascqrh1CNyHtt8lcFywUHAv2t4FMABfTmZMKbtOV1eXBgWG5E_PUrZIXJxwI5IfcYWewV98WUyPAar9SwiuQXEGJLNX1qYcnwyS3BRuI7EhUqNRF2VOJt.jgIfI0Y_tQLBY5_wV5RX5sDUQkMeGFH4dndUqmQOAzajijmDWMoSXHoKzfNU_SMvFaA6qjR4_ZKKW_6dl4z4VBwc85VU9inCqQBBSBwkbn3sNwzhh1tgnqPobJ0rovm.kiZ6PicthfXU1BIfpCx_AkSmzc6ugWnUhPBEgXx.IiSFz1lNBcAjn3fmb7wgaufSWez5oUDuXK330CuTUd87wCKZar5MmVMzdHwkAiAZ1Fm86kH0mVZuVmNVA0zMOrN.FxbzL1sIBkFqyNmMQ9XHymWqaoj9epMGjZLAsGTrvs1eICMwHayjfygDTvtmv9QxB3XsoU6RxTLdEZ3mw8IgWQMmzYnSYZliVYYVQ6e41bwqhDrecXiGAzCVXiaJ52k1Fk.0XdcvkhNcwbAxt1ZoKVK76lBdym4cT9LOLlJkrQNzzpAXSUpQsgLpMbN1FxYxoXwFoRbb1_.gFQBDQCcdQPJSywd.yA7oTMFZB4h8b4Ts5tI92mtlrS9jGiKZ8_CY3ECWglJQYqhVoV_FFLDKxySio9dkBX53gm56a66fdC5pGeak4vzXAYuMEsykdTsK9uY6fefwMNeYwfyJHhci7JiGJz.Y2UW7UK0OAQbblxYtztlM3UOyJjMFk1C6Qqq9jynix3aR4CiVfNeyr8YQldpjLzwcmJ08CCicwrsBh3aPqoErSZPlSVVwtVX4zVJvfKxZd4R57P85oeGhKgrugERYHjsuojVKcd3dSeGEvVvlXB4UZdSgGBtvQLt5kHZatrmtRSCENqMiUanew5N1II3qhOzOAPw89uK0t9Bsh7aU91jm.F6zNR.HjQCOg6aD27kQnSvGRPJxPaNz_jX7X1f7ZXGVrMqn0Jxc28Y9P5LxpiR15McNQ0lAngoT3xIK.bdTHm3Tl7DmbL.nck2nNimYnI76KQ--~A',
+    'cookie': 'weathergeo=%2223.03%7C72.60%7CAhmedabad%7CGJ%7CIndia%7C0%7C29219630%22; GUC=AQEBCAFoQrxoa0IdaQRU&s=AQAAAGsKHyP7&g=aEFsow; A1=d=AQABBJe4NmgCEBTQJcSiUU8hK1heOS9q1ZQFEgEBCAG8QmhraFkPyyMA_eMDAAcIl7g2aC9q1ZQ&S=AQAAAoiOJ3tjABbT2_6BqH26jZA; A3=d=AQABBJe4NmgCEBTQJcSiUU8hK1heOS9q1ZQFEgEBCAG8QmhraFkPyyMA_eMDAAcIl7g2aC9q1ZQ&S=AQAAAoiOJ3tjABbT2_6BqH26jZA; A1S=d=AQABBJe4NmgCEBTQJcSiUU8hK1heOS9q1ZQFEgEBCAG8QmhraFkPyyMA_eMDAAcIl7g2aC9q1ZQ&S=AQAAAoiOJ3tjABbT2_6BqH26jZA; AS=v=1&s=CXNFiCaf&d=A68441ce7|X4q.L_3.2ToHPB9jJv25S3fvsjKtaa6YB.V9e0nUyGpvJEp411b5LAh39lECeKbrK2U32o9DNEVo0dVR3LPsOrbfP8cj9g0faGnid_U2RvyN7guUG03ejPHpgZJsh.BJ_gNGiIwTiYt1ql3NLZyx38HvauyL8gKl91EBBu8ZNVfmaO5bZDKV_rzsmqzaJVBZZnagC2O.guU8kXfrk8X7X0OW1xfXwocM9JdDuZiwStBAomwB7Gf95E2LphxqmFQ7VoJPDJiJwuJ9Ih5kEuCT3mEuKYrMRn6ZRkebvahmSSxj6625apWFJ20gN_9ovKrItR24WvOOHjCdp8obcrGsgM9kPyP1CPzJsRtNsXZ8Csx64klj6P1Rtc.KbpsB5Uhx6jhJFPbOgEUt.2wnOoj8J_d2TkZiM5GjXqrmUrVzeCyQR0FEKWi9uYpC3ArBuW54ncA6KBXmd__svc1bnMH7avBu1GE4Gu4Db2xWZlSGeJqiRb52kTUryGaN.DB8ANHGdmjCquXZusJ9ERlVLVpNupdYxtP6iM4ea3Zn70thXORYTCQIdl9x9hBbXTTVl_98ipylBIxa7UoIyR1ZIXZESXyrO7K6M7YAmYtRENPP.mQeiJLpFDDhANQ83RSWI0RXn5Fu.INFTEThA.Z3Jl8r2DzODb.bsTaCm47E2gtMHqap6prgiL23MHKJSmk1WhfMHp0BnWf_aIxAtZfwchCfGZ_pnMU7T6SOHM.G6aGjd2G9k_cd.onAoyy1HhnyLA9r9oXHYLhwR50Dwp.ZY3nkweEnbY5H.Tb29z958jvMCGS367NndKULJDnqWz5MxnRUqo7e_oj5SZsZWIfjqHzUvO5GiU9nsUc_lGb7sS7XnF2EWMK3QZva81Zl0CY1pW16qXBpKZd4Y0pDq14dZde4b.xyWqrnGV3e.d467RtfWrK4t6B_Ocm9mMAapK5dwwz8bxLvieVdarYIJmGrO6BWu54BooWD9Q.8BZ8QcdRqJk0BJ8TMZ0F6T_0xSzh073_kq2qbbZ1Dfpk59.8JpV3ViFdAdMNyDgH6Y8BFXDc12L2hbhWANrzkIYb9G_aXx8K14LDkx0L3lONeyn9Hd39eQVc7SdG4vIxbXWbQ5xu2xh5boF.jFNY1vCx29w5VC_vDHZd.~A|B68442021|AVlOk_L.2TqOmDMvLI3qgvOncwH3GmqQh2WQ4ddctGJQZWWbQpQB91rC0GIQz47BeR7UBSfIIVGFLD2okyv.z7u5i6aqtedC4ovxN82KC5U3m1AYOoascqrh1CNyHtt8lcFywUHAv2t4FMABfTmZMKbtOV1eXBgWG5E_PUrZIXJxwI5IfcYWewV98WUyPAar9SwiuQXEGJLNX1qYcnwyS3BRuI7EhUqNRF2VOJt.jgIfI0Y_tQLBY5_wV5RX5sDUQkMeGFH4dndUqmQOAzajijmDWMoSXHoKzfNU_SMvFaA6qjR4_ZKKW_6dl4z4VBwc85VU9inCqQBBSBwkbn3sNwzhh1tgnqPobJ0rovm.kiZ6PicthfXU1BIfpCx_AkSmzc6ugWnUhPBEgXx.IiSFz1lNBcAjn3fmb7wgaufSWez5oUDuXK330CuTUd87wCKZar5MmVMzdHwkAiAZ1Fm86kH0mVZuVmNVA0zMOrN.FxbzL1sIBkFqyNmMQ9XHymWqaoj9epMGjZLAsGTrvs1eICMwHayjfygDTvtmv9QxB3XsoU6RxTLdEZ3mw8IgWQMmzYnSYZliVYYVQ6e41bwqhDrecXiGAzCVXiaJ52k1Fk.0XdcvkhNcwbAxt1ZoKVK76lBdym4cT9LOLlJkrQNzzpAXSUpQsgLpMbN1FxYxoXwFoRbb1_.gFQBDQCcdQPJSywd.yA7oTMFZB4h8b4Ts5tI92mtlrS9jGiKZ8_CY3ECWglJQYqhVoV_FFLDKxySio9dkBX53gm56a66fdC5pGeak4vzXAYuMEsykdTsK9uY6fefwMNeYwfyJHhci7JiGJz.Y2UW7UK0OAQbblxYtztlM3UOyJjMFk1C6Qqq9jynix3aR4CiVfNeyr8YQldpjLzwcmJ08CCicwrsBh3aPqoErSZPlSVVwtVX4zVJvfKxZd4R57P85oeGhKgrugERYHjsuojVKcd3dSeGEvVvlXB4UZdSgGBtvQLt5kHZatrmtRSCENqMiUanew5N1II3qhOzOAPw89uK0t9Bsh7aU91jm.F6zNR.HjQCOg6aD27kQnSvGRPJxPaNz_jX7X1f7ZXGVrMqn0Jxc28Y9P5LxpiR15McNQ0lAngoT3xIK.bdTHm3Tl7DmbL.nck2nNimYnI76KQ--~A',
     }
     params = {
         'validateField': 'userId',
@@ -318,14 +419,11 @@ class Gm:
                 'gmscoreversion': 'undefined',
                 'flowName': 'GlifWebSignIn'
             }
-
             response = requests.post(url, params=params, cookies=cookies, headers=self.headers, data=data, timeout=10)
-
             if response.status_code == 200:
                 return {"available": '"gf.uar",1' in response.text}
             else:
                 return None
-
         except:
             return None
 import logging
@@ -337,40 +435,82 @@ from secrets import token_hex
 from telegram import Update, Bot
 from telegram.ext import Updater, CommandHandler, CallbackContext
 logging.basicConfig(level=logging.INFO)
-
 def send_recovery_request(email_or_username):
-    methods = [method_1, method_2, method_3, method_4, method_5, method_6, method_7]
+    methods = [
+        ("Method 1", method_1),
+        ("Method 2", method_2),
+        ("Method 3", method_3),
+        ("Method 4", method_4),
+        ("Method 5", method_5),
+        ("Method 6", method_6),
+        ("Method 7", method_7)
+    ]
 
-    for method in methods:
+    for name, method in methods:
         try:
             result = method(email_or_username)
             if result not in ["No Reset", "Failed", "Error"]:
-                return [result]
-        except:
+                print(f"[✅] {name} succeeded: {result}")
+                return [f"{result})"]
+            else:
+                print(f"[❌] {name} returned: {result}")
+        except Exception as e:
+            print(f"[⚠️] {name} raised an exception: {e}")
             continue
 
     return ["No Reset"]
+
+ua = UserAgent()
+
 def method_1(email_or_username):
+    cookies = {
+        'csrftoken': 'gpexs0wL6nxpdY955MzDDX',
+        'datr': '_s3HZ5T-vg2PnLjgub9fdKw4',
+        'ig_did': '6D20CB61-D866-4513-8735-F6E4488FF4BB',
+        'mid': 'Z8fOAAABAAHq9LOzjjUU7ImwpR_6',
+        'ig_nrcb': '1',
+        'dpr': '2.1988937854766846',
+        'ps_l': '1',
+        'ps_n': '1',
+        'wd': '891x896',
+    }
+
+    headers = {
+        'authority': 'www.instagram.com',
+        'accept': '*/*',
+        'content-type': 'application/x-www-form-urlencoded',
+        'origin': 'https://www.instagram.com',
+        'referer': 'https://www.instagram.com/accounts/password/reset/?hl=ar',
+        'user-agent': ua.random,
+        'x-csrftoken': cookies['csrftoken'],
+        'x-ig-app-id': '936619743392459',
+        'x-requested-with': 'XMLHttpRequest',
+    }
+
+    data = {
+        'email_or_username': email_or_username,
+        'jazoest': '21965',
+    }
+
     try:
-        headers = {
-            'authority': 'www.instagram.com',
-            'accept': '*/*',
-            'content-type': 'application/x-www-form-urlencoded',
-            'origin': 'https://www.instagram.com',
-            'referer': 'https://www.instagram.com/accounts/password/reset/?hl=ar',
-            'user-agent': 'Mozilla/5.0',
-            'x-csrftoken': 'gpexs0wL6nxpdY955MzDDX',
-            'x-ig-app-id': '936619743392459',
-            'x-requested-with': 'XMLHttpRequest',
-        }
-        data = {'email_or_username': email_or_username, 'jazoest': '21965'}
-        res = requests.post('https://www.instagram.com/api/v1/web/accounts/account_recovery_send_ajax/', headers=headers, data=data)
-        if res.status_code == 200:
-            contact = res.json().get("contact_point")
+        response = requests.post(
+            'https://www.instagram.com/api/v1/web/accounts/account_recovery_send_ajax/',
+            cookies=cookies,
+            headers=headers,
+            data=data,
+        )
+
+        if response.status_code == 200:
+            response_json = response.json()
+            contact = response_json.get("contact_point")
             if contact:
                 return f"Email: {contact}" if "@" in contact else f"Phone: {contact}"
-        return "No Reset"
-    except:
+            else:
+                return "No Reset"
+        else:
+            return "No Reset"
+
+    except (requests.RequestException, json.JSONDecodeError, Exception):
         return "Error"
 
 def method_2(email_or_username):
@@ -390,7 +530,6 @@ def method_2(email_or_username):
         return "No Reset"
     except:
         return "Error"
-
 def method_3(email_or_username):
     try:
         headers = {
@@ -412,7 +551,6 @@ def method_3(email_or_username):
         return "No Reset"
     except:
         return "Error"
-
 def method_4(email_or_username):
     try:
         headers = {
@@ -429,7 +567,6 @@ def method_4(email_or_username):
         return "No Reset"
     except:
         return "Error"
-
 def method_5(email_or_username):
     try:
         headers = {
@@ -456,7 +593,6 @@ def method_5(email_or_username):
         return "No Reset"
     except:
         return "Error"
-
 def method_6(email_or_username):
     try:
         headers = {
@@ -483,7 +619,6 @@ def method_6(email_or_username):
         return "No Reset"
     except:
         return "Error"
-
 def method_7(email_or_username):
     try:
         for _ in range(3):
@@ -507,8 +642,6 @@ def method_7(email_or_username):
         return "No Reset"
     except:
         return "Error"
-
-
 def fetch_instagram_info(username):
     try:
         profile = instaloader.Profile.from_username(L.context, username)
@@ -741,6 +874,7 @@ def main():
     dp.add_handler(CommandHandler(["info", "infonum"], handle_info_command))
     dp.add_handler(CommandHandler("aol", aol))
     dp.add_handler(CommandHandler("gmail", gmail))
+    dp.add_handler(CommandHandler("subscription", subscription_command))
     dp.add_handler(MessageHandler(Filters.text & ~Filters.command, handle_info_command))
     print("🤖 Bot is running...ENJOY")
     updater.start_polling()
