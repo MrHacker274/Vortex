@@ -924,7 +924,22 @@ def reset_command(update: Update, context: CallbackContext):
     )
 
     update.message.reply_text(message, parse_mode="Markdown")
+def hotmail_command(update: Update, context: CallbackContext):
+    user_input = context.args
 
+    if not user_input:
+        update.message.reply_text("Usage: /hotmail <username>")
+        return
+
+    username = user_input[0]
+
+    update.message.chat.send_action(ChatAction.TYPING)
+    status = check_hotmail(username)
+
+    if status == "error":
+        update.message.reply_text("Something went wrong. Try again.")
+    else:
+        update.message.reply_text(status)
 
 def main():
     updater = Updater(TELEGRAM_BOT_TOKEN, use_context=True)
@@ -936,6 +951,7 @@ def main():
     dp.add_handler(CommandHandler("aol", aol))
     dp.add_handler(CommandHandler("gmail", gmail))
     dp.add_handler(CommandHandler("subscription", subscription_command))
+    dp.add_handler(CommandHandler("hotmail", hotmail_command))
     dp.add_handler(MessageHandler(Filters.text & ~Filters.command, handle_info_command))
     print("🤖 Bot is running...ENJOY")
     updater.start_polling()
