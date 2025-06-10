@@ -961,50 +961,7 @@ def fetch_instagram_info(username):
 
     except Exception as e:
         return f"ERROR Failed to fetch info for {username}. Reason: {str(e)}"
-def aol(update, context):
-    if not context.args:
-        update.message.reply_text(
-            "Please provide a username after the command.\nExample: /aol example123"
-        )
-        return
 
-    username = context.args[0]
-    if not username.isalnum():
-        update.message.reply_text("Please provide a valid alphanumeric username.")
-        return
-
-    result = check_aol_username(username)
-    if result is None:
-        update.message.reply_text("Sorry, I couldn't check the username right now. Try again later.")
-    else:
-        # Send reply with Markdown formatting
-        update.message.reply_text(
-            f"Username *{username}* is {result}",
-            parse_mode='Markdown'
-        )
-def gmail(update, context):
-    if not context.args:
-        update.message.reply_text(
-            "Please provide a username after the command.\nExample: /gmail example123"
-        )
-        return
-
-    username = context.args[0]
-    if not username.isalnum():
-        update.message.reply_text("Please provide a valid alphanumeric username.")
-        return
-
-    checker = Gm(username)
-    result = checker.check()
-
-    if result is None:
-        update.message.reply_text("Sorry, I couldn't check the username right now. Try again later.")
-    else:
-        availability = "✅ Available" if result["available"] else "❌ Taken"
-        update.message.reply_text(
-            f"Username *{username}@gmail.com* is {availability}",
-            parse_mode='Markdown'
-        )
 def reset_command(update: Update, context: CallbackContext):
     if not context.args:
         update.message.reply_text("⚠️ Please provide a username.\nUsage: /reset <instagram_username>")
@@ -1040,22 +997,99 @@ def reset_command(update: Update, context: CallbackContext):
     )
 
     update.message.reply_text(message, parse_mode="Markdown")
-def hotmail_command(update: Update, context: CallbackContext):
-    user_input = context.args
 
-    if not user_input:
+# === AOL ===
+def aol(update: Update, context: CallbackContext):
+    if not context.args:
+        update.message.reply_text("Usage: /aol <username>")
+        return
+
+    username = context.args[0]
+    if not username.isalnum():
+        update.message.reply_text("Please provide a valid alphanumeric username.")
+        return
+
+    update.message.chat.send_action(ChatAction.TYPING)
+    result = check_aol_username(username)
+
+    if result is None:
+        update.message.reply_text("❌ Couldn't check the username right now. Try again later.")
+    else:
+        update.message.reply_text(
+            f"🔎 Username *{username}@aol.com* is {result}",
+            parse_mode='Markdown'
+        )
+
+
+# === Gmail ===
+def gmail(update: Update, context: CallbackContext):
+    if not context.args:
+        update.message.reply_text("Usage: /gmail <username>")
+        return
+
+    username = context.args[0]
+    if not username.isalnum():
+        update.message.reply_text("Please provide a valid alphanumeric username.")
+        return
+
+    update.message.chat.send_action(ChatAction.TYPING)
+    checker = Gm(username)
+    result = checker.check()
+
+    if result is None:
+        update.message.reply_text("❌ Couldn't check the username right now. Try again later.")
+    else:
+        availability = "✅ Available" if result.get("available") else "❌ Taken"
+        update.message.reply_text(
+            f"🔎 Username *{username}@gmail.com* is {availability}",
+            parse_mode='Markdown'
+        )
+
+
+# === Hotmail ===
+def hotmail(update: Update, context: CallbackContext):
+    if not context.args:
         update.message.reply_text("Usage: /hotmail <username>")
         return
 
-    username = user_input[0]
+    username = context.args[0]
+    if not username.isalnum():
+        update.message.reply_text("Please provide a valid alphanumeric username.")
+        return
 
     update.message.chat.send_action(ChatAction.TYPING)
-    status = check_hotmail(username)
+    result = check_hotmail(username)
 
-    if status == "error":
-        update.message.reply_text("Something went wrong. Try again.")
+    if result == "error":
+        update.message.reply_text("❌ Something went wrong. Try again.")
     else:
-        update.message.reply_text(status)
+        update.message.reply_text(
+            f"🔎 Username *{username}@hotmail.com* is {result}",
+            parse_mode='Markdown'
+        )
+
+
+# === Outlook ===
+def outlook(update: Update, context: CallbackContext):
+    if not context.args:
+        update.message.reply_text("Usage: /outlook <username>")
+        return
+
+    username = context.args[0]
+    if not username.isalnum():
+        update.message.reply_text("Please provide a valid alphanumeric username.")
+        return
+
+    update.message.chat.send_action(ChatAction.TYPING)
+    result = check_Outlook(username)
+
+    if result == "error":
+        update.message.reply_text("❌ Something went wrong. Try again.")
+    else:
+        update.message.reply_text(
+            f"🔎 Username *{username}@outlook.com* is {result}",
+            parse_mode='Markdown'
+        )
 
 def main():
     updater = Updater(TELEGRAM_BOT_TOKEN, use_context=True)
@@ -1067,7 +1101,8 @@ def main():
     dp.add_handler(CommandHandler("aol", aol))
     dp.add_handler(CommandHandler("gmail", gmail))
     dp.add_handler(CommandHandler("subscription", subscription_command))
-    dp.add_handler(CommandHandler("hotmail", hotmail_command))
+    dp.add_handler(CommandHandler("hotmail", hotmail))
+    dp.add_handler(CommandHandler("outlook", outlook))
     dp.add_handler(MessageHandler(Filters.text & ~Filters.command, handle_info_command))
     print("🤖 Bot is running...ENJOY")
     updater.start_polling()
