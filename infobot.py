@@ -998,6 +998,11 @@ def reset_command(update: Update, context: CallbackContext):
 
     update.message.reply_text(message, parse_mode="Markdown")
 
+
+# Validation function
+def is_valid_username(username):
+    return re.fullmatch(r'^[a-zA-Z0-9_.]+$', username) is not None
+
 # === AOL ===
 def aol(update: Update, context: CallbackContext):
     if not context.args:
@@ -1005,8 +1010,8 @@ def aol(update: Update, context: CallbackContext):
         return
 
     username = context.args[0]
-    if not username.isalnum():
-        update.message.reply_text("Please provide a valid alphanumeric username.")
+    if not is_valid_username(username):
+        update.message.reply_text("Username can only contain letters, numbers, underscores (_) and dots (.)")
         return
 
     update.message.chat.send_action(ChatAction.TYPING)
@@ -1020,7 +1025,6 @@ def aol(update: Update, context: CallbackContext):
             parse_mode='Markdown'
         )
 
-
 # === Gmail ===
 def gmail(update: Update, context: CallbackContext):
     if not context.args:
@@ -1028,8 +1032,8 @@ def gmail(update: Update, context: CallbackContext):
         return
 
     username = context.args[0]
-    if not username.isalnum():
-        update.message.reply_text("Please provide a valid alphanumeric username.")
+    if not is_valid_username(username):
+        update.message.reply_text("Username can only contain letters, numbers, underscores (_) and dots (.)")
         return
 
     update.message.chat.send_action(ChatAction.TYPING)
@@ -1045,7 +1049,6 @@ def gmail(update: Update, context: CallbackContext):
             parse_mode='Markdown'
         )
 
-
 # === Hotmail ===
 def hotmail(update: Update, context: CallbackContext):
     if not context.args:
@@ -1053,8 +1056,8 @@ def hotmail(update: Update, context: CallbackContext):
         return
 
     username = context.args[0]
-    if not username.isalnum():
-        update.message.reply_text("Please provide a valid alphanumeric username.")
+    if not is_valid_username(username):
+        update.message.reply_text("Username can only contain letters, numbers, underscores (_) and dots (.)")
         return
 
     update.message.chat.send_action(ChatAction.TYPING)
@@ -1068,7 +1071,6 @@ def hotmail(update: Update, context: CallbackContext):
             parse_mode='Markdown'
         )
 
-
 # === Outlook ===
 def outlook(update: Update, context: CallbackContext):
     if not context.args:
@@ -1076,8 +1078,8 @@ def outlook(update: Update, context: CallbackContext):
         return
 
     username = context.args[0]
-    if not username.isalnum():
-        update.message.reply_text("Please provide a valid alphanumeric username.")
+    if not is_valid_username(username):
+        update.message.reply_text("Username can only contain letters, numbers, underscores (_) and dots (.)")
         return
 
     update.message.chat.send_action(ChatAction.TYPING)
@@ -1090,7 +1092,6 @@ def outlook(update: Update, context: CallbackContext):
             f"🔎 Username *{username}@outlook.com* is {result}",
             parse_mode='Markdown'
         )
-
 def main():
     updater = Updater(TELEGRAM_BOT_TOKEN, use_context=True)
     dp = updater.dispatcher
