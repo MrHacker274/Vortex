@@ -976,17 +976,30 @@ def reset_command(update: Update, context: CallbackContext):
         status = "❌ Failed"
     else:
         raw = result[0]
+        reset_contact = raw.strip()
+        status = "✅ Success"
+
+        # Smart domain-based recovery method detection
         if "Email:" in raw:
-            reset_contact = raw.replace("Email:", "").strip()
-            recovery_type = "📧 Email"
+            email = raw.replace("Email:", "").strip().lower()
+            reset_contact = email
+            if "@gmail" in email:
+                recovery_type = "📧 Gmail"
+            elif "@a**" in email:
+                recovery_type = "📧 AOL"
+            elif "@hotmail" in email:
+                recovery_type = "📧 Hotmail"
+            elif "@yahoo" in email:
+                recovery_type = "📧 Yahoo"
+            elif "@outlook" in email:
+                recovery_type = "📧 Outlook"
+            else:
+                recovery_type = "📧 Email"
         elif "Phone:" in raw:
             reset_contact = raw.replace("Phone:", "").strip()
             recovery_type = "📱 Phone"
         else:
-            reset_contact = raw.strip()
             recovery_type = "ℹ️ Unknown"
-
-        status = "✅ Success"
 
     message = (
         f"🔁 *Instagram Reset Info*\n"
@@ -998,8 +1011,6 @@ def reset_command(update: Update, context: CallbackContext):
 
     update.message.reply_text(message, parse_mode="Markdown")
 
-
-# Validation function
 def is_valid_username(username):
     return re.fullmatch(r'^[a-zA-Z0-9_.]+$', username) is not None
 
