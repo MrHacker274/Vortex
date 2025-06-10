@@ -372,7 +372,117 @@ def check_aol_username(username):
         data=data
     )
     return check_availability_from_text(response.text)
+def check_yahoo(username):
+    def check_availability_from_text(response_text):
+        response_text = response_text.strip()
+        taken_errors = [
+            '{"errors":[{"name":"userId","error":"IDENTIFIER_NOT_AVAILABLE"},{"name":"birthDate","error":"INVALID_BIRTHDATE"},{"name":"password","error":"FIELD_EMPTY"}]}',
+            '{"errors":[{"name":"userId","error":"IDENTIFIER_EXISTS"},{"name":"birthDate","error":"INVALID_BIRTHDATE"},{"name":"password","error":"FIELD_EMPTY"}]}',
+            '{"errors":[{"name":"userId","error":"RESERVED_WORD_PRESENT"},{"name":"birthDate","error":"INVALID_BIRTHDATE"},{"name":"password","error":"FIELD_EMPTY"}]}',
+        ]
+        if response_text in taken_errors:
+            return "❌ Taken"
+        
+        pattern = (
+            r'^\{"errors":\['
+            r'\{"name":"userId","error":"ERROR_\d{3}"\},'
+            r'\{"name":"birthDate","error":"INVALID_BIRTHDATE"\},'
+            r'\{"name":"password","error":"FIELD_EMPTY"\}'
+            r'\]\}$'
+        )
+        if re.match(pattern, response_text):
+            return "❌ Taken"
+        
+        return "✅ Available"
 
+    cookies = {
+    'GUCS': 'AWknsyh0',
+    'GUC': 'AQEBCAFoSRdoeEIdQwQy&s=AQAAACCB4HIN&g=aEfHog',
+    'A1': 'd=AQABBMaWOWgCEL-FOLxgsvlB2W8Ovy55PwIFEgEBCAEXSWh4aFkPyyMA_eMDAAcIxpY5aC55PwI&S=AQAAApTnrAS4ma9896ODHJgQIvo',
+    'A3': 'd=AQABBMaWOWgCEL-FOLxgsvlB2W8Ovy55PwIFEgEBCAEXSWh4aFkPyyMA_eMDAAcIxpY5aC55PwI&S=AQAAApTnrAS4ma9896ODHJgQIvo',
+    'A1S': 'd=AQABBMaWOWgCEL-FOLxgsvlB2W8Ovy55PwIFEgEBCAEXSWh4aFkPyyMA_eMDAAcIxpY5aC55PwI&S=AQAAApTnrAS4ma9896ODHJgQIvo',
+    'AS': 'v=1&s=v5eswj9P&d=A6849191e|RM7R_af.2SqITqVCWEUuU2OsTZQGlvHZQO6ReSHM6JxxzqRwNttPVc.qMBCyzQ3vsi0PkXjsBchfbFvvr2ZGF.abxTZb41oLXF6_U9X0zcu5QL_UMnDMvKtPbWPTD5lPOcvDyLrehwVQl7zx4KXpXGtwRJwNiWTOXvV2CqsEkFMflcIy5ZpAtfGa5t2nplYgrhQOzMJZPofVqhnmQdXjqD4GquENpNV6OVv4f25gSjTvVICOowxkop1SIRsLehEBM0xlsvLYgKVUVV4Ed4FvjnEIWj_9aHOZGj35gv3RgH3UeqiIBAByvO_IAo_60otUrVcuIUZg4g02EASRKbj6o7YV5wtbvAmOAp1zUavHk6ZXgNXCUgRH0t1rbHLxHSEnR27lm5c8JAdaLuGG9eGY1_BpMJbSAoB.orhoZc4qFVuHM_hbWGckZpRTyv5w584MgE8eDZgqz2rkv5xWlhlTJwqJx58bD6Y6CXR9OcQXFYrJXPl1NxQVr1xaYCadabUzV3ZoQj0LZlffSEmUVmtLVm.hh72vU5Sl2Wg6GaDpp_wcJ6RCs.iTQLuXNjjBI5ZTo5BRmavQuuF275j1wAUQpDrqxUQlPlpI_fI7qK9.iKjSdfY9BifanZ5Q6VjH1oAfi8iCPz7ZcNBPYGDxRqJHIm61KQlQo5ts3NWN3nj1.EUdjhLcUqt_m9.rRtfZJP8OueRX.5RMOf8gSpc1mAv0jaJlmiMZTmUpQiZs_9iTHbL8ooDREiJK5hn6NGEH2WLQjo.LfyOJBirPfTnkkU079HG6i5z2qR7eNvLepT6srOLFxOaSf.QJdtOmNpL30IHaUbijM3KkfFa5NtcG40VqzVKAyHQ9I7101S9SBo2q26RK_rJCWzRIneEpaI06VEXSNKn91it9vPHUNs_dDsiLQDuo.TLzsuyI72nW6u6dbh2Yb23tQFwCPg2r1t1qsPRAnM3ujJvyyMYNFxin~A|B68491921|7u_g5jH.2Tpg6gyXmbiOAf2UdsjI6NGgF.mLeybcIo.sr_YTQTKBtmNNLvaPHoCCJQ5xND2zIqkCFQLeaJObaXGPc6P9MhODLWbMQRvZF.5.4.Q86Z62gWrRVeMMhxDF5ON4FlI_mmEVfpVndgMXK8iYeX0l1ssgrIKbqV7m9dLUGILMw0.hPvcC30QYUDxQbe4T2bkBmPqEIc36ECNu.6NfTzu_LltP5b_Z1JCkkKXNanL2k_Clx29IMR64W0c6O41Ewg.G5X.Q6nub_yqYM9.NI13JR5yii3Jw5iiaK3cL6MB5R0Xl6HRNZcdcExosg2hBV1kx_P4yzRA1DRd1fw_FgVRJVCBL0IwuMHq3mUO4T_Z4A6qT6tadtrTa8L9B2qZKgHATFbOsjpocUAeNdRDDU9pMtSlTq8L.emZbgSMbAp1V_5ETYuiQ2uYAKnthpCaNRd4EdePLOfB1c.8iKZitUOHa.uHcotm7112pDfRgr6Nbl05q6nUxoQBgKynyd0X20aXT2GF.oEp6jC2QaFBcZSNeYRZCtOM2VmJLAWfvxrf0s2xZagMhbLjSFwoCOooVIygqgQySZ0x_7t52jgJCW0kn_UY4XqUgkZ3z9epzU0ec81FMWw6RE98CcSd6lQKEdo4ofgVsdnyCN7ZFQOd66nus2Dp9_fJFzupfT8Ia4iaN60WMeqi8gy8rweKt72XqiML4_6m51vcnXJmAiRygy0qL_TnwoPJmc1E4r0lt.YPTmO_eVwQbgHSHTQuYrnj5eLAvguT_I_.Hb0S0IEQa88sNEerHf6eMv3GAPLYo5ADIQi_e1o9HraTdRZ4qwKZ4vW_LQ.ByA80bh2sYRR20ZWlXNg0dvyxb5privgDxkpMkhGUnoVjZdhqqA6uibukRgb14Dn71K.V5CSXDF1ilV6RgGWqzfo3yfgNB6WbL62zEOkiljCbAiPT0zfo8t_avjpxgpg1lM3Ifmgcmvhwgs.Knoac3iRB91QVRPh88taF3PN.hNVy0KV0eMossggxABIRqjh.EYIYicP0d5qEN4276B4liEPZQDl1lT2i.0ZFeURAX4DfKWUWs5tgvfL5kwI_cajbqu_f9tG9huP9SpMGDDWvLAOcAxHzIjsJ0gBWtvh.AyEnXHfA.K7NjQiNyt9k-~A',
+    }
+    headers = {
+    'accept': '*/*',
+    'accept-language': 'en-US,en;q=0.9',
+    'content-type': 'application/x-www-form-urlencoded; charset=UTF-8',
+    'origin': 'https://login.yahoo.com',
+    'priority': 'u=1, i',
+    'referer': 'https://login.yahoo.com/account/create?.lang=en-US&src=homepage&activity=ybar-signin&pspid=2023538075&.done=https%3A%2F%2Fwww.yahoo.com%2F%3Fguccounter%3D1&specId=yidregsimplified&done=https%3A%2F%2Fwww.yahoo.com%2F%3Fguccounter%3D1',
+    'sec-ch-ua': '"Brave";v="137", "Chromium";v="137", "Not/A)Brand";v="24"',
+    'sec-ch-ua-mobile': '?0',
+    'sec-ch-ua-platform': '"Windows"',
+    'sec-fetch-dest': 'empty',
+    'sec-fetch-mode': 'cors',
+    'sec-fetch-site': 'same-origin',
+    'sec-gpc': '1',
+    'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36',
+    'x-requested-with': 'XMLHttpRequest',
+    'cookie': 'GUCS=AWknsyh0; GUC=AQEBCAFoSRdoeEIdQwQy&s=AQAAACCB4HIN&g=aEfHog; A1=d=AQABBMaWOWgCEL-FOLxgsvlB2W8Ovy55PwIFEgEBCAEXSWh4aFkPyyMA_eMDAAcIxpY5aC55PwI&S=AQAAApTnrAS4ma9896ODHJgQIvo; A3=d=AQABBMaWOWgCEL-FOLxgsvlB2W8Ovy55PwIFEgEBCAEXSWh4aFkPyyMA_eMDAAcIxpY5aC55PwI&S=AQAAApTnrAS4ma9896ODHJgQIvo; A1S=d=AQABBMaWOWgCEL-FOLxgsvlB2W8Ovy55PwIFEgEBCAEXSWh4aFkPyyMA_eMDAAcIxpY5aC55PwI&S=AQAAApTnrAS4ma9896ODHJgQIvo; AS=v=1&s=v5eswj9P&d=A6849191e|RM7R_af.2SqITqVCWEUuU2OsTZQGlvHZQO6ReSHM6JxxzqRwNttPVc.qMBCyzQ3vsi0PkXjsBchfbFvvr2ZGF.abxTZb41oLXF6_U9X0zcu5QL_UMnDMvKtPbWPTD5lPOcvDyLrehwVQl7zx4KXpXGtwRJwNiWTOXvV2CqsEkFMflcIy5ZpAtfGa5t2nplYgrhQOzMJZPofVqhnmQdXjqD4GquENpNV6OVv4f25gSjTvVICOowxkop1SIRsLehEBM0xlsvLYgKVUVV4Ed4FvjnEIWj_9aHOZGj35gv3RgH3UeqiIBAByvO_IAo_60otUrVcuIUZg4g02EASRKbj6o7YV5wtbvAmOAp1zUavHk6ZXgNXCUgRH0t1rbHLxHSEnR27lm5c8JAdaLuGG9eGY1_BpMJbSAoB.orhoZc4qFVuHM_hbWGckZpRTyv5w584MgE8eDZgqz2rkv5xWlhlTJwqJx58bD6Y6CXR9OcQXFYrJXPl1NxQVr1xaYCadabUzV3ZoQj0LZlffSEmUVmtLVm.hh72vU5Sl2Wg6GaDpp_wcJ6RCs.iTQLuXNjjBI5ZTo5BRmavQuuF275j1wAUQpDrqxUQlPlpI_fI7qK9.iKjSdfY9BifanZ5Q6VjH1oAfi8iCPz7ZcNBPYGDxRqJHIm61KQlQo5ts3NWN3nj1.EUdjhLcUqt_m9.rRtfZJP8OueRX.5RMOf8gSpc1mAv0jaJlmiMZTmUpQiZs_9iTHbL8ooDREiJK5hn6NGEH2WLQjo.LfyOJBirPfTnkkU079HG6i5z2qR7eNvLepT6srOLFxOaSf.QJdtOmNpL30IHaUbijM3KkfFa5NtcG40VqzVKAyHQ9I7101S9SBo2q26RK_rJCWzRIneEpaI06VEXSNKn91it9vPHUNs_dDsiLQDuo.TLzsuyI72nW6u6dbh2Yb23tQFwCPg2r1t1qsPRAnM3ujJvyyMYNFxin~A|B68491921|7u_g5jH.2Tpg6gyXmbiOAf2UdsjI6NGgF.mLeybcIo.sr_YTQTKBtmNNLvaPHoCCJQ5xND2zIqkCFQLeaJObaXGPc6P9MhODLWbMQRvZF.5.4.Q86Z62gWrRVeMMhxDF5ON4FlI_mmEVfpVndgMXK8iYeX0l1ssgrIKbqV7m9dLUGILMw0.hPvcC30QYUDxQbe4T2bkBmPqEIc36ECNu.6NfTzu_LltP5b_Z1JCkkKXNanL2k_Clx29IMR64W0c6O41Ewg.G5X.Q6nub_yqYM9.NI13JR5yii3Jw5iiaK3cL6MB5R0Xl6HRNZcdcExosg2hBV1kx_P4yzRA1DRd1fw_FgVRJVCBL0IwuMHq3mUO4T_Z4A6qT6tadtrTa8L9B2qZKgHATFbOsjpocUAeNdRDDU9pMtSlTq8L.emZbgSMbAp1V_5ETYuiQ2uYAKnthpCaNRd4EdePLOfB1c.8iKZitUOHa.uHcotm7112pDfRgr6Nbl05q6nUxoQBgKynyd0X20aXT2GF.oEp6jC2QaFBcZSNeYRZCtOM2VmJLAWfvxrf0s2xZagMhbLjSFwoCOooVIygqgQySZ0x_7t52jgJCW0kn_UY4XqUgkZ3z9epzU0ec81FMWw6RE98CcSd6lQKEdo4ofgVsdnyCN7ZFQOd66nus2Dp9_fJFzupfT8Ia4iaN60WMeqi8gy8rweKt72XqiML4_6m51vcnXJmAiRygy0qL_TnwoPJmc1E4r0lt.YPTmO_eVwQbgHSHTQuYrnj5eLAvguT_I_.Hb0S0IEQa88sNEerHf6eMv3GAPLYo5ADIQi_e1o9HraTdRZ4qwKZ4vW_LQ.ByA80bh2sYRR20ZWlXNg0dvyxb5privgDxkpMkhGUnoVjZdhqqA6uibukRgb14Dn71K.V5CSXDF1ilV6RgGWqzfo3yfgNB6WbL62zEOkiljCbAiPT0zfo8t_avjpxgpg1lM3Ifmgcmvhwgs.Knoac3iRB91QVRPh88taF3PN.hNVy0KV0eMossggxABIRqjh.EYIYicP0d5qEN4276B4liEPZQDl1lT2i.0ZFeURAX4DfKWUWs5tgvfL5kwI_cajbqu_f9tG9huP9SpMGDDWvLAOcAxHzIjsJ0gBWtvh.AyEnXHfA.K7NjQiNyt9k-~A',
+    }
+
+    params = {
+        'validateField': 'userId',
+    }
+    data = f'browser-fp-data=%7B%22language%22%3A%22en-US%22%2C%22colorDepth%22%3A24%2C%22deviceMemory%22%3A8%2C%22pixelRatio%22%3A1%2C%22hardwareConcurrency%22%3A3%2C%22timezoneOffset%22%3A-330%2C%22timezone%22%3A%22Asia%2FCalcutta%22%2C%22sessionStorage%22%3A1%2C%22localStorage%22%3A1%2C%22indexedDb%22%3A1%2C%22cpuClass%22%3A%22unknown%22%2C%22platform%22%3A%22Win32%22%2C%22doNotTrack%22%3A%22unknown%22%2C%22plugins%22%3A%7B%22count%22%3A4%2C%22hash%22%3A%229fd2e0f6cbbc12cbd2055f1976c5cbad%22%7D%2C%22canvas%22%3A%22canvas%20winding%3Ayes~canvas%22%2C%22webgl%22%3A1%2C%22webglVendorAndRenderer%22%3A%22Google%20Inc.%20(Intel)~ANGLE%20(Intel%2C%20Intel(R)%20HD%20Graphics%20Direct3D9Ex%20vs_3_0%20ps_3_0%2C%20igdumd64.dll)%22%2C%22adBlock%22%3A0%2C%22hasLiedLanguages%22%3A0%2C%22hasLiedResolution%22%3A0%2C%22hasLiedOs%22%3A0%2C%22hasLiedBrowser%22%3A0%2C%22touchSupport%22%3A%7B%22points%22%3A0%2C%22event%22%3A0%2C%22start%22%3A0%7D%2C%22fonts%22%3A%7B%22count%22%3A29%2C%22hash%22%3A%2290ead5fa1a480b09b5b0239bd273a529%22%7D%2C%22audio%22%3A%22123.991361015047%22%2C%22resolution%22%3A%7B%22w%22%3A%221680%22%2C%22h%22%3A%221050%22%7D%2C%22availableResolution%22%3A%7B%22w%22%3A%221050%22%2C%22h%22%3A%221680%22%7D%2C%22ts%22%3A%7B%22serve%22%3A1749534625138%2C%22render%22%3A1749534626560%7D%7D&specId=yidregsimplified&context=REGISTRATION&cacheStored=&crumb=Xit65ahjkHJ6bNHYETSZQ&acrumb=v5eswj9P&sessionIndex=Qg--&done=https%3A%2F%2Fwww.yahoo.com%2F%3Fguccounter%3D1&googleIdToken=&authCode=&attrSetIndex=0&specData=&deviceCapability=%7B%22pa%22%3A%7B%22status%22%3Afalse%7D%2C%22isWebAuthnSupported%22%3Atrue%7D&tos0=oath_freereg%7Cin%7Cen-IN&multiDomain=&asId=5957bdaa-ef9e-4f01-910c-fbfa76dd6aa1&fingerprintCaptured=&firstName=zuck&lastName=zuck&userid-domain=yahoo&userId={username}&yidDomainDefault=yahoo.com&yidDomain=yahoo.com&password=&mm=&dd=&yyyy=&signup='
+    response = requests.post('https://login.yahoo.com/account/module/create', params=params, cookies=cookies, headers=headers, data=data)
+    return check_availability_from_text(response.text)
+def check_Outlook(username):
+    url = "https://signup.live.com/API/CheckAvailableSigninNames"
+    cookies = {
+    'mkt': 'en-US',
+    'mkt1': 'en-US',
+    'amsc': 'A9pd8YMIs1weZ0Isc+MXX1J4QBH7lXbIHKDtjZ07IkBEFVO6525LiDaDMYeXwikB0xBBf41JGryAG3CjcOZGmAqs573mJ5pHJKExreZ0Nt/ttxZoE+owVcg5Mgy3Hyjrqd+a9ntspRAVuxvSDY1nWWECJbpk9GaQ153OvzlKaypAOfUPL6J2Tf1xZH4/4wNLSjIEjYl+8UrHMThztrd1t4epzjCXXuLmbm/zDSWLRGLiHNHWK4jbIwUAsGVQB9ylLV7v7jvRL3ieOLu8HkYFDk6krIbfHRHYB+fbD8Qn0vbsfE+vttCCdqTkjfHg9W+qlTr+zuK+aoUw34MWfX1O23yJDsd9SOG7fGVeFOqom+M=:2:3c',
+    'MicrosoftApplicationsTelemetryDeviceId': 'e208198f-a506-41d5-adca-1b39c973c995',
+    '_pxvid': '10ef2c67-45b4-11f0-8116-221b4e2c3734',
+    'MUID': 'c91d3e2e44be4d36b36ce7131a222599',
+    'fptctx2': 'taBcrIH61PuCVH7eNCyH0OPzOrGnaCb%252f7mTjN%252fuIW2tjmqx5EG4h0qOw4khA6M8yPuVXaNwZq2GHZv2T2hgQ01ORymKMkiSpkcjGCmNn%252bfTweoXFyvDUFFkOigLUkd5UdLB7a%252b%252fgERqeRCh3dhH3bXid9%252fZTjDA1i0AReva8b%252fHyqrpjCiciBPDUVQo7FH%252fAShY140rMEIOwY4VjYSuy428TOd0dL6wbjgQKI0AlKtltJPTRGvZZyKPL71tcde09TqvDzusjMZJEepM0QCsU4pSsTZYrvMzcl7jPeE57rFcXT82kgvNQz5x8PtdFNdv3z5qHa4ObIUoEet3s7mybig%253d%253d',
+    'MSFPC': 'GUID=9cd2a407f17942d5b7f44b221c0a9ce5&HASH=9cd2&LV=202506&V=4&LU=1749530016486',
+    '_px3': 'c333167a8fe1f4cf66c47fd0a0f1905e4a9ad39ce9c1aae2f1f1c182a02f5b3b:WMQLENvGmL+hN17z/KiLy6y5XG8RMF1wSEyWuqBlj8X1GFDedkVnU7riZM/n9thwr4bxy+NcbArUzy6RuCgrQg==:1000:ZxFqjsSZ2o9qJkTROjgecATmlHXtBD5DwjZZeQk05Cj788Vt1OTIDUdj++dGwL5niI4xEIKvZcN0ZCgzVpoFtgYOWl4BfDbIgFDY2cp8hqVfcPewK2b9yQ5KzkGSZXuPakmUgr1TMZ1GBxwTtz51FacMZzAb/P9VvwzX0FEoWxQ+bC0p54VwRUDyyoUxmJEZ+T4CgFRors9wIOobpuuamDCSqLZymBUR3532sURq7zQ=',
+    'ai_session': 'k/uwW/kRF+kg/QYRwmz+lm|1749533577717|1749534302731',
+    }
+    headers = {
+    'accept': 'application/json',
+    'accept-language': 'en-US,en;q=0.5',
+    'canary': 'JyJ3DOy6lEVg8s9cSkM95VNJvbm0QEZgNKWKgNOfY0tqFG/2/vHaDKjj4K3gZ8l4aJx3jbf2Hfe+5R6GibsVPy/hgJ/Vnx/8bwei4doIHiuBJFy/gQgD5tNGoHHum1NJJix4/nOCElN3rTVHVu21GlTJyQxj6pDOt/uUVjYI4G8vabOAMNKubrSOdPf87gRSXrtVz3PQwNezDep+rhyaPrAx5gq4jfGdVnZ2eQ1f2/E7ERAC8FTx1KjAnB6HyN5t:2:3c',
+    'client-request-id': '5266376b2a3c214445564e543a0be83b',
+    'content-type': 'application/json; charset=utf-8',
+    'correlationid': '5266376b2a3c214445564e543a0be83b',
+    'hpgact': '0',
+    'hpgid': '200225',
+    'origin': 'https://signup.live.com',
+    'priority': 'u=1, i',
+    'referer': 'https://signup.live.com/signup?sru=https%3a%2f%2flogin.live.com%2foauth20_authorize.srf%3flc%3d1033%26client_id%3d9199bf20-a13f-4107-85dc-02114787ef48%26cobrandid%3dab0455a0-8d03-46b9-b18b-df2f57b9e44c%26mkt%3dEN-US%26opid%3d41670EBB54EA78C0%26opidt%3d1749530008%26uaid%3d5266376b2a3c214445564e543a0be83b%26contextid%3d3F9EEF61C9DA5A78%26opignore%3d1&mkt=EN-US&uiflavor=web&fl=dob%2cflname%2cwld&cobrandid=ab0455a0-8d03-46b9-b18b-df2f57b9e44c&client_id=9199bf20-a13f-4107-85dc-02114787ef48&uaid=5266376b2a3c214445564e543a0be83b&suc=9199bf20-a13f-4107-85dc-02114787ef48&fluent=2&lic=1',
+    'sec-ch-ua': '"Brave";v="137", "Chromium";v="137", "Not/A)Brand";v="24"',
+    'sec-ch-ua-mobile': '?0',
+    'sec-ch-ua-platform': '"Windows"',
+    'sec-fetch-dest': 'empty',
+    'sec-fetch-mode': 'cors',
+    'sec-fetch-site': 'same-origin',
+    'sec-gpc': '1',
+    'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36',
+    'cookie': 'mkt=en-US; mkt1=en-US; amsc=A9pd8YMIs1weZ0Isc+MXX1J4QBH7lXbIHKDtjZ07IkBEFVO6525LiDaDMYeXwikB0xBBf41JGryAG3CjcOZGmAqs573mJ5pHJKExreZ0Nt/ttxZoE+owVcg5Mgy3Hyjrqd+a9ntspRAVuxvSDY1nWWECJbpk9GaQ153OvzlKaypAOfUPL6J2Tf1xZH4/4wNLSjIEjYl+8UrHMThztrd1t4epzjCXXuLmbm/zDSWLRGLiHNHWK4jbIwUAsGVQB9ylLV7v7jvRL3ieOLu8HkYFDk6krIbfHRHYB+fbD8Qn0vbsfE+vttCCdqTkjfHg9W+qlTr+zuK+aoUw34MWfX1O23yJDsd9SOG7fGVeFOqom+M=:2:3c; MicrosoftApplicationsTelemetryDeviceId=e208198f-a506-41d5-adca-1b39c973c995; _pxvid=10ef2c67-45b4-11f0-8116-221b4e2c3734; MUID=c91d3e2e44be4d36b36ce7131a222599; fptctx2=taBcrIH61PuCVH7eNCyH0OPzOrGnaCb%252f7mTjN%252fuIW2tjmqx5EG4h0qOw4khA6M8yPuVXaNwZq2GHZv2T2hgQ01ORymKMkiSpkcjGCmNn%252bfTweoXFyvDUFFkOigLUkd5UdLB7a%252b%252fgERqeRCh3dhH3bXid9%252fZTjDA1i0AReva8b%252fHyqrpjCiciBPDUVQo7FH%252fAShY140rMEIOwY4VjYSuy428TOd0dL6wbjgQKI0AlKtltJPTRGvZZyKPL71tcde09TqvDzusjMZJEepM0QCsU4pSsTZYrvMzcl7jPeE57rFcXT82kgvNQz5x8PtdFNdv3z5qHa4ObIUoEet3s7mybig%253d%253d; MSFPC=GUID=9cd2a407f17942d5b7f44b221c0a9ce5&HASH=9cd2&LV=202506&V=4&LU=1749530016486; _px3=c333167a8fe1f4cf66c47fd0a0f1905e4a9ad39ce9c1aae2f1f1c182a02f5b3b:WMQLENvGmL+hN17z/KiLy6y5XG8RMF1wSEyWuqBlj8X1GFDedkVnU7riZM/n9thwr4bxy+NcbArUzy6RuCgrQg==:1000:ZxFqjsSZ2o9qJkTROjgecATmlHXtBD5DwjZZeQk05Cj788Vt1OTIDUdj++dGwL5niI4xEIKvZcN0ZCgzVpoFtgYOWl4BfDbIgFDY2cp8hqVfcPewK2b9yQ5KzkGSZXuPakmUgr1TMZ1GBxwTtz51FacMZzAb/P9VvwzX0FEoWxQ+bC0p54VwRUDyyoUxmJEZ+T4CgFRors9wIOobpuuamDCSqLZymBUR3532sURq7zQ=; ai_session=k/uwW/kRF+kg/QYRwmz+lm|1749533577717|1749534302731',
+    }
+    json_data = {
+    'includeSuggestions': True,
+    'signInName': f'{username}@outlook.com',
+    'uiflvr': 1001,
+    'scid': 100118,
+    'uaid': '5266376b2a3c214445564e543a0be83b',
+    'hpgid': 200225,
+    }
+    try:
+        response = requests.post(url, headers=headers, json=json_data,cookies=cookies, timeout=10)
+        response.raise_for_status()
+        data = response.json()
+
+        if data.get("isAvailable") == True:
+            return "✅ Available"
+        else:
+            return "❌ Taken"
+    except:
+        return "error"
 def check_hotmail(username):
     url = "https://signup.live.com/API/CheckAvailableSigninNames"
     cookies = {
@@ -790,7 +900,9 @@ def fetch_instagram_info(username):
         result = send_recovery_request(username)
         reset_email = result[0].replace("Email: ", "").replace("Phone: ", "").strip() if result and result[0] not in ["No Reset", "Failed", "Error"] else "Not Found"
         result = check_aol_username(username)
+        Yahoo = check_yahoo(username)
         hotmail = check_hotmail(username)
+        Outlook = check_Outlook(username)
         gmail_checker = Gm(username)
         gmail_result = gmail_checker.check()
         has_pic = "Yes" if profile.profile_pic_url else "No"
@@ -810,6 +922,10 @@ def fetch_instagram_info(username):
                     reset_check = f"AOL is {(result)}"
                 elif "hotmail" in domain:
                     reset_check = f"Hotmail is {(hotmail)}"
+                elif "outlook" in domain:
+                    reset_check = f"Outlook is {(Outlook)}"
+                elif "yahoo" in domain:
+                    reset_check = f"Yahoo is {(Yahoo)}"
                 else:reset_check = "Unknown domain"
             else:reset_check = "🔐 Reset is different"
         result_msg = f"""
