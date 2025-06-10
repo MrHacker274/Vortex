@@ -372,6 +372,64 @@ def check_aol_username(username):
         data=data
     )
     return check_availability_from_text(response.text)
+
+def check_hotmail(username):
+    url = "https://signup.live.com/API/CheckAvailableSigninNames"
+    cookies = {
+    'mkt': 'en-US',
+    'mkt1': 'en-US',
+    'amsc': 'A9pd8YMIs1weZ0Isc+MXX1J4QBH7lXbIHKDtjZ07IkBEFVO6525LiDaDMYeXwikB0xBBf41JGryAG3CjcOZGmAqs573mJ5pHJKExreZ0Nt/ttxZoE+owVcg5Mgy3Hyjrqd+a9ntspRAVuxvSDY1nWWECJbpk9GaQ153OvzlKaypAOfUPL6J2Tf1xZH4/4wNLSjIEjYl+8UrHMThztrd1t4epzjCXXuLmbm/zDSWLRGLiHNHWK4jbIwUAsGVQB9ylLV7v7jvRL3ieOLu8HkYFDk6krIbfHRHYB+fbD8Qn0vbsfE+vttCCdqTkjfHg9W+qlTr+zuK+aoUw34MWfX1O23yJDsd9SOG7fGVeFOqom+M=:2:3c',
+    'MicrosoftApplicationsTelemetryDeviceId': 'e208198f-a506-41d5-adca-1b39c973c995',
+    '_pxvid': '10ef2c67-45b4-11f0-8116-221b4e2c3734',
+    'MUID': 'c91d3e2e44be4d36b36ce7131a222599',
+    'fptctx2': 'taBcrIH61PuCVH7eNCyH0OPzOrGnaCb%252f7mTjN%252fuIW2tjmqx5EG4h0qOw4khA6M8yPuVXaNwZq2GHZv2T2hgQ01ORymKMkiSpkcjGCmNn%252bfTweoXFyvDUFFkOigLUkd5UdLB7a%252b%252fgERqeRCh3dhH3bXid9%252fZTjDA1i0AReva8b%252fHyqrpjCiciBPDUVQo7FH%252fAShY140rMEIOwY4VjYSuy428TOd0dL6wbjgQKI0AlKtltJPTRGvZZyKPL71tcde09TqvDzusjMZJEepM0QCsU4pSsTZYrvMzcl7jPeE57rFcXT82kgvNQz5x8PtdFNdv3z5qHa4ObIUoEet3s7mybig%253d%253d',
+    '_px3': '07fc421b7033f52142f26a41c52c9204cb0a62d7d78ed2b23f78065dabb57fdb:PxG8MhhBx0wnyiskfgnxlgVyZpgfCFqlLJa1dBFTBDeWEns9GzSvMTkheUhl+UAq72zg3lyftXG+YZ0zhFyW4Q==:1000:7yRLpjzHAoyPssSSWqZvuveMo9wyhx0Htq4mATYQ9FttndS8YDCiR/Jv55fRzPmgFeCHszst69juWBRedJITWeLoqD8xgL7/Zwmu3m1nDDtrbGpeZ6/ZYkKgsoJAmSUA7O82jYEfQsfGyTV9BHDLkSAT7pX1/jZfdKskfbcLzLQQGsoOaVLrEvET7RrL/Ta0l0L1NPchzM1Xa8kPa0mihEnpH0hNWl74uCfWxQUNxRM=',
+    '_pxde': '1835c47dc29d3b44f1c0e95317b68d68a38f32d9a1f0d07911261e9ed60729c0:eyJ0aW1lc3RhbXAiOjE3NDk1MzAwMTU4MzcsImZfa2IiOjB9',
+    'MSFPC': 'GUID=9cd2a407f17942d5b7f44b221c0a9ce5&HASH=9cd2&LV=202506&V=4&LU=1749530016486',
+    'ai_session': 'nQFlLO01vWFvOnUdj2oEzE|1749530012894|1749530169060',
+    }
+    headers = {
+    'accept': 'application/json',
+    'accept-language': 'en-US,en;q=0.5',
+    'canary': 'BUaG3MNOM4oYxVkFPtHJo5kh9k/e089tnIZv01H4MSwNxMj1Y75N/29Av4GNffog8iLjTMrfN3E0VZG+Ro1rcfe1SrIgfyR8KuLnjO5OQwHcZl48YutF6U8zlPgo7fg976esrT7MgxdQaTf+HizkKbWsbVPIllPFuBv9YCBEQ1zlZprMGLwsG7jzys2GAf6gCrd+Z8dGvWUMBiibk9qmozapCzztdyZGHHs2FVhSpP6DAfjfie1LvRqit7YTy990:2:3c',
+    'client-request-id': '5266376b2a3c214445564e543a0be83b',
+    'content-type': 'application/json; charset=utf-8',
+    'correlationid': '5266376b2a3c214445564e543a0be83b',
+    'hpgact': '0',
+    'hpgid': '200225',
+    'origin': 'https://signup.live.com',
+    'priority': 'u=1, i',
+    'referer': 'https://signup.live.com/signup?sru=https%3a%2f%2flogin.live.com%2foauth20_authorize.srf%3flc%3d1033%26client_id%3d9199bf20-a13f-4107-85dc-02114787ef48%26cobrandid%3dab0455a0-8d03-46b9-b18b-df2f57b9e44c%26mkt%3dEN-US%26opid%3d41670EBB54EA78C0%26opidt%3d1749530008%26uaid%3d5266376b2a3c214445564e543a0be83b%26contextid%3d3F9EEF61C9DA5A78%26opignore%3d1&mkt=EN-US&uiflavor=web&fl=dob%2cflname%2cwld&cobrandid=ab0455a0-8d03-46b9-b18b-df2f57b9e44c&client_id=9199bf20-a13f-4107-85dc-02114787ef48&uaid=5266376b2a3c214445564e543a0be83b&suc=9199bf20-a13f-4107-85dc-02114787ef48&fluent=2&lic=1',
+    'sec-ch-ua': '"Brave";v="137", "Chromium";v="137", "Not/A)Brand";v="24"',
+    'sec-ch-ua-mobile': '?0',
+    'sec-ch-ua-platform': '"Windows"',
+    'sec-fetch-dest': 'empty',
+    'sec-fetch-mode': 'cors',
+    'sec-fetch-site': 'same-origin',
+    'sec-gpc': '1',
+    'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36',
+    'cookie': 'mkt=en-US; mkt1=en-US; amsc=A9pd8YMIs1weZ0Isc+MXX1J4QBH7lXbIHKDtjZ07IkBEFVO6525LiDaDMYeXwikB0xBBf41JGryAG3CjcOZGmAqs573mJ5pHJKExreZ0Nt/ttxZoE+owVcg5Mgy3Hyjrqd+a9ntspRAVuxvSDY1nWWECJbpk9GaQ153OvzlKaypAOfUPL6J2Tf1xZH4/4wNLSjIEjYl+8UrHMThztrd1t4epzjCXXuLmbm/zDSWLRGLiHNHWK4jbIwUAsGVQB9ylLV7v7jvRL3ieOLu8HkYFDk6krIbfHRHYB+fbD8Qn0vbsfE+vttCCdqTkjfHg9W+qlTr+zuK+aoUw34MWfX1O23yJDsd9SOG7fGVeFOqom+M=:2:3c; MicrosoftApplicationsTelemetryDeviceId=e208198f-a506-41d5-adca-1b39c973c995; _pxvid=10ef2c67-45b4-11f0-8116-221b4e2c3734; MUID=c91d3e2e44be4d36b36ce7131a222599; fptctx2=taBcrIH61PuCVH7eNCyH0OPzOrGnaCb%252f7mTjN%252fuIW2tjmqx5EG4h0qOw4khA6M8yPuVXaNwZq2GHZv2T2hgQ01ORymKMkiSpkcjGCmNn%252bfTweoXFyvDUFFkOigLUkd5UdLB7a%252b%252fgERqeRCh3dhH3bXid9%252fZTjDA1i0AReva8b%252fHyqrpjCiciBPDUVQo7FH%252fAShY140rMEIOwY4VjYSuy428TOd0dL6wbjgQKI0AlKtltJPTRGvZZyKPL71tcde09TqvDzusjMZJEepM0QCsU4pSsTZYrvMzcl7jPeE57rFcXT82kgvNQz5x8PtdFNdv3z5qHa4ObIUoEet3s7mybig%253d%253d; _px3=07fc421b7033f52142f26a41c52c9204cb0a62d7d78ed2b23f78065dabb57fdb:PxG8MhhBx0wnyiskfgnxlgVyZpgfCFqlLJa1dBFTBDeWEns9GzSvMTkheUhl+UAq72zg3lyftXG+YZ0zhFyW4Q==:1000:7yRLpjzHAoyPssSSWqZvuveMo9wyhx0Htq4mATYQ9FttndS8YDCiR/Jv55fRzPmgFeCHszst69juWBRedJITWeLoqD8xgL7/Zwmu3m1nDDtrbGpeZ6/ZYkKgsoJAmSUA7O82jYEfQsfGyTV9BHDLkSAT7pX1/jZfdKskfbcLzLQQGsoOaVLrEvET7RrL/Ta0l0L1NPchzM1Xa8kPa0mihEnpH0hNWl74uCfWxQUNxRM=; _pxde=1835c47dc29d3b44f1c0e95317b68d68a38f32d9a1f0d07911261e9ed60729c0:eyJ0aW1lc3RhbXAiOjE3NDk1MzAwMTU4MzcsImZfa2IiOjB9; MSFPC=GUID=9cd2a407f17942d5b7f44b221c0a9ce5&HASH=9cd2&LV=202506&V=4&LU=1749530016486; ai_session=nQFlLO01vWFvOnUdj2oEzE|1749530012894|1749530169060',
+    }
+    json_data = {
+    'includeSuggestions': True,
+    'signInName': f'{username}@hotmail.com',
+    'uiflvr': 1001,
+    'scid': 100118,
+    'uaid': '5266376b2a3c214445564e543a0be83b',
+    'hpgid': 200225,
+    }
+    try:
+        response = requests.post(url, headers=headers, json=json_data,cookies=cookies, timeout=10)
+        response.raise_for_status()
+        data = response.json()
+
+        if data.get("isAvailable") == True:
+            return "✅ Available"
+        else:
+            return "❌ Taken"
+    except:
+        return "error"
+
 class Gm:
     def __init__(self, email):
         self.email = email
@@ -646,76 +704,70 @@ def fetch_instagram_info(username):
     try:
         profile = instaloader.Profile.from_username(L.context, username)
         user_id = profile.userid    
-        # --- Cookies ---
         cookies = {
-            'datr': 'f8Y6aLcIj6142U1O_fT3iuqu',
-    'ig_did': 'E67A15CE-C690-4C49-95C3-0A78681C907B',
-    'mid': 'aDrGfwABAAE5QO1YTXQAEyIiCJN_',
+            'datr': 'GAgjaB5R_liEM-dpATRTgjMj',
+    'ig_did': '114B8FDB-7673-4860-A1D8-E88C655B9DD8',
+    'dpr': '0.8999999761581421',
     'ig_nrcb': '1',
     'ps_l': '1',
     'ps_n': '1',
-    'csrftoken': '7m1nZgERN9d2hM465W0wDv05vPxqullE',
-    'ds_user_id': '3542169352',
-    'dpr': '2.698957920074463',
-    'wd': '400x770',
-    'sessionid': '3542169352%3AX3uE2n9Zx7SVUF%3A6%3AAYdZg8AzoCK5nkoMue4vysqzuCQ52kIu7S1QkIKD6g',
-    'rur': '"CLN\\0543542169352\\0541781019394:01fe5b70bd432e8418c5e7d373de95e112e706af4f9f5f9ec3a760dbf21e1bade93e75cd"',
+    'mid': 'aDaRiAALAAFk8TVh8AGAIMVtWO_F',
+    'csrftoken': 'Pf0Us3q173jfLfTXAurrhCD8uY5KpFlf',
+    'ds_user_id': '5545662104',
+    'sessionid': '5545662104%3ATSmn4hQ082l5P1%3A2%3AAYfGQJkf9uoykg9E_EqpP4vuo--TjaReYFdz8ClhDCE',
+    'rur': '"CCO\\0545545662104\\0541780979422:01fe117434d511dfb250ee87303ff8299cf0902d289cc28615e1b2dfef597cb2f073fd8d"',
+    'wd': '1160x865',
         }
-
-        # --- Headers ---
         headers = {
-           'authority': 'www.instagram.com',
-    'accept': '*/*',
-    'accept-language': 'en-GB,en-US;q=0.9,en;q=0.8',
+           'accept': '*/*',
+    'accept-language': 'en-US,en;q=0.6',
     'content-type': 'application/x-www-form-urlencoded;charset=UTF-8',
-     'cookie': 'datr=f8Y6aLcIj6142U1O_fT3iuqu; ig_did=E67A15CE-C690-4C49-95C3-0A78681C907B; mid=aDrGfwABAAE5QO1YTXQAEyIiCJN_; ig_nrcb=1; ps_l=1; ps_n=1; csrftoken=7m1nZgERN9d2hM465W0wDv05vPxqullE; ds_user_id=3542169352; dpr=2.698957920074463; wd=400x770; sessionid=3542169352%3AX3uE2n9Zx7SVUF%3A6%3AAYdZg8AzoCK5nkoMue4vysqzuCQ52kIu7S1QkIKD6g; rur="CLN\\0543542169352\\0541781019394:01fe5b70bd432e8418c5e7d373de95e112e706af4f9f5f9ec3a760dbf21e1bade93e75cd"',
     'origin': 'https://www.instagram.com',
-    'referer':f'https://www.instagram.com/{username}/',
-    'sec-ch-prefers-color-scheme': 'dark',
-    'sec-ch-ua': '"Chromium";v="137", "Not/A)Brand";v="24"',
-    'sec-ch-ua-full-version-list': '"Chromium";v="137.0.7337.0", "Not/A)Brand";v="24.0.0.0"',
-    'sec-ch-ua-mobile': '?1',
-    'sec-ch-ua-model': '"CPH2467"',
-    'sec-ch-ua-platform': '"Android"',
-    'sec-ch-ua-platform-version': '"15.0.0"',
+    'priority': 'u=1, i',
+    'referer': f'https://www.instagram.com/{username}/',
+    'sec-ch-ua': '"Brave";v="137", "Chromium";v="137", "Not/A)Brand";v="24"',
+    'sec-ch-ua-full-version-list': '"Brave";v="137.0.0.0", "Chromium";v="137.0.0.0", "Not/A)Brand";v="24.0.0.0"',
+    'sec-ch-ua-mobile': '?0',
+    'sec-ch-ua-model': '""',
+    'sec-ch-ua-platform': '"Windows"',
+    'sec-ch-ua-platform-version': '"10.0.0"',
     'sec-fetch-dest': 'empty',
     'sec-fetch-mode': 'cors',
     'sec-fetch-site': 'same-origin',
-    'user-agent': 'Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Mobile Safari/537.36',
+    'sec-gpc': '1',
+    'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36',
+    'cookie': 'datr=GAgjaB5R_liEM-dpATRTgjMj; ig_did=114B8FDB-7673-4860-A1D8-E88C655B9DD8; dpr=0.8999999761581421; ig_nrcb=1; ps_l=1; ps_n=1; mid=aDaRiAALAAFk8TVh8AGAIMVtWO_F; csrftoken=Pf0Us3q173jfLfTXAurrhCD8uY5KpFlf; ds_user_id=5545662104; sessionid=5545662104%3ATSmn4hQ082l5P1%3A2%3AAYfGQJkf9uoykg9E_EqpP4vuo--TjaReYFdz8ClhDCE; rur="CCO\\0545545662104\\0541780979422:01fe117434d511dfb250ee87303ff8299cf0902d289cc28615e1b2dfef597cb2f073fd8d"; wd=1160x865',
         }
         params = {
             'appid': 'com.bloks.www.ig.about_this_account',
     'type': 'app',
     '__bkv': 'f4e32caf235c4c3198ceb3d7599c397741599ea3447ec2f785d4575aeb99766b',
         }
-
-        # --- Data ---
         data = {
             '__d': 'www',
     '__user': '0',
     '__a': '1',
-    '__req': '16',
+    '__req': '1f',
     '__hs': '20248.HYP:instagram_web_pkg.2.1...0',
-    'dpr': '3',
-    '__ccg': 'GOOD',
-    '__rev': '1023625634',
-    '__s': 'yi9oyh:9uo62g:j2wlp9',
-    '__hsi': '7513973924036118560',
-    '__dyn': '7xeUjG1mxu1syUbFp41twpUnwgU7SbzEdF8aUco2qwJxS0k24o0B-q1ew6ywaq0yE462mcw5Mx62G5UswoEcE7O2l0Fwqo31w9O1TwQzXwae4UaEW2G0AEco5G0zK5o4q3y1Sw62wLyES1TwVwDwHg2ZwrUdUbGwmk0zU8oC1Iwqo5p0OwUQp1yUb8jxKi2K7E5y4U4u0P8K9x60hK78apE',
-    '__csr': 'gT4MqMzsIl7QDblkSB9sy8SW9BqFOi8xaFAnHXijyEx4-hKFoR4l7VaGmKSHHK9hRAyibsDWURQAUgHhpq-GmAGye8haF16mKiVJ29VF9mcghGA5EGuc_GqcV4VGy9pkm5azERe4oizpoKAiFAm9iABAGVk9UcogCKErze3aEi_CKm2e00lhd0q2wfa2Ou0yoW37e1CUabbeXo2k82u5Eox20E84x0m85S0etwzxG04xo0Azo6d6yEO2i2y8Pwhk0S9m7o2nU940wUGgw2GhiGaCgRAO04kxqOwgE1dpBo2lCgGA9m0KFV9UhwCw09560cow0MEw',
-    '__hsdp': 'gcA9Ix1cGcRf393OKqhgNO-fhhOFIFxU5TANmziBgwiQTPaQZoGFkbL7zi2YBm1y50GK4pE4WarwLyod8aOQi2C7pkEmz98pG9xC64fgYU9UXwiV8iwpolw_wjEG2idyEhDK4o3Cg4O1kw4Jw5swn89o24weB0hU9U3Gzo4y13wqE1iixO7m0IU20wlo9Ugwh46EuzU8U9mdwwwiU82288ojxi',
-    '__hblp': '4zE4u15x22uu5Ee9Q0JEGEy4F83cxde68mGEmzoWqdwjUF0zxqiiq7ubG9x65kcAG5GykElAxd5wiazu7Ukxih2rl0go8VER1W2258hwCgGez8ydyFUC8GdK1uwmo9FA1bg5i0wUa8f84e0I82Hwn889824ws87x0UzE9U8EO1KwiVVo4y13wqE3Uwjqa78tob8uwiotxudwVwwwwwQy8uxi7otAgqwg8hwBoLwwwiU82pK7ayoC58',
+    'dpr': '1',
+    '__ccg': 'EXCELLENT',
+    '__rev': '1023623731',
+    '__s': '499qrl:ctig8q:csc88m',
+    '__hsi': '7513802066483034222',
+    '__dyn': '7xeUjG1mxu1syUbFp41twWwIxu13wvoKewSAwHwNw9G2S7o2vwa24o0B-q1ew6ywaq0yE462mcw5Mx62G5UswoEcE7O2l0Fwqo31w9O0H8-U2zxe2GewGw9a361qwuEjUlwhEe87q0oa2-azqwt8d-2u2J0bS1LwTwKG1pg2fwxyo6O1FwlA3a3zhA6bwgbxui2K7E5y4UrwHwcObyohw4rxO2C',
+    '__csr': 'iMigtEp3QrOgxOAl4dldbHf-JQWaWWty8CKnUgCYzBzaWjKrGmVGQhAK_BrJi4RgzCADiiDD9GHuulykiQ9iWAh5ZafgGuaHBgvUKJ38yu4Fb8VRjCF6CyoyUOuFCcy8-4ogigLzkiRx28zrABmE-aUO7F4iEC48tx2UoKt2Erw05kng4iut2E3VwHg5q3Gcg9-ve1EwEA9eW80NSt1GWyE565k0wA0L80V22K6U0i3w2fVZ0oK4FF84V7Pwh40Sp62C0x9U9k1PDDgHe0GkkOy8x36no13ouEE4a0jqlQ0BFkdgBk0KFF8qwCg0V-00wI80PO030i',
+    '__hsdp': 'gcI9cx2-xsQhONZEIKFbb34-d4hQtp0d5FHsdEmOoBPt8g2fC7yrG1T73onxGdxcOG3C0y44O0XwMpKh1i0XU1Ko1dEaE2Nw4_w3CE7m4U21wdq0BU2bwbi3m0bmwcWE7a5o2dxq',
+    '__hblp': '4g5m13wgk8wIxuqE2eyEkGayqxK0J8iCxq4pEWcBqwNUK1bzt5xm2eh6wiELG4mcAGh2EyazFEgyErG224EjxaU9ppoZa8wwRwEzEc99oapUS5omwFwEwOw8u1hxm15wGDyoK1bCwg81b8iy84i1RhEnw-zE1A84C0zo8Ud9Ukxe14wyxlaUlwn85ebw9uEdU520J8do2KAt6xq2dwiUtwgEO4GwwwTBgcUuwjFU88yq6o9kEy3S7E5GeDzo5eeggB4krCzUW2u',
     '__comet_req': '7',
-    'fb_dtsg': 'NAfurKHmq88F1BWDsd3BzHYixNI49DSNGfdlcorvp1mNHeWzPkeDSbQ:17865379441060568:1749131910',
-    'jazoest': '26325',
-    'lsd': '3NrYKx2pT7oiFTNobdbBTr',
-    '__spin_r': '1023625634',
+    'fb_dtsg': 'NAft8PCC95bUa6gG43Ooiu-xcZobNgkxRKPE6gn2LAtOuc1Qc3jPlnQ:17843671327157124:1748946019',
+    'jazoest': '26205',
+    'lsd': 'vg_3IThEEP07uATl42SAxX',
+    '__spin_r': '1023623731',
     '__spin_b': 'trunk',
-    '__spin_t': '1749483385',
+    '__spin_t': '1749443371',
     '__crn': 'comet.igweb.PolarisProfilePostsTabRoute',
     'params': f'{{"referer_type":"ProfileMore","target_user_id":{user_id} }}',
         }
-
         response = requests.post(
             'https://www.instagram.com/async/wbloks/fetch/',
             params=params,
@@ -738,6 +790,7 @@ def fetch_instagram_info(username):
         result = send_recovery_request(username)
         reset_email = result[0].replace("Email: ", "").replace("Phone: ", "").strip() if result and result[0] not in ["No Reset", "Failed", "Error"] else "Not Found"
         result = check_aol_username(username)
+        hotmail = check_hotmail(username)
         gmail_checker = Gm(username)
         gmail_result = gmail_checker.check()
         has_pic = "Yes" if profile.profile_pic_url else "No"
@@ -755,6 +808,8 @@ def fetch_instagram_info(username):
                     else:reset_check = "Gmail is ❌ Taken"
                 elif "a**" in domain or "aol" in domain.lower():
                     reset_check = f"AOL is {(result)}"
+                elif "hotmail" in domain:
+                    reset_check = f"Hotmail is {(hotmail)}"
                 else:reset_check = "Unknown domain"
             else:reset_check = "🔐 Reset is different"
         result_msg = f"""
