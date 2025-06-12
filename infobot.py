@@ -906,27 +906,40 @@ def fetch_instagram_info(username):
         Outlook = check_Outlook(username)
         gmail_checker = Gm(username)
         gmail_result = gmail_checker.check()
-        reset_check = "🔐 Reset not available" 
-        if reset_email and "@" in reset_email and username:
-            visible = reset_email.split("@")[0]
-            domain = reset_email.split("@")[1].lower()
-            first_visible = visible[0]
-            last_visible = visible[-1]
-            if username[0].lower() == first_visible.lower() and username[-1].lower() == last_visible.lower():
-                if "gmail" in domain:
-                    if gmail_result is None:reset_check = "❌ Unable to check Gmail"
-                    elif gmail_result.get("available"):reset_check = "Gmail is ✅ Available"
-                    else:reset_check = "Gmail is ❌ Taken"
-                elif "a**" in domain or "aol" in domain.lower():
-                    reset_check = f"AOL is {(result)}"
-                elif "hotmail" in domain:
-                    reset_check = f"Hotmail is {(hotmail)}"
-                elif "outlook" in domain:
-                    reset_check = f"Outlook is {(Outlook)}"
-                elif "yahoo" in domain:
-                    reset_check = f"Yahoo is {(Yahoo)}"
-                else:reset_check = "Unknown domain"
-            else:reset_check = "🔐 Reset is different"
+        reset_check = "🔐 Reset not available"
+
+        if reset_email and username:
+            # Check for phone number reset first
+            if reset_email.startswith("+"):
+                reset_check = "📱 Phone Number Reset"
+            
+            # If it's an email
+            elif "@" in reset_email:
+                visible = reset_email.split("@")[0]
+                domain = reset_email.split("@")[1].lower()
+                first_visible = visible[0]
+                last_visible = visible[-1]
+                
+                if username[0].lower() == first_visible.lower() and username[-1].lower() == last_visible.lower():
+                    if "gmail" in domain:
+                        if gmail_result is None:
+                            reset_check = "❌ Unable to check Gmail"
+                        elif gmail_result.get("available"):
+                            reset_check = "Gmail is ✅ Available"
+                        else:
+                            reset_check = "Gmail is ❌ Taken"
+                    elif "a**" in domain or "aol" in domain.lower():
+                        reset_check = f"AOL is {result}"
+                    elif "hotmail" in domain:
+                        reset_check = f"Hotmail is {hotmail}"
+                    elif "outlook" in domain:
+                        reset_check = f"Outlook is {Outlook}"
+                    elif "yahoo" in domain:
+                        reset_check = f"Yahoo is {Yahoo}"
+                    else:
+                        reset_check = "Unknown domain"
+                else:
+                    reset_check = "🔐 Reset is different"
         result_msg = f"""
 ══════════════════════════════        
 🌟 𝗜ɢ 𝗙ᴇᴛᴄʜᴇʀ 𝗙ʀᴏᴍ <b>ᎮᗯᑎᗩGƐ | Ѵᴏʀᴛᴇx •</b> 🌟
