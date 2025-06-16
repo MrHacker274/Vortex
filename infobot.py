@@ -856,7 +856,7 @@ def fetch_instagram_info(username):
     'csrftoken': 'Pf0Us3q173jfLfTXAurrhCD8uY5KpFlf',
     'ds_user_id': '5545662104',
     'sessionid': '5545662104%3ATSmn4hQ082l5P1%3A2%3AAYcvDY8dpiH3Ow4J3iq1ZHtvUPqL762SncIGuyc3sEI',
-    'rur': '"CCO\\0545545662104\\0541781585446:01fe12a7691800a9df47bd871f4a2334e1c24ed6abe967f00b5b14113f9ca0d522e928c5"',
+    'rur': '"CCO\\0545545662104\\0541781602163:01fe745731b1cc96919b73db50e263c59cf94d463ae2203f9014b6f9321143572eae63b5"',
     'wd': '1160x865',
         }
         headers = {
@@ -877,7 +877,7 @@ def fetch_instagram_info(username):
     'sec-fetch-site': 'same-origin',
     'sec-gpc': '1',
     'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36',
-    'cookie': 'datr=GAgjaB5R_liEM-dpATRTgjMj; ig_did=114B8FDB-7673-4860-A1D8-E88C655B9DD8; dpr=0.8999999761581421; ig_nrcb=1; ps_l=1; ps_n=1; mid=aDaRiAALAAFk8TVh8AGAIMVtWO_F; csrftoken=Pf0Us3q173jfLfTXAurrhCD8uY5KpFlf; ds_user_id=5545662104; sessionid=5545662104%3ATSmn4hQ082l5P1%3A2%3AAYcvDY8dpiH3Ow4J3iq1ZHtvUPqL762SncIGuyc3sEI; rur="CCO\\0545545662104\\0541781585446:01fe12a7691800a9df47bd871f4a2334e1c24ed6abe967f00b5b14113f9ca0d522e928c5"; wd=1160x865',
+    'cookie': 'datr=GAgjaB5R_liEM-dpATRTgjMj; ig_did=114B8FDB-7673-4860-A1D8-E88C655B9DD8; dpr=0.8999999761581421; ig_nrcb=1; ps_l=1; ps_n=1; mid=aDaRiAALAAFk8TVh8AGAIMVtWO_F; csrftoken=Pf0Us3q173jfLfTXAurrhCD8uY5KpFlf; ds_user_id=5545662104; sessionid=5545662104%3ATSmn4hQ082l5P1%3A2%3AAYcvDY8dpiH3Ow4J3iq1ZHtvUPqL762SncIGuyc3sEI; rur="CCO\\0545545662104\\0541781602163:01fe745731b1cc96919b73db50e263c59cf94d463ae2203f9014b6f9321143572eae63b5"; wd=1160x865',
     }
         params = {
             'appid': 'com.bloks.www.ig.about_this_account',
