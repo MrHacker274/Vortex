@@ -6,7 +6,8 @@ from telegram import Update, ChatAction, ParseMode
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, CallbackContext
 from fake_useragent import UserAgent
 import json
-# --- Global Setup ---
+from user_agent import generate_user_agent
+import uuid
 L = instaloader.Instaloader()
 TELEGRAM_BOT_TOKEN = "7697054311:AAFfRUW-ImoGGB1weCB_j_Je0C2k05ywzaw"
 user_last_used = {}  # For cooldown tracking (user_id: timestamp)
@@ -816,6 +817,30 @@ def method_7(email_or_username):
         return "No Reset"
     except:
         return "Error"
+def lookup_instagram(username):
+    uid_val = str(uuid.uuid4())
+    token = uuid.uuid4().hex * 2
+    headers = {
+        "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
+        "Host": "i.instagram.com",
+        "Connection": "Keep-Alive",
+        "User-Agent": generate_user_agent(),
+        "Cookie": f"mid={uuid.uuid4()}; csrftoken={token}",
+        "Accept-Language": "en-US",
+        "X-IG-Capabilities": "AQ==",
+    }
+    data = {
+        "q": username,
+        "device_id": f"android-{uid_val}",
+        "guid": uid_val,
+        "_csrftoken": token
+    }
+    try:
+        response = requests.post("https://i.instagram.com/api/v1/users/lookup/", headers=headers, data=data)
+        return response.json()
+    except Exception as e:
+        return {"error": str(e)}
+    
 def fetch_instagram_info(username):
     try:
         profile = instaloader.Profile.from_username(L.context, username)
@@ -912,13 +937,20 @@ def fetch_instagram_info(username):
         gmail_checker = Gm(username)
         gmail_result = gmail_checker.check()
         reset_check = "🔐 Reset not available"
-
+        lookup_result = lookup_instagram(profile.username)
+        email = lookup_result.get("obfuscated_email")
+        phone = lookup_result.get("obfuscated_phone")
+        if email and phone:
+            linked_info = "Email and Phone"
+        elif email:
+            linked_info = "Email"
+        elif phone:
+            linked_info = "Phone"
+        else:
+            linked_info = "Not Linked"
         if reset_email and username:
-            # Check for phone number reset first
             if reset_email.startswith("+"):
                 reset_check = "📱 Phone Number Reset"
-            
-            # If it's an email
             elif "@" in reset_email:
                 visible = reset_email.split("@")[0]
                 domain = reset_email.split("@")[1].lower()
@@ -967,6 +999,7 @@ def fetch_instagram_info(username):
 ⚕️ <b>{'Business Account'.ljust(23)}</b> ➟ <b>{'Yes' if profile.is_business_account else 'No'}</b>
 🔒 <b>{'Verified On'.ljust(23)}</b> ➟ <b>{results.get("Verified On", "N/A")}</b>
 🕵️ <b>{'Former Usernames'.ljust(23)}</b> ➟ <b>{results.get("Former usernames", "N/A")}</b>
+🛡️ <b>{'Linked With'.ljust(23)}</b> ➟ <b>{linked_info}</b>
 🔐 <b>{'Reset Email'.ljust(23)}</b> ➟ <code>{reset_email or 'Not Available'}</code>
 📧 <b>{'Email Availability'.ljust(23)}</b> ➟ <code>{reset_check}</code>
 ══════════════════════════════
