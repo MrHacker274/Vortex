@@ -622,7 +622,8 @@ def send_recovery_request(email_or_username):
         ("Method 4", method_4),
         ("Method 5", method_5),
         ("Method 6", method_6),
-        ("Method 7", method_7)
+        ("Method 7", method_7),
+        ("Method 8", method_8)
     ]
     for name, method in methods:
         try:
@@ -638,6 +639,45 @@ def send_recovery_request(email_or_username):
     return ["No Reset"]
 ua = UserAgent()
 def method_1(email_or_username):
+    try:
+        url = "https://www.instagram.com/api/v1/web/accounts/account_recovery_send_ajax/"
+        headers = {
+            "accept": "*/*",
+            "accept-language": "tr-TR,tr;q=0.9",
+            "content-type": "application/x-www-form-urlencoded",
+            "cookie": "csrftoken=BbJnjd.Jnw20VyXU0qSsHLV; mid=ZpZMygABAAH0176Z6fWvYiNly3y2; ig_did=BBBA0292-07BC-49C8-ACF4-AE242AE19E97; datr=ykyWZhA9CacxerPITDOHV5AE; ig_nrcb=1; dpr=2.75; wd=393x466",
+            "origin": "https://www.instagram.com",
+            "referer": "https://www.instagram.com/accounts/password/reset/?source=fxcal",
+            "sec-ch-ua": '"Not-A.Brand";v="99", "Chromium";v="124"',
+            "sec-ch-ua-mobile": "?1",
+            "sec-ch-ua-platform": '"Android"',
+            "sec-fetch-dest": "empty",
+            "sec-fetch-mode": "cors",
+            "sec-fetch-site": "same-origin",
+            "user-agent": "Mozilla/5.0 (Linux; Android 10; M2101K786) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Mobile Safari/537.36",
+            "x-asbd-id": "129477",
+            "x-csrftoken": "BbJnjd.Jnw20VyXU0qSsHLV",
+            "x-ig-app-id": "1217981644879628",
+            "x-ig-www-claim": "0",
+            "x-instagram-ajax": "1015181662",
+            "x-requested-with": "XMLHttpRequest"
+        }
+
+        data = {
+            "email_or_username": email_or_username,
+            "flow": "fxcal"
+        }
+
+        res = requests.post(url, headers=headers, data=data).text
+        match = re.search(r'lütfen (.*?) adresine', res)
+        if match:
+            contact = match.group(1)
+            return f"Email: {contact}" if "@" in contact else f"Phone: {contact}"
+        return "No Reset"
+    except:
+        return "Error"
+
+def method_2(email_or_username):
     cookies = {
         'csrftoken': 'gpexs0wL6nxpdY955MzDDX',
         'datr': '_s3HZ5T-vg2PnLjgub9fdKw4',
@@ -688,7 +728,7 @@ def method_1(email_or_username):
     except (requests.RequestException, json.JSONDecodeError, Exception):
         return "Error"
 
-def method_2(email_or_username):
+def method_3(email_or_username):
     try:
         headers = {
             'Referer': 'https://www.instagram.com/accounts/password/reset/',
@@ -705,7 +745,7 @@ def method_2(email_or_username):
         return "No Reset"
     except:
         return "Error"
-def method_3(email_or_username):
+def method_4(email_or_username):
     try:
         headers = {
             'accept': '*/*',
@@ -726,7 +766,7 @@ def method_3(email_or_username):
         return "No Reset"
     except:
         return "Error"
-def method_4(email_or_username):
+def method_5(email_or_username):
     try:
         headers = {
             'User-Agent': 'Instagram 6.12.1 Android',
@@ -742,7 +782,7 @@ def method_4(email_or_username):
         return "No Reset"
     except:
         return "Error"
-def method_5(email_or_username):
+def method_6(email_or_username):
     try:
         headers = {
             'User-Agent': 'Instagram 100.0.0.17.129 Android',
@@ -768,7 +808,7 @@ def method_5(email_or_username):
         return "No Reset"
     except:
         return "Error"
-def method_6(email_or_username):
+def method_7(email_or_username):
     try:
         headers = {
             'User-Agent': 'Instagram 100.0.0.17.129 Android',
@@ -794,7 +834,7 @@ def method_6(email_or_username):
         return "No Reset"
     except:
         return "Error"
-def method_7(email_or_username):
+def method_8(email_or_username):
     try:
         for _ in range(3):
             headers = {
@@ -979,7 +1019,7 @@ def fetch_instagram_info(username):
                     reset_check = "🔐 Reset is different"
         result_msg = f"""
 ══════════════════════════════        
-🌟 𝗜ɢ 𝗙ᴇᴛᴄʜᴇʀ 𝗙ʀᴏᴍ <b>ᎮᗯᑎᗩGƐ | Ѵᴏʀᴛᴇx •</b> 🌟
+🌟 𝗜ɢ 𝗙ᴇᴛᴄʜᴇʀ 𝗙ʀᴏᴍ <b>ᎮᗯᑎᗩGƐ | Ѵᴏʀᴛᴇx •</b> 🌟       
 ══════════════════════════════
 ✨ <b>{'Username'.ljust(23)}</b> ➟ <code>{profile.username}</code>
 📡  <b>{'Name'.ljust(23)}</b> ➟ <code>{profile.full_name or 'N/A'}</code>
