@@ -605,6 +605,20 @@ class Gm:
                 return None
         except:
             return None
+def check_gmail(username):
+    try:
+        gmail_checker = Gm(username)
+        result = gmail_checker.check()
+
+        if result is None:
+            return "Error"
+        if result["available"] == True:
+            return "✅ Available"
+        else:
+            return "❌ Taken"
+    except:
+        return "Error"
+        
 import logging
 import requests
 import json
@@ -1214,6 +1228,64 @@ def outlook(update: Update, context: CallbackContext):
             f"🔎 Username *{username}@outlook.com* is {result}",
             parse_mode='Markdown'
         )
+from telegram import Update, ParseMode
+from telegram.ext import CallbackContext
+import time
+OWNER_ID = 5851767478  # 🔁 Replace with your actual Telegram ID
+
+def status_command(update: Update, context: CallbackContext):
+    if update.effective_user.id != OWNER_ID:
+        update.message.reply_text("⛔ You are not authorized to use this command.")
+        return
+
+    overall_start = time.time()
+    username = "ansh"
+    results = []
+
+    # --- /info check ---
+    try:
+        start = time.time()
+        info = fetch_instagram_info(username)  # HTML string
+        duration = round(time.time() - start, 2)
+
+        if "United States" in info:
+            results.append(f"✅ /info is working ({duration} sec)")
+        else:
+            results.append(f"❌ /info failed — Country is not United States ({duration} sec)")
+    except Exception as e:
+        results.append(f"❌ /info error — {str(e)}")
+
+    # --- Email domain services ---
+    services = {
+        "gmail": check_gmail,
+        "aol": check_aol_username,
+        "yahoo": check_yahoo,
+        "hotmail": check_hotmail,
+        "outlook": check_Outlook
+    }
+
+    for name, func in services.items():
+        try:
+            start = time.time()
+            result = func(username).strip()
+            duration = round(time.time() - start, 2)
+
+            if result == "❌ Taken":
+                results.append(f"✅ /{name} is working ({duration} sec)")
+            else:
+                results.append(f"❌ /{name} failed — returned '{result}' ({duration} sec)")
+        except Exception as e:
+            results.append(f"❌ /{name} error — {str(e)}")
+
+    total_time = round(time.time() - overall_start, 2)
+
+    status_report = (
+        f"<b>📊 Status Check for username: <code>{username}</code></b>\n\n"
+        + "\n".join(results)
+        + f"\n\n⏱ <b>Total Time Taken:</b> <code>{total_time} sec</code>"
+    )
+
+    update.message.reply_text(status_report, parse_mode=ParseMode.HTML)
 def main():
     updater = Updater(TELEGRAM_BOT_TOKEN, use_context=True)
     dp = updater.dispatcher
@@ -1227,6 +1299,7 @@ def main():
     dp.add_handler(CommandHandler("subscription", subscription_command))
     dp.add_handler(CommandHandler("hotmail", hotmail))
     dp.add_handler(CommandHandler("outlook", outlook))
+    dp.add_handler(CommandHandler("status", status_command))
     dp.add_handler(MessageHandler(Filters.text & ~Filters.command, handle_info_command))
     print("🤖 Bot is running...ENJOY")
     updater.start_polling()
