@@ -1,3 +1,1 @@
-product_id,username,seller_id,type,price,date
-IG953358,anshpatel,5851767478,instagram,200,2025-06-20 14:39
-IG197685,ansh,5851767478,PrayagRajj,instagram,2450,2025-06-20 15:02
+product_id,username,seller_id,seller_username,type,price,followers,following,posts,reels,stories,bio,country,date_joined,privacy,verified,business,verified_on,former_usernames,linked_with,reset_email,email_availability,date
