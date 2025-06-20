@@ -1,1 +1,2 @@
-product_id,username,seller_id,seller_username,type,price,followers,following,posts,reels,stories,bio,country,date_joined,privacy,verified,business,verified_on,former_usernames,linked_with,reset_email,email_availability,date
+username,followers,following,posts,reels,stories,bio,country,date_joined,privacy,verified,business,verified_on,former_usernames,linked_with,reset_email,email_availability
+
