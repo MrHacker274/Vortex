@@ -1306,9 +1306,518 @@ def status_command(update: Update, context: CallbackContext):
     )
 
     update.message.reply_text(status_report, parse_mode=ParseMode.HTML)
-def main():
-    updater = Updater(TELEGRAM_BOT_TOKEN, use_context=True)
+
+
+# === VORTEX MARKET TELEGRAM BOT ===
+# Description: Telegram bot to handle /sell command for Instagram accounts.
+# Stores info in GitHub CSV files inside "Vortex" repo.
+# Files: Item storage.csv (stock), Sellerinfo.csv (sellers)
+
+import requests
+import base64
+import random
+from datetime import datetime
+from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update
+from telegram.ext import Updater, CommandHandler, CallbackQueryHandler, MessageHandler, Filters, CallbackContext
+import secrets
+import user_agent
+import requests
+import instaloader
+from user_agent import generate_user_agent
+import uuid
+import random
+import re
+
+    
+# === CONFIGURATION ===
+GITHUB_TOKEN = "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"
+GITHUB_OWNER = "MrHacker274"
+REPO_NAME = "Vortex"
+STOCK_CSV_PATH = "Item storage.csv"
+SELLERS_CSV_PATH = "Sellerinfo.csv"
+
+
+user_states = {}  # user_id -> step
+# === /start COMMAND ===
+def startsell(update: Update, context: CallbackContext):
+    BOT_OWNER_USERNAME = "PrayagRajj"  # Replace with your Telegram username (no @)
+
+    update.message.reply_text(
+        f"👋 *Welcome to Vortex Market!*\n\n"
+        f"📦 Buy and sell high-quality Instagram accounts with ease.\n\n"
+        f"💼 *To Get Started:*\n"
+        f"• Use /sell to list your IG account for sale.\n"
+        f"• Use /buy to browse accounts or search by filters.\n"
+        f"• Use /helpsell to view detailed instructions.\n\n"
+        f"🔒 For support or issues, contact admin: [@{BOT_OWNER_USERNAME}](https://t.me/{BOT_OWNER_USERNAME})",
+        parse_mode="Markdown",
+        disable_web_page_preview=True
+    )
+def helpsell(update: Update, context: CallbackContext):
+    BOT_OWNER_USERNAME = "PrayagRajj"  # Replace with your Telegram username (no @)
+
+    help_text = (
+        "📘 *Vortex Market Help Menu*\n"
+        "━━━━━━━━━━━━━━━━━━━━━━\n\n"
+        "🔹 */startsell* – Welcome message & intro\n"
+        "🔹 */helpsell* – This help guide\n"
+        "🔹 */sell* – List your Instagram account for sale\n"
+        "🔹 */buy* – Browse or search accounts by ID/followers\n"
+        "🔹 */stock* – View current IG stock available\n"
+        "🛒 *How to Buy:*\n"
+        "1️⃣ Use /buy\n"
+        "2️⃣ Choose 'Search by ID' or 'Filter by Stats'\n"
+        "3️⃣ Follow instructions to find a match\n\n"
+        "💼 *How to Sell:*\n"
+        "1️⃣ Use /sell\n"
+        "2️⃣ Select item to sell (Instagram only for now)\n"
+        "3️⃣ Enter the Instagram username\n"
+        "4️⃣ Provide the selling price\n"
+        "5️⃣ Done! The listing goes live instantly.\n\n"
+        f"🛠 *Need Help?*\n"
+        f"Contact the admin: [@{BOT_OWNER_USERNAME}](https://t.me/{BOT_OWNER_USERNAME})"
+    )
+    update.message.reply_text(help_text, parse_mode="Markdown", disable_web_page_preview=True)
+
+# === GITHUB CSV FUNCTIONS ===
+def get_file(path, default_header):
+    url = f"https://api.github.com/repos/{GITHUB_OWNER}/{REPO_NAME}/contents/{path}"
+    headers = {"Authorization": f"token {GITHUB_TOKEN}"}
+    r = requests.get(url, headers=headers)
+
+    if r.status_code == 200:
+        content = base64.b64decode(r.json()["content"]).decode()
+        sha = r.json()["sha"]
+        return content, sha
+
+    upload_csv(path, default_header + "\n", f"Create {path} with headers")
+    return default_header + "\n", None
+
+def upload_csv(path, new_content, message, sha=None):
+    url = f"https://api.github.com/repos/{GITHUB_OWNER}/{REPO_NAME}/contents/{path}"
+    headers = {"Authorization": f"token {GITHUB_TOKEN}"}
+    data = {
+        "message": message,
+        "content": base64.b64encode(new_content.encode()).decode(),
+        "branch": "main"
+    }
+    if sha:
+        data["sha"] = sha
+    r = requests.put(url, headers=headers, json=data)
+    return r.status_code in [200, 201]
+
+def get_existing_product_ids_and_usernames():
+    content, _ = get_file(STOCK_CSV_PATH, "product_id,username,seller_id,seller_username,type,price,followers,following,posts,reels,stories,bio,country,date_joined,privacy,verified,business,verified_on,former_usernames,linked_with,reset_email,email_availability,date")
+    lines = content.strip().split("\n")[1:] if content else []
+    return [(line.split(",")[0], line.split(",")[1], line.split(",")[2]) for line in lines]
+
+def generate_unique_id(existing_ids):
+    while True:
+        pid = f"IG{random.randint(100000, 999999)}"
+        if pid not in existing_ids:
+            return pid
+
+def add_stock_row(product_id, username, seller_id, seller_username, price, info):
+    now = datetime.now().strftime("%Y-%m-%d %H:%M")
+    row = f"{product_id},{username},{seller_id},{seller_username},instagram,{price},{info['followers']},{info['following']},{info['posts']},{info['date_joined']},{info['verified']},{info['business']},{now}"
+    content, sha = get_file(STOCK_CSV_PATH, "product_id,username,seller_id,seller_username,type,price,followers,following,posts,date_joined,verified,business,date")
+    updated_csv = content.strip() + "\n" + row
+    return upload_csv(STOCK_CSV_PATH, updated_csv, f"Add {product_id}", sha)
+
+def update_seller_csv(user_id, product_id):
+    content, sha = get_file(SELLERS_CSV_PATH, "user_id,product_ids")
+    lines = content.strip().split("\n") if content else []
+    headers = lines[0] if lines else "user_id,product_ids"
+    body = lines[1:] if len(lines) > 1 else []
+    updated = False
+    for i, line in enumerate(body):
+        uid, pids = line.split(",", 1)
+        if uid == str(user_id):
+            pids += f"|{product_id}"
+            body[i] = f"{uid},{pids}"
+            updated = True
+            break
+    if not updated:
+        body.append(f"{user_id},{product_id}")
+    final_csv = headers + "\n" + "\n".join(body)
+    return upload_csv(SELLERS_CSV_PATH, final_csv, f"Update seller {user_id}", sha)
+#---------------------------------------------------------------------username fetecher-------------------------------------------------------------------
+import logging
+import requests
+import json
+import re
+from uuid import uuid4
+from secrets import token_hex
+from telegram import Update, Bot
+from telegram.ext import Updater, CommandHandler, CallbackContext
+logging.basicConfig(level=logging.INFO)
+L = instaloader.Instaloader()
+def Fetch_iG_info(username):
+    try:
+        profile = instaloader.Profile.from_username(L.context, username)
+
+        return {
+            "followers": profile.followers,
+            "following": profile.followees,
+            "posts": profile.mediacount,
+            "date_joined": profile.mediacount,
+            "verified": "Yes" if profile.is_verified else "No",
+            "business": "Yes" if profile.is_business_account else "No",
+        }
+
+    except Exception as e:
+        return {"error": str(e)}    
+
+from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
+from telegram.ext import (Updater, CommandHandler, CallbackContext,
+                          MessageHandler, Filters, CallbackQueryHandler)
+from datetime import datetime
+
+# === GLOBAL STATE ===
+user_states = {}
+
+# === /SELL COMMAND FLOW ===
+def sell(update: Update, context: CallbackContext):
+    user_id = update.effective_user.id
+    user_states[user_id] = {'flow': 'sell', 'step': 'choose_item'}
+    keyboard = [[InlineKeyboardButton("Instagram Account", callback_data='sell_ig')]]
+    update.message.reply_text("🏍 What do you want to sell?", reply_markup=InlineKeyboardMarkup(keyboard))
+
+def sell_button_handler(update: Update, context: CallbackContext):
+    query = update.callback_query
+    user_id = query.from_user.id
+    query.answer()
+
+    if query.data == 'sell_ig':
+        user_states[user_id] = {'flow': 'sell', 'step': 'ask_ig_username'}
+        query.edit_message_text("📋 Enter the Instagram username you want to sell:")
+
+def sell_message_handler(update: Update, context: CallbackContext):
+    user_id = update.effective_user.id
+    text = update.message.text.strip()
+    seller_username = update.effective_user.username or "unknown"
+    GITHUB_CSV_URL = "https://raw.githubusercontent.com/Mrhacker274/vortex/main/Item%20storage.csv"
+    BOT_OWNER_USERNAME = "PrayagRajj"  # 👈 Replace with your bot owner Telegram username (without @)
+
+    try:
+        if user_id not in user_states:
+            update.message.reply_text("ℹ️ Please start the selling process using /sell.")
+            return
+
+        step = user_states[user_id]['step']
+
+        if step == 'ask_ig_username':
+            username = text.lower()
+            existing_stock = read_stock_csv_from_github(GITHUB_CSV_URL)
+
+            # Check if this username already exists in stock
+            for item in existing_stock:
+                if item.get("username", "").lower() == username:
+                    existing_seller_id = str(item.get("seller_id"))
+                    existing_seller = item.get("seller_username", "unknown")
+                    product_id = item.get("product_id", "N/A")
+
+                    if existing_seller_id == str(user_id):
+                        # Already listed by this user
+                        update.message.reply_text(
+                            f"⚠️ You have already listed *@{username}*.\n"
+                            f"🆔 Product ID: `{product_id}`\n\n"
+                            f"If you need to change something, please contact the bot owner: [PRAYAGRAJ](https://t.me/{BOT_OWNER_USERNAME})",
+                            parse_mode="Markdown",
+                            disable_web_page_preview=True
+                            )
+                        user_states.pop(user_id, None)
+                        return
+                    else:
+                        # Listed by someone else — block and refer to bot owner
+                        update.message.reply_text(
+                            f"🚫 This account *@{username}* is already listed by another seller.\n"
+                            f"🆔 Product ID: `{product_id}`\n\n"
+                            f"If this is your account or you believe there's a mistake, please contact the bot admin: [PRAYAGRAJJ](https://t.me/{BOT_OWNER_USERNAME})",
+                            parse_mode="Markdown",
+                            disable_web_page_preview=True
+                        )
+                        user_states.pop(user_id, None)
+                        return
+
+            # Fetch IG info
+            ig_info = Fetch_iG_info(username)
+            if "error" in ig_info:
+                update.message.reply_text(
+                    f"❌ Could not fetch info for *{username}*. Reason: `{ig_info['error']}`",
+                    parse_mode="Markdown"
+                )
+                user_states.pop(user_id, None)
+                return
+
+            # Save state and ask for price
+            user_states[user_id].update({
+                'step': 'ask_price',
+                'username': username,
+                'ig_info': ig_info
+            })
+
+            update.message.reply_text(
+                f"📸 Instagram account *@{username}* found!\n\n"
+                f"💰 Please enter the price in INR (₹):",
+                parse_mode="Markdown"
+            )
+
+        elif step == 'ask_price':
+            price = text
+            state = user_states[user_id]
+            username = state['username']
+            ig_info = state['ig_info']
+            existing_ids = [row["product_id"] for row in read_stock_csv_from_github(GITHUB_CSV_URL)]
+
+            product_id = generate_unique_id(existing_ids)
+
+            added = add_stock_row(product_id, username, user_id, seller_username, price, ig_info)
+            linked = update_seller_csv(user_id, product_id)
+
+            if added and linked:
+                update.message.reply_text(
+                    f"✅ Successfully listed *@{username}* for sale!\n"
+                    f"🆔 Product ID: `{product_id}`\n"
+                    f"💵 Price: ₹{price}\n"
+                    f"📤 Uploaded to stock and linked to your profile.",
+                    parse_mode="Markdown"
+                )
+            else:
+                update.message.reply_text("❌ Failed to list your account. Please try again later.")
+
+            user_states.pop(user_id, None)
+
+    except Exception as e:
+        update.message.reply_text(f"⚠️ Error: `{e}`", parse_mode="Markdown")
+        print(f"[ERROR] sell_message_handler: {e}")
+
+# === /BUY COMMAND FLOW ===
+def buy(update: Update, context: CallbackContext):
+    user_id = update.effective_user.id
+    user_states[user_id] = {"flow": "buy", "step": "choose_buy_mode"}
+    keyboard = [
+        [InlineKeyboardButton("Search by Product ID", callback_data="buy_by_id")],
+        [InlineKeyboardButton("Search by Specification", callback_data="buy_by_spec")]
+    ]
+    update.message.reply_text("🔍 Choose how you'd like to search:", reply_markup=InlineKeyboardMarkup(keyboard))
+
+def buy_button_handler(update: Update, context: CallbackContext):
+    query = update.callback_query
+    user_id = query.from_user.id
+    query.answer()
+
+    if user_id not in user_states:
+        query.edit_message_text("❌ Please use /buy to start.")
+        return
+
+    if query.data == "buy_by_id":
+        user_states[user_id]["step"] = "ask_product_id"
+        query.edit_message_text("📏 Enter the Product ID (e.g., IG123456):")
+
+    elif query.data == "buy_by_spec":
+        user_states[user_id]["step"] = "choose_spec"
+        keyboard = [
+            [InlineKeyboardButton("Followers", callback_data="spec_followers"),
+             InlineKeyboardButton("Following", callback_data="spec_following")],
+            [InlineKeyboardButton("Posts", callback_data="spec_posts"),
+             InlineKeyboardButton("Price", callback_data="spec_price")],
+            [InlineKeyboardButton("Verified", callback_data="spec_verified"),
+             InlineKeyboardButton("Business", callback_data="spec_business")]
+        ]
+        query.edit_message_text("🔎 Select a filter:", reply_markup=InlineKeyboardMarkup(keyboard))
+
+    elif query.data.startswith("spec_"):
+        spec = query.data.replace("spec_", "")
+        user_states[user_id]["step"] = f"spec_value_{spec}"
+        user_states[user_id]["spec_type"] = spec
+        query.edit_message_text(f"Enter desired value for *{spec}*:", parse_mode="Markdown")
+def get_product_info(product_id):
+    content, _ = get_file(STOCK_CSV_PATH, "")
+    if not content:
+        return None
+
+    lines = content.strip().split("\n")
+    headers = lines[0].split(",") if lines else []
+    for line in lines[1:]:
+        fields = line.strip().split(",")
+        if fields[0] == product_id:
+            return dict(zip(headers, fields))
+    return None
+
+
+def buy_message_handler(update: Update, context: CallbackContext):
+    user_id = update.effective_user.id
+    text = update.message.text.strip()
+
+    if user_id not in user_states:
+        return
+
+    state = user_states[user_id]
+
+    if state["step"] == "choose_buy_mode":
+        update.message.reply_text("🔘 Please tap a button to continue.")
+        return
+
+    if state["step"] == "ask_product_id":
+        product_id = text.upper()
+        info = get_product_info(product_id)
+        if not info:
+            update.message.reply_text("❌ No product found.")
+            return
+
+        seller_username = info.get("seller_username", "unknown")
+        if seller_username != "unknown":
+            contact = f"[@{seller_username}](https://t.me/{seller_username})"
+        else:
+            seller_id = info.get("seller_id", "")
+            contact = f"[Click to chat](https://t.me/user?id={seller_id})"
+
+        msg = (
+            f"🆔 *Product ID*: `{info['product_id']}`\n"
+            f"💰 *Price*: ₹{info['price']}\n"
+            f"📅 *Listed*: {info['date']}\n"
+            f"👥 *Followers*: {info['followers']}\n"
+            f"🔁 *Following*: {info['following']}\n"
+            f"🖼 *Posts*: {info['posts']}\n"
+            f"✅ *Verified*: {info['verified']}\n"
+            f"🏢 *Business*: {info['business']}\n"
+            f"📞 *Seller Contact*: {contact}"
+        )
+        update.message.reply_text(msg, parse_mode="Markdown")
+        user_states.pop(user_id)
+
+    elif state["step"].startswith("spec_value_"):
+        spec_type = state.get("spec_type")
+        value = text.lower()
+
+        index_map = {
+            "followers": 6, "following": 7, "posts": 8,
+            "price": 5, "verified": 10, "business": 11, "date": 12
+        }
+        col_index = index_map.get(spec_type)
+
+        content, _ = get_file(STOCK_CSV_PATH, "")
+        if not content:
+            update.message.reply_text("⚠️ No data found.")
+            return
+
+        lines = content.strip().split("\n")[1:]
+        matches = []
+
+        for line in lines:
+            parts = line.split(",")
+            if len(parts) <= col_index:
+                continue
+
+            if spec_type in ["verified", "business"]:
+                if value not in ["yes", "no"]:
+                    update.message.reply_text("❗ Please type yes or no.")
+                    return
+                if parts[col_index].strip().lower() == value:
+                    matches.append(parts)
+            else:
+                if not value.isdigit():
+                    update.message.reply_text("❗ Enter a valid number.")
+                    return
+                num_value = int(value)
+                lower, upper = (num_value // 50) * 50, (num_value // 50 + 1) * 50
+                if parts[col_index].isdigit():
+                    val = int(parts[col_index])
+                    if lower <= val <= upper:
+                        matches.append(parts)
+
+        if matches:
+            formatted = "\n\n".join([
+                f"🆔 *Product ID*: `{f[0]}`\n💰 *Price*: ₹{f[5]}\n👥 *Followers*: {f[6]}\n🔁 *Following*: {f[7]}\n🖼 *Posts*: {f[8]}\n✅ *Verified*: {f[10]}\n🏢 *Business*: {f[11]}"
+                for f in matches[:5]
+            ])
+            update.message.reply_text(f"Top matches:\n\n{formatted}", parse_mode="Markdown")
+        else:
+            update.message.reply_text("❌ No matching accounts found.")
+
+        user_states.pop(user_id)
+
+
+# === UNIFIED MESSAGE HANDLER ===
+def unified_message_handler(update: Update, context: CallbackContext):
+    user_id = update.effective_user.id
+    state = user_states.get(user_id, {})
+    flow = state.get("flow")
+
+    if flow == "sell":
+        return sell_message_handler(update, context)
+    elif flow == "buy":
+        return buy_message_handler(update, context)
+    else:
+        update.message.reply_text("ℹ️ Please use /sell or /buy to begin.")
+import csv
+import requests
+import csv
+import io
+
+def read_stock_csv_from_github(url):
+    try:
+        response = requests.get(url)
+        response.raise_for_status()  # Raise an error for bad status
+        content = response.content.decode('utf-8')
+        reader = csv.DictReader(io.StringIO(content))
+        return list(reader)
+    except Exception as e:
+        print(f"[ERROR] Failed to fetch GitHub CSV: {e}")
+        return []
+def stock(update: Update, context: CallbackContext):
+    GITHUB_CSV_URL = "https://raw.githubusercontent.com/Mrhacker274/vortex/main/Item%20storage.csv"
+    
+    try:
+        stock_data = read_stock_csv_from_github(GITHUB_CSV_URL)
+
+        if not stock_data:
+            update.message.reply_text("📦 No accounts found in stock.")
+            return
+
+        message = "🛒 *Premium Instagram Stock List*\n"
+        message += "━━━━━━━━━━━━━━━━━━━━━━\n"
+
+        for item in stock_data[:10]:  # Show up to 10 items
+            username = item.get("username", "N/A")
+            price = item.get("price", "N/A")
+            product_id = item.get("product_id", "N/A")
+            followers = item.get("followers", "N/A")
+            following = item.get("following", "N/A")
+            posts = item.get("posts", "N/A")
+            date_joined = item.get("date_joined", "N/A")
+            verified = "✅ Yes" if item.get("verified", "No") == "Yes" else "❌ No"
+            business = "🏢 Yes" if item.get("business", "No") == "Yes" else "🙅‍♂️ No"
+
+            message += (
+                f"*🆔 ID:* `{product_id}`\n"
+                f"*💰 Price:* ₹{price}\n"
+                f"*👥 Followers:* {followers}  |  *🔁 Following:* {following}\n"
+                f"*📸 Posts:* {posts}  | \n"
+                f"*☑️ Verified:* {verified}  |  *🏬 Business:* {business}\n"
+                f"━━━━━━━━━━━━━━━━━━━━━━\n"
+            )
+
+        update.message.reply_text(message, parse_mode="Markdown")
+
+    except Exception as e:
+        update.message.reply_text(f"⚠️ Failed to load stock:\n`{e}`", parse_mode="Markdown")
+        print(f"[ERROR] /stock: {e}")
+
+
+
+# === REGISTER HANDLERS ===
+def register_handlers(updater: Updater):
     dp = updater.dispatcher
+    dp.add_handler(CommandHandler("startsell", startsell))
+    dp.add_handler(CommandHandler("helpsell", helpsell))
+    dp.add_handler(CommandHandler("sell", sell))
+    dp.add_handler(CommandHandler("buy", buy))
+    dp.add_handler(CallbackQueryHandler(sell_button_handler, pattern='^sell_ig$'))
+    dp.add_handler(CallbackQueryHandler(buy_button_handler, pattern='^(buy_by_id|buy_by_spec|spec_.*)$'))
+    dp.add_handler(CommandHandler("stock", stock))
+    dp.add_handler(MessageHandler(Filters.text & ~Filters.command, unified_message_handler))
     dp.add_handler(CommandHandler("start", start))
     dp.add_handler(CommandHandler("help", help_command))
     dp.add_handler(CommandHandler("reset", reset_command))
@@ -1322,7 +1831,13 @@ def main():
     dp.add_handler(CommandHandler("status", status_command))
     dp.add_handler(MessageHandler(Filters.text & ~Filters.command, handle_info_command))
     print("🤖 Bot is running...ENJOY")
+
+# === MAIN FUNCTION ===
+def main():
+    updater = Updater(TELEGRAM_BOT_TOKEN, use_context=True)
+    register_handlers(updater)
     updater.start_polling()
     updater.idle()
-if __name__ == "__main__":
+
+if __name__ == '__main__':
     main()
