@@ -1330,7 +1330,7 @@ import re
 
     
 # === CONFIGURATION ===
-GITHUB_TOKEN = "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"
+GITHUB_TOKEN = "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"
 GITHUB_OWNER = "MrHacker274"
 REPO_NAME = "Vortex"
 STOCK_CSV_PATH = "Item storage.csv"
