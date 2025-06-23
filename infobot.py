@@ -31,7 +31,6 @@ def start(update: Update, context: CallbackContext):
         "• <code>/help</code> — How to use the bot\n"
         "• <code>/info &lt;username&gt;</code> — Get Instagram info by username\n"
         "• <code>/reset &lt;username&gt;</code> — Send IG reset link\n"
-        "• <code>/aol &lt;username&gt;</code> — Check AOL username availability\n\n"
         "══════════════════════════════\n"
         "💎 <b>Developer:</b> <a href=\"https://t.me/PrayagRajj\">ＰｒａｙａｇＲａｊｊ</a> 💎\n"
         "══════════════════════════════"
@@ -48,7 +47,6 @@ def help_command(update: Update, context: CallbackContext):
         "🔍 <b>Main Commands:</b>\n"
         "• <code>/info &lt;username&gt;</code> → Get Instagram info by username\n"
         "• <code>/reset &lt;username&gt;</code> → Send password reset link to IG account\n"
-        "• <code>/aol &lt;username&gt;</code> → Check if an AOL email (username@aol.com) is available\n\n"
         "📦 <b>Instagram Info Includes:</b>\n"
         "• Username & Full Name\n"
         "• Bio, Followers, Following\n"
@@ -928,9 +926,9 @@ def fetch_instagram_info(username):
     'mid': 'aDaRiAALAAFk8TVh8AGAIMVtWO_F',
     'csrftoken': 'Pf0Us3q173jfLfTXAurrhCD8uY5KpFlf',
     'ds_user_id': '5545662104',
-    'sessionid': '5545662104%3ATSmn4hQ082l5P1%3A2%3AAYdHDzA1tyszVuFGKVB1B10CO6N-12_HYlOGD5v5Yd0',
+    'sessionid': '5545662104%3ATSmn4hQ082l5P1%3A2%3AAYfpdhwbZjyzStt-N3WxFC-lokkLHBEam99bR9gmA4I',
+    'rur': '"CLN\\0545545662104\\0541782189260:01fed6637dfee36ba2e30304fb4fe5c127440f7715862fa0ac8bcf5e62bf5d4763279fc3"',
     'wd': '1160x865',
-    'rur': '"CLN\\0545545662104\\0541781843768:01fe6f6cebaf9f776a2c7d8112ce2e69cbdd41045ef1aae9fa26461f7ffda69250116b44"',
         }
         headers = {
            'accept': '*/*',
@@ -950,7 +948,7 @@ def fetch_instagram_info(username):
     'sec-fetch-site': 'same-origin',
     'sec-gpc': '1',
     'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36',
-    'cookie': 'datr=GAgjaB5R_liEM-dpATRTgjMj; ig_did=114B8FDB-7673-4860-A1D8-E88C655B9DD8; dpr=0.8999999761581421; ig_nrcb=1; ps_l=1; ps_n=1; mid=aDaRiAALAAFk8TVh8AGAIMVtWO_F; csrftoken=Pf0Us3q173jfLfTXAurrhCD8uY5KpFlf; ds_user_id=5545662104; sessionid=5545662104%3ATSmn4hQ082l5P1%3A2%3AAYdHDzA1tyszVuFGKVB1B10CO6N-12_HYlOGD5v5Yd0; wd=1160x865; rur="CLN\\0545545662104\\0541781843768:01fe6f6cebaf9f776a2c7d8112ce2e69cbdd41045ef1aae9fa26461f7ffda69250116b44"',
+    'cookie': 'datr=GAgjaB5R_liEM-dpATRTgjMj; ig_did=114B8FDB-7673-4860-A1D8-E88C655B9DD8; dpr=0.8999999761581421; ig_nrcb=1; ps_l=1; ps_n=1; mid=aDaRiAALAAFk8TVh8AGAIMVtWO_F; csrftoken=Pf0Us3q173jfLfTXAurrhCD8uY5KpFlf; ds_user_id=5545662104; sessionid=5545662104%3ATSmn4hQ082l5P1%3A2%3AAYfpdhwbZjyzStt-N3WxFC-lokkLHBEam99bR9gmA4I; rur="CLN\\0545545662104\\0541782189260:01fed6637dfee36ba2e30304fb4fe5c127440f7715862fa0ac8bcf5e62bf5d4763279fc3"; wd=1160x865',
     }
         params = {
             'appid': 'com.bloks.www.ig.about_this_account',
@@ -961,24 +959,24 @@ def fetch_instagram_info(username):
             '__d': 'www',
     '__user': '0',
     '__a': '1',
-    '__req': '2p',
-    '__hs': '20258.HYP:instagram_web_pkg.2.1...0',
+    '__req': '11',
+    '__hs': '20262.HYP:instagram_web_pkg.2.1...0',
     'dpr': '1',
     '__ccg': 'EXCELLENT',
-    '__rev': '1023998261',
-    '__s': 'gcaoy7:wa5j8m:1tv631',
-    '__hsi': '7517513604345486152',
+    '__rev': '1024076189',
+    '__s': 'y2h51s:kbszz7:udnbwy',
+    '__hsi': '7518998430557211439',
     '__dyn': '7xeUjG1mxu1syUbFp41twWwIxu13wvoKewSAwHwNw9G2S7o2vwpUe8hw2nVE4W0qa0FE2awgo9oO0n24oaEnxO1ywOwv89k2C1Fwc60D87u3ifK0EUjwGzEaE2iwNwmE7G4-5o4q3y1Sw62wLyESE7i3vwDwHg2cwMwrUdUbGwmk0zU8oC1Iwqo5p0OwUQp1yUb8jK5V8aUuwm8jxK2K2G0EoK9x60hK78apEaU',
-    '__csr': 'giEl1p3cl3I9P-RR9cPFsR8AJb8Bqh5OR8KSyyF5DKSm-ABx5dARigOuF9ntaBizdqZoijWHHBVp6cQmFtKQA9AJm88iGyUGmaUCEjUgCUkBz9rypoKqFDzayVrxjAiUx95AolCKXCUC8BHiytbByO7BCAAxOiWCxTAyqAxaqbyEKh1uHUKUigmwBAw056EDw3ipZw4txe0Zo44ES2p0ExO2W2O2B8QXAWxkw3-wPyo2jgkgkzHy40dHwto0oewa5xi0Z8kCw5bwJCkUcA0CqgW0Qm1Kyqybh1g0Cgx9Ub8xk2Kpw4-ppQ0fow0vzo0l-w0E2w',
-    '__hsdp': 'ge48bftl92kx3MFdFAgyAwJoJkkkD7Ob0LVxF4BieMB4iPhy866u4gzAEno62NojzU-axqE413Cq3G2Z2u9Ayy0Ux67mu8cEZei9wXJ540i898uzE4qfUqwIDwgo2mz89awXxW0Vo98lwaq3a0iW4o0M60z8vxm586u1Bg9U2Dwho2iw860SV82ZP1m2Lo5C0SUe85G3C6UnDyqa1mG1_wDwnEqwj8O',
-    '__hblp': '4zU4W3a1Cx_CG2i1vwAxucG8AWxa16w8qm5ogKfyp9Q2Om8zE4au8Az94ayaAUC6U4SaBBAgKA-EC7EsyEa89EkBwEzK3e9CGuLxB3UsDwgo7-eG4p8vCKq4U9FECufU2YzE998gwNwt8cE19AWByU4u0x986i0oe16waO5oWm7U4uu1tgtyoK1zwKy84m1bwCx-221wwdKi0LsMlwHS3q2a19wg851122q223C4U8-EoxuuqGabwtEd88u2m1uxdAwNz8Scw',
+    '__csr': 'glgmgHf5R4ORslbtOEAOEL94lj8IhRQGtkWFNdAheUKLWmmqiGThUOijrKHleFuQAheiaWWQnoCVBCiDi-uGCmiSjJe9F6heq4QUZ298gCRGKfgyAb-tAG7oW59KUugJ6jAgKiQ-ivxamibBVpGDBSRGlzkmaBWBzbAK69UJ0ioSm8Cyoao01nXQ0N9Bg74jwPBwkofER0YwqEaFVBwQ4w8zgy4-VU7C8gGu1SgdE7O0cFwvE0kjw2po4xzoc81Rm58a4Uaq4CwI8ilk0Nu220nx6DgG0Lz0qo11ECt240osw2mw2N80Di0q6u01Oow1vm02oi',
+    '__hsdp': 'gecuJNZihtV0PsPO4IbxkXcJgFiawuC3H2lAj3i6O8ZToqpphUGEwIU4hxImrx648nwlQfryU5qaxqj84u7EozmeAg-9ExFo9ESq6E4p6ecxam5oixm3eEW2-4E6Scwgp815Vo2Lwca1ow2Go2bwmokxe0nCcwGwk86y0I8-0GEownz0ho2UwiQ5UaE9E5t1SE7K1vxS2Mi6U',
+    '__hblp': '1a222-14wm88nw8W2-UWUCm5o4C0wF8jxd29EKEbUyUG4ofK5A2rDDHUdokACCzECmqnwAzpFUiwBDxK5Uoxm4Ekg-48iHG9zUvUgAxKEkxC6EO11AyXyE3wxKm2m1bwZwca1jABK2m1-xG7Eao3DG1swjE2bU5umexe2K4o4GcwcO5EO2G1bAwq82MzU4S1sxy3y2kM4m9CwjEfUowIxV1uu2a2q4EsK22BzEswrE8oO2SEtjg9xaxy',
     '__comet_req': '7',
-    'fb_dtsg': 'NAfuyDM2oRqyvjWSgcz2RQObmALutJ7sblUy-srQoA9Y0zlZZc6KFig:17843671327157124:1748946019',
-    'jazoest': '26523',
-    'lsd': 'Mm1Nq-s3RdmTyzYOnmqVQ5',
-    '__spin_r': '1023998261',
+    'fb_dtsg': 'NAfuBBgnSM1L7lwPfEUjHeAlJyw2fYOZDau6Vko0DBAQaqUWmFJgyTw:17843671327157124:1748946019',
+    'jazoest': '26346',
+    'lsd': 'M-HdCGlPr66DoDKCtwnPkZ',
+    '__spin_r': '1024076189',
     '__spin_b': 'trunk',
-    '__spin_t': '1750307531',
+    '__spin_t': '1750653243',
     '__crn': 'comet.igweb.PolarisProfilePostsTabRoute',
     'params': f'{{"referer_type":"ProfileMore","target_user_id":{user_id} }}',
         }
@@ -1138,116 +1136,6 @@ def reset_command(update: Update, context: CallbackContext):
 def is_valid_username(username):
     return re.fullmatch(r'^[a-zA-Z0-9_.]+$', username) is not None
 
-# === AOL ===
-def aol(update: Update, context: CallbackContext):
-    if not context.args:
-        update.message.reply_text("Usage: /aol <username>")
-        return
-
-    username = context.args[0]
-    if not is_valid_username(username):
-        update.message.reply_text("Username can only contain letters, numbers, underscores (_) and dots (.)")
-        return
-
-    update.message.chat.send_action(ChatAction.TYPING)
-    result = check_aol_username(username)
-
-    if result is None:
-        update.message.reply_text("❌ Couldn't check the username right now. Try again later.")
-    else:
-        update.message.reply_text(
-            f"🔎 Username *{username}@aol.com* is {result}",
-            parse_mode='Markdown'
-        )
-
-def yahoo(update: Update, context: CallbackContext):
-    if not context.args:
-        update.message.reply_text("Usage: /yahoo <username>")
-        return
-
-    username = context.args[0]
-    if not is_valid_username(username):
-        update.message.reply_text("Username can only contain letters, numbers, underscores (_) and dots (.)")
-        return
-
-    update.message.chat.send_action(ChatAction.TYPING)
-    result = check_yahoo(username)
-
-    if result is None:
-        update.message.reply_text("❌ Couldn't check the username right now. Try again later.")
-    else:
-        update.message.reply_text(
-            f"🔎 Username *{username}@YAHOO.com* is {result}",
-            parse_mode='Markdown'
-        )
-
-# === Gmail ===
-def gmail(update: Update, context: CallbackContext):
-    if not context.args:
-        update.message.reply_text("Usage: /gmail <username>")
-        return
-
-    username = context.args[0]
-    if not is_valid_username(username):
-        update.message.reply_text("Username can only contain letters, numbers, underscores (_) and dots (.)")
-        return
-
-    update.message.chat.send_action(ChatAction.TYPING)
-    checker = Gm(username)
-    result = checker.check()
-
-    if result is None:
-        update.message.reply_text("❌ Couldn't check the username right now. Try again later.")
-    else:
-        availability = "✅ Available" if result.get("available") else "❌ Taken"
-        update.message.reply_text(
-            f"🔎 Username *{username}@gmail.com* is {availability}",
-            parse_mode='Markdown'
-        )
-
-# === Hotmail ===
-def hotmail(update: Update, context: CallbackContext):
-    if not context.args:
-        update.message.reply_text("Usage: /hotmail <username>")
-        return
-
-    username = context.args[0]
-    if not is_valid_username(username):
-        update.message.reply_text("Username can only contain letters, numbers, underscores (_) and dots (.)")
-        return
-
-    update.message.chat.send_action(ChatAction.TYPING)
-    result = check_hotmail(username)
-
-    if result == "error":
-        update.message.reply_text("❌ Something went wrong. Try again.")
-    else:
-        update.message.reply_text(
-            f"🔎 Username *{username}@hotmail.com* is {result}",
-            parse_mode='Markdown'
-        )
-
-# === Outlook ===
-def outlook(update: Update, context: CallbackContext):
-    if not context.args:
-        update.message.reply_text("Usage: /outlook <username>")
-        return
-
-    username = context.args[0]
-    if not is_valid_username(username):
-        update.message.reply_text("Username can only contain letters, numbers, underscores (_) and dots (.)")
-        return
-
-    update.message.chat.send_action(ChatAction.TYPING)
-    result = check_Outlook(username)
-
-    if result == "error":
-        update.message.reply_text("❌ Something went wrong. Try again.")
-    else:
-        update.message.reply_text(
-            f"🔎 Username *{username}@outlook.com* is {result}",
-            parse_mode='Markdown'
-        )
 from telegram import Update, ParseMode
 from telegram.ext import CallbackContext
 import time
@@ -1330,13 +1218,16 @@ import re
 
     
 # === CONFIGURATION ===
-GITHUB_TOKEN = "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"
+# === GitHub Auth ===
+def load_github_token(path="github_token.txt"):
+    with open(path, "r") as file:
+        return file.read().strip()
+
+GITHUB_TOKEN = load_github_token()
 GITHUB_OWNER = "MrHacker274"
 REPO_NAME = "Vortex"
 STOCK_CSV_PATH = "Item storage.csv"
 SELLERS_CSV_PATH = "Sellerinfo.csv"
-
-
 user_states = {}  # user_id -> step
 # === /start COMMAND ===
 def startsell(update: Update, context: CallbackContext):
@@ -1452,21 +1343,51 @@ from telegram import Update, Bot
 from telegram.ext import Updater, CommandHandler, CallbackContext
 logging.basicConfig(level=logging.INFO)
 L = instaloader.Instaloader()
+def date(uid):
+    try:
+        uid = int(uid)
+        if 1 < uid < 1279000:
+            return 2010
+        elif 1279001 <= uid < 17750000:
+            return 2011
+        elif 17750001 <= uid < 279760000:
+            return 2012
+        elif 279760001 <= uid < 900990000:
+            return 2013
+        elif 900990001 <= uid < 1629010000:
+            return 2014
+        elif 1900000000 <= uid < 2500000000:
+            return 2015
+        elif 2500000000 <= uid < 3713668786:
+            return 2016
+        elif 3713668786 <= uid < 5699785217:
+            return 2017
+        elif 5699785217 <= uid < 8507940634:
+            return 2018
+        elif 8507940634 <= uid < 21254029834:
+            return 2019
+        else:
+            return "2020-2023"
+    except Exception:
+        return "Unknown"
+
 def Fetch_iG_info(username):
     try:
         profile = instaloader.Profile.from_username(L.context, username)
+        uid = profile.userid
+        joined = date(uid)
 
         return {
             "followers": profile.followers,
             "following": profile.followees,
             "posts": profile.mediacount,
-            "date_joined": profile.mediacount,
+            "date_joined": joined,
             "verified": "Yes" if profile.is_verified else "No",
             "business": "Yes" if profile.is_business_account else "No",
         }
 
     except Exception as e:
-        return {"error": str(e)}    
+        return {"error": str(e)} 
 
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import (Updater, CommandHandler, CallbackContext,
@@ -1491,7 +1412,7 @@ def sell_button_handler(update: Update, context: CallbackContext):
     if query.data == 'sell_ig':
         user_states[user_id] = {'flow': 'sell', 'step': 'ask_ig_username'}
         query.edit_message_text("📋 Enter the Instagram username you want to sell:")
-
+import asyncio
 def sell_message_handler(update: Update, context: CallbackContext):
     user_id = update.effective_user.id
     text = update.message.text.strip()
@@ -1582,7 +1503,8 @@ def sell_message_handler(update: Update, context: CallbackContext):
                     f"💵 Price: ₹{price}\n"
                     f"📤 Uploaded to stock and linked to your profile.",
                     parse_mode="Markdown"
-                )
+                    )
+                asyncio.run(announce_new_stock(product_id, username, price, ig_info, user_id))
             else:
                 update.message.reply_text("❌ Failed to list your account. Please try again later.")
 
@@ -1591,6 +1513,36 @@ def sell_message_handler(update: Update, context: CallbackContext):
     except Exception as e:
         update.message.reply_text(f"⚠️ Error: `{e}`", parse_mode="Markdown")
         print(f"[ERROR] sell_message_handler: {e}")
+
+from telethon import TelegramClient
+from telethon.errors.rpcerrorlist import ChatWriteForbiddenError
+API_ID = 29026097  # replace with your Telegram API ID
+API_HASH = '7a91f25dcd192fd1eec7652db8eb678b'  # replace with your API HASH
+CHANNEL_USERNAME = '@x0omkpy'  # Replace with your channel username
+SESSION_NAME = 'Seller Bot'  # Name for your session file
+async def announce_new_stock(product_id, username, price, ig_info, seller_id):
+    try:
+        async with TelegramClient(SESSION_NAME, API_ID, API_HASH) as client:
+            message = (
+                "🚨 <b>NEW STOCK ALERT!</b>\n"
+                "✨ A premium Instagram account is now available!\n\n"
+
+                f"🆔 <b>Product ID:</b> <code>{product_id}</code>\n"
+                f"💰 <b>Price:</b> ₹{price}\n"
+                f"📆 <b>Join Year:</b> {ig_info['date_joined']}\n"
+                f"👥 <b>Followers:</b> {ig_info['followers']} &nbsp;&nbsp; 🔁 <b>Following:</b> {ig_info['following']} &nbsp;&nbsp; 🖼 <b>Posts:</b> {ig_info['posts']}\n"
+                f"☑️ <b>Verified:</b> {ig_info['verified']} &nbsp;&nbsp; 🏢 <b>Business:</b> {ig_info['business']}\n"
+
+                "🛒 <i>Want to buy?</i> Use the <b>/buy</b> command and enter the Product ID.\n"
+                "📣 <i>More fresh stock dropping soon — stay tuned!</i>"
+            )
+
+            await client.send_message(CHANNEL_USERNAME, message, parse_mode="html")
+    except ChatWriteForbiddenError:
+        print("❌ Bot doesn't have permission to post in the channel.")
+    except Exception as e:
+        print(f"[ERROR] announce_new_stock: {e}")
+
 
 # === /BUY COMMAND FLOW ===
 def buy(update: Update, context: CallbackContext):
@@ -1680,6 +1632,7 @@ def buy_message_handler(update: Update, context: CallbackContext):
             f"👥 *Followers*: {info['followers']}\n"
             f"🔁 *Following*: {info['following']}\n"
             f"🖼 *Posts*: {info['posts']}\n"
+            f"📆 *Year *: {info['date_joined']}\n"
             f"✅ *Verified*: {info['verified']}\n"
             f"🏢 *Business*: {info['business']}\n"
             f"📞 *Seller Contact*: {contact}"
@@ -1766,45 +1719,63 @@ def read_stock_csv_from_github(url):
     except Exception as e:
         print(f"[ERROR] Failed to fetch GitHub CSV: {e}")
         return []
-def stock(update: Update, context: CallbackContext):
-    GITHUB_CSV_URL = "https://raw.githubusercontent.com/Mrhacker274/vortex/main/Item%20storage.csv"
     
-    try:
-        stock_data = read_stock_csv_from_github(GITHUB_CSV_URL)
+BOT_OWNER_ID = 5851767478  # ← Replace this with your actual Telegram user ID
 
-        if not stock_data:
-            update.message.reply_text("📦 No accounts found in stock.")
+def del_command(update: Update, context: CallbackContext):
+    user_id = update.effective_user.id
+
+    if user_id != BOT_OWNER_ID:
+        update.message.reply_text("❌ Only the bot owner can use this command.")
+        return
+
+    if len(context.args) != 1:
+        update.message.reply_text("ℹ️ Usage: /del <product_id>")
+        return
+
+    product_id = context.args[0].strip().upper()
+
+    try:
+        # === Remove from STOCK CSV ===
+        stock_content, stock_sha = get_file(STOCK_CSV_PATH, "")
+        stock_lines = stock_content.strip().split("\n")
+        headers = stock_lines[0]
+        body = stock_lines[1:]
+        new_body = [line for line in body if not line.startswith(product_id + ",")]
+
+        if len(new_body) == len(body):
+            update.message.reply_text("❌ Product ID not found in stock.")
             return
 
-        message = "🛒 *Premium Instagram Stock List*\n"
-        message += "━━━━━━━━━━━━━━━━━━━━━━\n"
+        updated_stock_csv = headers + "\n" + "\n".join(new_body)
+        upload_csv(STOCK_CSV_PATH, updated_stock_csv, f"Delete product {product_id}", stock_sha)
 
-        for item in stock_data[:10]:  # Show up to 10 items
-            username = item.get("username", "N/A")
-            price = item.get("price", "N/A")
-            product_id = item.get("product_id", "N/A")
-            followers = item.get("followers", "N/A")
-            following = item.get("following", "N/A")
-            posts = item.get("posts", "N/A")
-            date_joined = item.get("date_joined", "N/A")
-            verified = "✅ Yes" if item.get("verified", "No") == "Yes" else "❌ No"
-            business = "🏢 Yes" if item.get("business", "No") == "Yes" else "🙅‍♂️ No"
+        # === Remove from SELLER CSV ===
+        seller_content, seller_sha = get_file(SELLERS_CSV_PATH, "")
+        seller_lines = seller_content.strip().split("\n")
+        s_headers = seller_lines[0]
+        s_body = seller_lines[1:]
 
-            message += (
-                f"*🆔 ID:* `{product_id}`\n"
-                f"*💰 Price:* ₹{price}\n"
-                f"*👥 Followers:* {followers}  |  *🔁 Following:* {following}\n"
-                f"*📸 Posts:* {posts}  | \n"
-                f"*☑️ Verified:* {verified}  |  *🏬 Business:* {business}\n"
-                f"━━━━━━━━━━━━━━━━━━━━━━\n"
-            )
+        updated_s_body = []
+        for line in s_body:
+            uid, pids = line.split(",", 1)
+            pid_list = pids.split("|")
+            if product_id in pid_list:
+                pid_list.remove(product_id)
+            if pid_list:
+                updated_s_body.append(f"{uid},{'|'.join(pid_list)}")
 
-        update.message.reply_text(message, parse_mode="Markdown")
+        updated_seller_csv = s_headers + "\n" + "\n".join(updated_s_body)
+        upload_csv(SELLERS_CSV_PATH, updated_seller_csv, f"Remove {product_id} from seller records", seller_sha)
+
+        update.message.reply_text(
+            f"✅ Product `{product_id}` successfully deleted from both stock and seller data.",
+            parse_mode="Markdown"
+        )
 
     except Exception as e:
-        update.message.reply_text(f"⚠️ Failed to load stock:\n`{e}`", parse_mode="Markdown")
-        print(f"[ERROR] /stock: {e}")
-
+        update.message.reply_text(f"⚠️ Error while deleting: `{e}`", parse_mode="Markdown")
+        print(f"[ERROR /del]: {e}")
 
 
 # === REGISTER HANDLERS ===
@@ -1816,18 +1787,13 @@ def register_handlers(updater: Updater):
     dp.add_handler(CommandHandler("buy", buy))
     dp.add_handler(CallbackQueryHandler(sell_button_handler, pattern='^sell_ig$'))
     dp.add_handler(CallbackQueryHandler(buy_button_handler, pattern='^(buy_by_id|buy_by_spec|spec_.*)$'))
-    dp.add_handler(CommandHandler("stock", stock))
+    dp.add_handler(CommandHandler("del", del_command))
     dp.add_handler(MessageHandler(Filters.text & ~Filters.command, unified_message_handler))
     dp.add_handler(CommandHandler("start", start))
     dp.add_handler(CommandHandler("help", help_command))
     dp.add_handler(CommandHandler("reset", reset_command))
     dp.add_handler(CommandHandler(["info", "infonum"], handle_info_command))
-    dp.add_handler(CommandHandler("aol", aol))
-    dp.add_handler(CommandHandler("yahoo", yahoo))
-    dp.add_handler(CommandHandler("gmail", gmail))
     dp.add_handler(CommandHandler("subscription", subscription_command))
-    dp.add_handler(CommandHandler("hotmail", hotmail))
-    dp.add_handler(CommandHandler("outlook", outlook))
     dp.add_handler(CommandHandler("status", status_command))
     dp.add_handler(MessageHandler(Filters.text & ~Filters.command, handle_info_command))
     print("🤖 Bot is running...ENJOY")
