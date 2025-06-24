@@ -966,7 +966,7 @@ def lookup_user_id(username):
 
     except Exception as e:
         return f"❌ Error: {str(e)}"
-
+import string
 def VortexInstaloader(user_id):
     lsd = ''.join(random.choices(string.ascii_letters + string.digits, k=32))
     user_agent = (
