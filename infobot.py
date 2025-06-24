@@ -911,46 +911,61 @@ def name_to_flag(country_name):
         return flag
     except:
         return "🏳️"
+def generate_custom_user_agent():
+    rnd = str(random.randint(150, 999))
+    version = random.choice(["23/6.0", "24/7.0", "25/7.1.1", "26/8.0", "27/8.1", "28/9.0"])
+    dpi = str(random.randint(100, 1300))
+    res_w = str(random.randint(200, 2000))
+    res_h = str(random.randint(200, 2000))
+    brand = random.choice(["SAMSUNG", "HUAWEI", "LGE/lge", "HTC", "ASUS", "ZTE", "ONEPLUS", "XIAOMI", "OPPO", "VIVO", "SONY", "REALME"])
+    rand_id = "SM-T" + rnd
+    build = "545986" + str(random.randint(111, 999))
+
+    return (
+        f"Instagram 311.0.0.32.118 Android ({version}; {dpi}dpi; {res_w}x{res_h}; "
+        f"{brand}; {rand_id}; {rand_id}; qcom; en_US; {build})"
+    )
+
+# === Core Function to Get User ID ===
 def lookup_user_id(username):
-    import uuid
-    import requests
-    import instaloader
+    uid_val = str(uuid.uuid4())
+    token = uuid.uuid4().hex * 2
+    lsd = ''.join(random.choices(string.ascii_letters + string.digits, k=32))
+    user_agent = generate_custom_user_agent()
+
+    headers = {
+        "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
+        "Host": "i.instagram.com",
+        "Connection": "Keep-Alive",
+        "User-Agent": user_agent,
+        "Cookie": f"mid={uuid.uuid4()}; csrftoken={token}",
+        "Accept-Language": "en-US",
+        "X-IG-Capabilities": "AQ==",
+        "X-FB-LSD": lsd,
+    }
+
+    data = {
+        "q": username_or_email,
+        "device_id": f"android-{uid_val}",
+        "guid": uid_val,
+        "_csrftoken": token
+    }
 
     try:
-        # Step 1: Try Instagram Mobile Private API
-        uid_val = str(uuid.uuid4())
-        token = uuid.uuid4().hex * 2
-        headers = {
-            "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
-            "Host": "i.instagram.com",
-            "Connection": "Keep-Alive",
-            "User-Agent": generate_user_agent(),
-            "Cookie": f"mid={uuid.uuid4()}; csrftoken={token}",
-            "Accept-Language": "en-US",
-            "X-IG-Capabilities": "AQ==",
-        }
-        data = {
-            "q": username,
-            "device_id": f"android-{uid_val}",
-            "guid": uid_val,
-            "_csrftoken": token
-        }
         response = requests.post("https://i.instagram.com/api/v1/users/lookup/", headers=headers, data=data)
-        if response.status_code == 200:
-            pk = response.json().get("user", {}).get("pk")
-            if pk:
-                return pk
-    except:
-        pass
+        res = response.json()
+        user_id = res.get("user_id")
 
-    # Step 2: Fallback to Instaloader
-    try:
-        loader = instaloader.Instaloader()
-        profile = instaloader.Profile.from_username(loader.context, username)
-        return profile.userid
-    except:
-        return None
-import string
+        # Fallback to Instaloader
+        if user_id is None:
+            L = instaloader.Instaloader()
+            profile = instaloader.Profile.from_username(L.context, username_or_email)
+            return profile.userid
+
+        return user_id
+
+    except Exception as e:
+        return f"❌ Error: {str(e)}"
 
 def VortexInstaloader(user_id):
     lsd = ''.join(random.choices(string.ascii_letters + string.digits, k=32))
