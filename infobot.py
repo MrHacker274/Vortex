@@ -911,63 +911,167 @@ def name_to_flag(country_name):
         return flag
     except:
         return "🏳️"
-def generate_custom_user_agent():
+import uuid
+import json
+import string
+import random
+import requests
+from time import time
+import secrets
+from urllib.parse import urlencode
+from telegram import Update
+from telegram.ext import Updater, CommandHandler, CallbackContext
+import re
+
+# === Custom Cookie and Device Info Generator ===
+def coockie():
     rnd = str(random.randint(150, 999))
-    version = random.choice(["23/6.0", "24/7.0", "25/7.1.1", "26/8.0", "27/8.1", "28/9.0"])
-    dpi = str(random.randint(100, 1300))
-    res_w = str(random.randint(200, 2000))
-    res_h = str(random.randint(200, 2000))
-    brand = random.choice(["SAMSUNG", "HUAWEI", "LGE/lge", "HTC", "ASUS", "ZTE", "ONEPLUS", "XIAOMI", "OPPO", "VIVO", "SONY", "REALME"])
-    rand_id = "SM-T" + rnd
-    build = "545986" + str(random.randint(111, 999))
-
-    return (
-        f"Instagram 311.0.0.32.118 Android ({version}; {dpi}dpi; {res_w}x{res_h}; "
-        f"{brand}; {rand_id}; {rand_id}; qcom; en_US; {build})"
+    user_agent = (
+        "Instagram 311.0.0.32.118 Android ("
+        + random.choice(["23/6.0", "24/7.0", "25/7.1.1", "26/8.0", "27/8.1", "28/9.0"])
+        + "; " + str(random.randint(100, 1300)) + "dpi; "
+        + str(random.randint(200, 2000)) + "x" + str(random.randint(200, 2000)) + "; "
+        + random.choice(["SAMSUNG", "HUAWEI", "LGE/lge", "HTC", "ASUS", "ZTE", "ONEPLUS", "XIAOMI", "OPPO", "VIVO", "SONY", "REALME"])
+        + "; SM-T" + rnd + "; SM-T" + rnd + "; qcom; en_US; 545986"
+        + str(random.randint(111, 999)) + ")"
     )
+    IgFamilyDeviceId = uuid.uuid4()
+    AndroidID = f'android-{secrets.token_hex(8)}'
+    IgDeviceId = uuid.uuid4()
+    PigeonSession = f'UFS-{str(uuid.uuid4())}-0'
+    App = ''.join(random.choice('1234567890') for _ in range(15))
+    Blockversion = '8c9c28282f690772f23fcf9061954c93eeec8c673d2ec49d860dabf5dea4ca27'
+    return IgFamilyDeviceId, AndroidID, PigeonSession, App, Blockversion, IgDeviceId, user_agent
 
-# === Core Function to Get User ID ===
+# === Get MID from Instagram ===
+def GetMid():
+    IgFamilyDeviceId, AndroidID, PigeonSession, App, Blockversion, IgDeviceId, user_agent = coockie()
+    data = urlencode({
+        'device_id': str(AndroidID),
+        'token_hash': '',
+        'custom_device_id': str(IgDeviceId),
+        'fetch_reason': 'token_expired',
+    })
+    headers = {
+        'Host': 'b.i.instagram.com',
+        'X-Ig-App-Locale': 'en_US',
+        'X-Ig-Device-Locale': 'en_US',
+        'X-Ig-Mapped-Locale': 'en_US',
+        'X-Pigeon-Session-Id': str(PigeonSession),
+        'X-Pigeon-Rawclienttime': str(round(time(), 3)),
+        'X-Ig-Bandwidth-Speed-Kbps': f'{random.randint(1000, 9999)}.000',
+        'X-Ig-Bandwidth-Totalbytes-B': f'{random.randint(10000000, 99999999)}',
+        'X-Ig-Bandwidth-Totaltime-Ms': f'{random.randint(10000, 99999)}',
+        'X-Bloks-Version-Id': str(Blockversion),
+        'X-Ig-Www-Claim': '0',
+        'X-Bloks-Is-Layout-Rtl': 'false',
+        'X-Ig-Device-Id': str(IgDeviceId),
+        'X-Ig-Android-Id': str(AndroidID),
+        'X-Ig-Timezone-Offset': '-21600',
+        'X-Fb-Connection-Type': 'MOBILE.LTE',
+        'X-Ig-Connection-Type': 'MOBILE(LTE)',
+        'X-Ig-Capabilities': '3brTv10=',
+        'X-Ig-App-Id': '567067343352427',
+        'Priority': 'u=3',
+        'User-Agent': str(user_agent),
+        'Accept-Language': 'en-US',
+        'Ig-Intended-User-Id': '0',
+        'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
+        'Content-Length': str(len(data)),
+        'Accept-Encoding': 'gzip, deflate',
+        'X-Fb-Http-Engine': 'Liger',
+        'X-Fb-Client-Ip': 'True',
+        'X-Fb-Server-Cluster': 'True',
+        'Connection': 'close',
+    }
+    requests.post('https://b.i.instagram.com/api/v1/zr/tokens/', headers=headers, data=data)
+    headers.update({'X-Ig-Family-Device-Id': str(IgFamilyDeviceId)})
+    requests.post('https://b.i.instagram.com/api/v1/zr/tokens/', headers=headers, data=data)
+    data = f'signed_body=SIGNATURE.%7B%22phone_id%22%3A%22{IgFamilyDeviceId}%22%2C%22usage%22%3A%22prefill%22%7D'
+    headers['Content-Length'] = str(len(data))
+    requests.post('https://b.i.instagram.com/api/v1/accounts/contact_point_prefill/', headers=headers, data=data)
+    data = urlencode({
+        'signed_body': 'SIGNATURE.{"bool_opt_policy":"0","mobileconfigsessionless":"","api_version":"3","unit_type":"1","query_hash":"1fe1eeee83cc518f2c8b41f7deae1808ffe23a2fed74f1686f0ab95bbda55a0b","device_id":"' + str(IgDeviceId) + '","fetch_type":"ASYNC_FULL","family_device_id":"' + str(IgFamilyDeviceId).upper() + '"}'
+    })
+    headers['Content-Length'] = str(len(data))
+    return requests.post('https://b.i.instagram.com/api/v1/launcher/mobileconfig/', headers=headers, data=data).headers['ig-set-x-mid']
+
+# === Token Generator ===
+def token():
+    try:
+        files = []
+        headers = {}
+        data = {
+            'enc_password': '#PWD_INSTAGRAM_BROWSER:0:' + str(time()).split('.')[0] + ':maybe-jay-z',
+            'optIntoOneTap': 'false',
+            'queryParams': '{}',
+            'trustedDeviceRecords': '{}',
+            'username': 'topython',
+        }
+        response = requests.post(
+            'https://www.instagram.com/api/v1/web/accounts/login/ajax/',
+            headers=headers, data=data, files=files
+        )
+        try:
+            csrf = response.cookies.get("csrftoken")
+            mid = GetMid()
+            ig_did = response.cookies.get("ig_did")
+            ig_nrcb = response.cookies.get("ig_nrcb")
+            IgFamilyDeviceId, AndroidID, PigeonSession, App, Blockversion, IgDeviceId, user_agent = coockie()
+        except:
+            IgFamilyDeviceId = AndroidID = PigeonSession = App = Blockversion = IgDeviceId = user_agent = None
+            csrf = mid = ig_did = ig_nrcb = None
+        return {
+            "csrf": csrf,
+            "mid": mid,
+            "ig_did": ig_did,
+            "ig_nrcb": ig_nrcb,
+            "IgFamilyDeviceId": IgFamilyDeviceId,
+            "AndroidID": AndroidID,
+            "PigeonSession": PigeonSession,
+            "Blockversion": Blockversion,
+            "IgDeviceId": IgDeviceId,
+            "user_agent": user_agent,
+        }
+    except:
+        return {}
+
+# === Final Lookup Function ===
 def lookup_user_id(username):
     uid_val = str(uuid.uuid4())
-    token = uuid.uuid4().hex * 2
+    tkn = token()
+    token_val = uuid.uuid4().hex * 2
     lsd = ''.join(random.choices(string.ascii_letters + string.digits, k=32))
-    user_agent = generate_custom_user_agent()
+    user_agent = tkn.get("user_agent") or "Instagram 311.0.0.32.118 Android (28/9.0; 400dpi; 1080x1920; XIAOMI; Redmi Note 10; Redmi Note 10; qcom; en_US)"
 
     headers = {
         "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
         "Host": "i.instagram.com",
         "Connection": "Keep-Alive",
         "User-Agent": user_agent,
-        "Cookie": f"mid={uuid.uuid4()}; csrftoken={token}",
         "Accept-Language": "en-US",
         "X-IG-Capabilities": "AQ==",
         "X-FB-LSD": lsd,
+        "Cookie": f"mid={tkn.get('mid')}; csrftoken={tkn.get('csrf')}; ig_did={tkn.get('ig_did')}; ig_nrcb={tkn.get('ig_nrcb')}"
     }
 
     data = {
-        "q": username_or_email,
+        "q": username,
         "device_id": f"android-{uid_val}",
         "guid": uid_val,
-        "_csrftoken": token
+        "_csrftoken": tkn.get('csrf') or token_val
     }
 
     try:
         response = requests.post("https://i.instagram.com/api/v1/users/lookup/", headers=headers, data=data)
         res = response.json()
-        user_id = res.get("user_id")
+        return res.get("user_id")
+    except:
+        return None
 
-        # Fallback to Instaloader
-        if user_id is None:
-            L = instaloader.Instaloader()
-            profile = instaloader.Profile.from_username(L.context, username_or_email)
-            return profile.userid
-
-        return user_id
-
-    except Exception as e:
-        return f"❌ Error: {str(e)}"
-import string
 def VortexInstaloader(user_id):
+    if not user_id:
+        return None
     lsd = ''.join(random.choices(string.ascii_letters + string.digits, k=32))
     user_agent = (
         "Instagram 311.0.0.32.118 Android (28/9.0; "
@@ -1038,7 +1142,11 @@ def fetch_instagram_info(username):
     try:
         user_id = lookup_user_id(username)
         if not user_id:
-            return "❌ Failed to retrieve user ID for this username."    
+            return f"❌ Failed to retrieve user ID for {username}."
+
+        user = VortexInstaloader(user_id)
+        if not isinstance(user, dict):
+            return f"❌ Failed to fetch Instagram data for {username}."   
         cookies = {
             'datr': 'GAgjaB5R_liEM-dpATRTgjMj',
     'ig_did': '114B8FDB-7673-4860-A1D8-E88C655B9DD8',
@@ -1049,9 +1157,9 @@ def fetch_instagram_info(username):
     'mid': 'aDaRiAALAAFk8TVh8AGAIMVtWO_F',
     'csrftoken': 'Pf0Us3q173jfLfTXAurrhCD8uY5KpFlf',
     'ds_user_id': '5545662104',
-    'sessionid': '5545662104%3ATSmn4hQ082l5P1%3A2%3AAYfpdhwbZjyzStt-N3WxFC-lokkLHBEam99bR9gmA4I',
     'wd': '1160x865',
-    'rur': '"CLN\\0545545662104\\0541782209332:01fed999c3e1a0450daf836c2b634216ed60649a8cca2f828f4e96e069b1224d06eb772f"',
+    'sessionid': '5545662104%3ATSmn4hQ082l5P1%3A2%3AAYeQ5pha0r0CduSqWWdx-J-iI_YWC41j8da3rjAR3lo',
+    'rur': '"CCO\\0545545662104\\0541782279503:01fea166733914c2af0bd2ddb58d6b202d60cf0ef7ca6381f718358923d095df7c8990f6"',
         }
         headers = {
            'accept': '*/*',
@@ -1081,24 +1189,24 @@ def fetch_instagram_info(username):
             '__d': 'www',
     '__user': '0',
     '__a': '1',
-    '__req': '11',
-    '__hs': '20262.HYP:instagram_web_pkg.2.1...0',
+    '__req': '1m',
+    '__hs': '20263.HYP:instagram_web_pkg.2.1...0',
     'dpr': '1',
     '__ccg': 'EXCELLENT',
-    '__rev': '1024076189',
-    '__s': 'y2h51s:kbszz7:udnbwy',
-    '__hsi': '7518998430557211439',
+    '__rev': '1024117973',
+    '__s': 't569sx:r98pok:86ey9k',
+    '__hsi': '7519376766333020397',
     '__dyn': '7xeUjG1mxu1syUbFp41twWwIxu13wvoKewSAwHwNw9G2S7o2vwpUe8hw2nVE4W0qa0FE2awgo9oO0n24oaEnxO1ywOwv89k2C1Fwc60D87u3ifK0EUjwGzEaE2iwNwmE7G4-5o4q3y1Sw62wLyESE7i3vwDwHg2cwMwrUdUbGwmk0zU8oC1Iwqo5p0OwUQp1yUb8jK5V8aUuwm8jxK2K2G0EoK9x60hK78apEaU',
-    '__csr': 'glgmgHf5R4ORslbtOEAOEL94lj8IhRQGtkWFNdAheUKLWmmqiGThUOijrKHleFuQAheiaWWQnoCVBCiDi-uGCmiSjJe9F6heq4QUZ298gCRGKfgyAb-tAG7oW59KUugJ6jAgKiQ-ivxamibBVpGDBSRGlzkmaBWBzbAK69UJ0ioSm8Cyoao01nXQ0N9Bg74jwPBwkofER0YwqEaFVBwQ4w8zgy4-VU7C8gGu1SgdE7O0cFwvE0kjw2po4xzoc81Rm58a4Uaq4CwI8ilk0Nu220nx6DgG0Lz0qo11ECt240osw2mw2N80Di0q6u01Oow1vm02oi',
-    '__hsdp': 'gecuJNZihtV0PsPO4IbxkXcJgFiawuC3H2lAj3i6O8ZToqpphUGEwIU4hxImrx648nwlQfryU5qaxqj84u7EozmeAg-9ExFo9ESq6E4p6ecxam5oixm3eEW2-4E6Scwgp815Vo2Lwca1ow2Go2bwmokxe0nCcwGwk86y0I8-0GEownz0ho2UwiQ5UaE9E5t1SE7K1vxS2Mi6U',
-    '__hblp': '1a222-14wm88nw8W2-UWUCm5o4C0wF8jxd29EKEbUyUG4ofK5A2rDDHUdokACCzECmqnwAzpFUiwBDxK5Uoxm4Ekg-48iHG9zUvUgAxKEkxC6EO11AyXyE3wxKm2m1bwZwca1jABK2m1-xG7Eao3DG1swjE2bU5umexe2K4o4GcwcO5EO2G1bAwq82MzU4S1sxy3y2kM4m9CwjEfUowIxV1uu2a2q4EsK22BzEswrE8oO2SEtjg9xaxy',
+    '__csr': 'ghT1Rsbjs9HlON_Szl94hd_lcDRbZjYKABlaAbh-TEJGp25la8h9rh4UKZQ-CUya_l6VtoNeGeqnyAqUBepy8CdLKjih4rGExoPlaV95zk2iq9xGiiXGeGmqmm4UKV8WmihLKi5rDXul5hmaKbGl28jAV9FrGX-haqmUC6Q6VEjwxwEAUsQfzGACAg01jVk0dvA80GE5C3e1jDwTwmcgfmi5bbobQ1jxaC0DUGp04Lw9Ol28lBKU0Mi07b85q420dqfwVw46wuQ5zwbO0V8lCgOu26qta4A5tCwdylQ0r3a0wJ3oR0aO0FEeE0_i0_E07JG04YE0sIw',
+    '__hsdp': 'g40JBkl4El5ML8Ok92OzegQqNq0PstvAr23db4yn5EN8iQmgu4Gi4Bg8S3Ca52AayUigog4h15BwEwJxi5eUEE9oiwDqFp69hp8Ocwj8C1ryZ3He7UfU9oS6poswvEtz8oCzURp-4o523e0VV81F822y87208-xm1sx60J85u1jwtE2lzE33a7U8k0VrwlU5C4omgeh02CwMwGwjo52',
+    '__hblp': '4zU4K3a1ExLU9WwmU8oiDz8jV8lwiE25Bxyh1x4K3mjzEW15CCBypU_ByAjwgrxKmUN5ABCCBxO2-9zXwkUWE9-3_xzDgSUlBG6o6u4WxS8Kfz8izFGo-15z8cU3DAwIwPwjoW2u1ywmU7h38yfBwmE7a1JzHw8y0woaolxm19yAq4orwiU4O1nwjXwtE2lzE5a1Ma7U8k11xi3m1jAJ0lE8EdFoK4Wm3n41G9K2e2F0JyU98aE4i8glx62u',
     '__comet_req': '7',
-    'fb_dtsg': 'NAfuBBgnSM1L7lwPfEUjHeAlJyw2fYOZDau6Vko0DBAQaqUWmFJgyTw:17843671327157124:1748946019',
-    'jazoest': '26346',
-    'lsd': 'M-HdCGlPr66DoDKCtwnPkZ',
-    '__spin_r': '1024076189',
+    'fb_dtsg': 'NAfuyfbUdgyvio7y7wmWgO9Cqcr6p8tshRS66er6RIGUhFLDO_-F0qg:17843671327157124:1748946019',
+    'jazoest': '26415',
+    'lsd': '7TEkhdM2sLVP1FrG6eymoZ',
+    '__spin_r': '1024117973',
     '__spin_b': 'trunk',
-    '__spin_t': '1750653243',
+    '__spin_t': '1750741332',
     '__crn': 'comet.igweb.PolarisProfilePostsTabRoute',
     'params': f'{{"referer_type":"ProfileMore","target_user_id":{user_id} }}',
         }
@@ -1130,7 +1238,6 @@ def fetch_instagram_info(username):
         Outlook = check_Outlook(username)
         gmail_checker = Gm(username)
         gmail_result = gmail_checker.check()
-        user = VortexInstaloader(user_id)
         reset_check = "🔐 Reset not available"
         lookup_result = lookup_instagram(username)
         email = lookup_result.get("obfuscated_email")
@@ -1930,3 +2037,4 @@ def main():
 
 if __name__ == '__main__':
     main()
+
