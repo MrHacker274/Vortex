@@ -1037,6 +1037,7 @@ def token():
         return {}
 
 # === Final Lookup Function ===
+
 def lookup_user_id(username):
     uid_val = str(uuid.uuid4())
     tkn = token()
@@ -1065,7 +1066,17 @@ def lookup_user_id(username):
     try:
         response = requests.post("https://i.instagram.com/api/v1/users/lookup/", headers=headers, data=data)
         res = response.json()
-        return res.get("user_id")
+        user_id = res.get("user_id")
+        if user_id:
+            return str(user_id)
+    except:
+        pass  # ignore and try fallback
+
+    # === Fallback using Instaloader ===
+    try:
+        loader = instaloader.Instaloader()
+        profile = instaloader.Profile.from_username(loader.context, username)
+        return str(profile.userid)
     except:
         return None
 
@@ -2037,4 +2048,3 @@ def main():
 
 if __name__ == '__main__':
     main()
-
