@@ -911,11 +911,119 @@ def name_to_flag(country_name):
         return flag
     except:
         return "🏳️"
-    
+def lookup_user_id(username):
+    import uuid
+    import requests
+    import instaloader
+
+    try:
+        # Step 1: Try Instagram Mobile Private API
+        uid_val = str(uuid.uuid4())
+        token = uuid.uuid4().hex * 2
+        headers = {
+            "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
+            "Host": "i.instagram.com",
+            "Connection": "Keep-Alive",
+            "User-Agent": generate_user_agent(),
+            "Cookie": f"mid={uuid.uuid4()}; csrftoken={token}",
+            "Accept-Language": "en-US",
+            "X-IG-Capabilities": "AQ==",
+        }
+        data = {
+            "q": username,
+            "device_id": f"android-{uid_val}",
+            "guid": uid_val,
+            "_csrftoken": token
+        }
+        response = requests.post("https://i.instagram.com/api/v1/users/lookup/", headers=headers, data=data)
+        if response.status_code == 200:
+            pk = response.json().get("user", {}).get("pk")
+            if pk:
+                return pk
+    except:
+        pass
+
+    # Step 2: Fallback to Instaloader
+    try:
+        loader = instaloader.Instaloader()
+        profile = instaloader.Profile.from_username(loader.context, username)
+        return profile.userid
+    except:
+        return None
+import string
+
+def VortexInstaloader(user_id):
+    lsd = ''.join(random.choices(string.ascii_letters + string.digits, k=32))
+    user_agent = (
+        "Instagram 311.0.0.32.118 Android (28/9.0; "
+        f"{random.randint(300, 1000)}dpi; {random.randint(800, 2000)}x{random.randint(800, 2000)}; "
+        "XIAOMI; Redmi Note 10; Redmi Note 10; qcom; en_US)"
+    )
+
+    cookies = {
+        'datr': 'GAgjaB5R_liEM-dpATRTgjMj',
+        'ig_did': '114B8FDB-7673-4860-A1D8-E88C655B9DD8',
+        'dpr': '0.8999999761581421',
+        'ig_nrcb': '1',
+        'ps_l': '1',
+        'ps_n': '1',
+        'mid': 'aDaRiAALAAFk8TVh8AGAIMVtWO_F',
+        'csrftoken': 'Pf0Us3q173jfLfTXAurrhCD8uY5KpFlf',
+        'wd': '1160x865',
+        'rur': 'CCO\\0545545662104\\0541782214038:01fe17bff2ea3a976fdb6e57175662653981fed1b87a76278c5f2d9740ed7728503516f5'
+    }
+
+    headers = {
+        'accept': '*/*',
+        'accept-language': 'en-US,en;q=0.9',
+        'content-type': 'application/x-www-form-urlencoded',
+        'origin': 'https://www.instagram.com',
+        'priority': 'u=1, i',
+        'referer': 'https://www.instagram.com/',
+        'user-agent': user_agent,
+        'x-asbd-id': '359341',
+        'x-bloks-version-id': 'b029e4bcdab3e79d470ee0a83b0cbf57b9473dab4bc96d64c3780b7980436e7a',
+        'x-csrftoken': 'Pf0Us3q173jfLfTXAurrhCD8uY5KpFlf',
+        'x-fb-friendly-name': 'PolarisProfilePageContentQuery',
+        'x-fb-lsd': lsd,
+        'x-ig-app-id': '936619743392459',
+        'x-root-field-name': 'fetch__XDTUserDict',
+    }
+
+    data = {
+        'fb_api_caller_class': 'RelayModern',
+        'fb_api_req_friendly_name': 'PolarisProfilePageContentQuery',
+        'variables': json.dumps({"id": str(user_id), "render_surface": "PROFILE"}),
+        'server_timestamps': 'true',
+        'doc_id': '9916454141777118',
+        'lsd': lsd
+    }
+
+    try:
+        response = requests.post(
+            'https://www.instagram.com/graphql/query',
+            cookies=cookies,
+            headers=headers,
+            data=data,
+            timeout=10
+        )
+        if response.status_code != 200:
+            return {"error": f"HTTP {response.status_code}"}
+
+        return response.json().get("data", {}).get("user", {}) or {"error": "No user data"}
+
+    except requests.exceptions.RequestException as e:
+        return {"error": str(e)}
+    except ValueError:
+        return {"error": "Invalid JSON response"}
+
+def yesno(val):
+    return "✅ Yes" if val else "❌ No"   
 def fetch_instagram_info(username):
     try:
-        profile = instaloader.Profile.from_username(L.context, username)
-        user_id = profile.userid    
+        user_id = lookup_user_id(username)
+        if not user_id:
+            return "❌ Failed to retrieve user ID for this username."    
         cookies = {
             'datr': 'GAgjaB5R_liEM-dpATRTgjMj',
     'ig_did': '114B8FDB-7673-4860-A1D8-E88C655B9DD8',
@@ -958,24 +1066,24 @@ def fetch_instagram_info(username):
             '__d': 'www',
     '__user': '0',
     '__a': '1',
-    '__req': '12',
+    '__req': '11',
     '__hs': '20262.HYP:instagram_web_pkg.2.1...0',
     'dpr': '1',
     '__ccg': 'EXCELLENT',
-    '__rev': '1024080374',
-    '__s': '0igdu3:kbszz7:f3w9rc',
-    '__hsi': '7519084683215874588',
+    '__rev': '1024076189',
+    '__s': 'y2h51s:kbszz7:udnbwy',
+    '__hsi': '7518998430557211439',
     '__dyn': '7xeUjG1mxu1syUbFp41twWwIxu13wvoKewSAwHwNw9G2S7o2vwpUe8hw2nVE4W0qa0FE2awgo9oO0n24oaEnxO1ywOwv89k2C1Fwc60D87u3ifK0EUjwGzEaE2iwNwmE7G4-5o4q3y1Sw62wLyESE7i3vwDwHg2cwMwrUdUbGwmk0zU8oC1Iwqo5p0OwUQp1yUb8jK5V8aUuwm8jxK2K2G0EoK9x60hK78apEaU',
-    '__csr': 'gjMhhA4IT6kY9Tsy8ysAkTO9RbIOkz5OtALKAmmlVGhrCiDyGJuXSKWmeUF4lXHWpvtBV9ppK88mmVAK8XAF4jAQGFABBz9udx1bGWHUoK465WBl12aCDGeUR3FFoyEGuFpp9HGup39rCFAhoDKqp9e4ayqmcm8Bybx2aK9zoowJCKfBzodo01nVk0OIw6YjocpU563Wbgb87G2HzE88CaEM2bo8HKnwpQq8g2bgdE7O0cGwvo0kjw2po4swfE1MEGu2O58GubyV2i5wHcag39g881ty4DwcMwnwkk0_ogmt06h80AU0JS0424ag07fi05z809wU',
-    '__hsdp': 'gdQ9cxgCzjYeRcYxMM49OiREIxyIkJhc3eR4svssNk--aCy4KgueCOh05WgkA9Dxei78553CcwOwEx-8xgx9Uy8UJy9A2WW89Hzoe8vxp1cUix22C6Uf8uyoS2W1vwNxym1xwi9U12p84m0sK580Li0I88E7q1xwMwaS682Hwuo3yg2DCCgC2q2dwb-1JwZwlosUugrzCip2p41owsokw9C1pw',
-    '__hblp': '1e18x23y1mwBiUcU20BCUkAUswbq26iez9pUyWwGzGyUdotyubx67V8CiiEy264pEtKEOJy-3qF8nxa365E8AUKbyEixWuueyoS2W3K4UCZe9wXBwiUlx6q2-t0aS1qAxi7UgwTy85i0iGAq584m0z8hwk81so4O0I88EaU4Gu3m58W6Ukg6W2q5Eow9G48twmU3yg2DCCgB0Bwzof86y6o9o4u9wPxy3O59UiyZ1Kep9BDAh87i1fgkw9e-78gwHw',
+    '__csr': 'glgmgHf5R4ORslbtOEAOEL94lj8IhRQGtkWFNdAheUKLWmmqiGThUOijrKHleFuQAheiaWWQnoCVBCiDi-uGCmiSjJe9F6heq4QUZ298gCRGKfgyAb-tAG7oW59KUugJ6jAgKiQ-ivxamibBVpGDBSRGlzkmaBWBzbAK69UJ0ioSm8Cyoao01nXQ0N9Bg74jwPBwkofER0YwqEaFVBwQ4w8zgy4-VU7C8gGu1SgdE7O0cFwvE0kjw2po4xzoc81Rm58a4Uaq4CwI8ilk0Nu220nx6DgG0Lz0qo11ECt240osw2mw2N80Di0q6u01Oow1vm02oi',
+    '__hsdp': 'gecuJNZihtV0PsPO4IbxkXcJgFiawuC3H2lAj3i6O8ZToqpphUGEwIU4hxImrx648nwlQfryU5qaxqj84u7EozmeAg-9ExFo9ESq6E4p6ecxam5oixm3eEW2-4E6Scwgp815Vo2Lwca1ow2Go2bwmokxe0nCcwGwk86y0I8-0GEownz0ho2UwiQ5UaE9E5t1SE7K1vxS2Mi6U',
+    '__hblp': '1a222-14wm88nw8W2-UWUCm5o4C0wF8jxd29EKEbUyUG4ofK5A2rDDHUdokACCzECmqnwAzpFUiwBDxK5Uoxm4Ekg-48iHG9zUvUgAxKEkxC6EO11AyXyE3wxKm2m1bwZwca1jABK2m1-xG7Eao3DG1swjE2bU5umexe2K4o4GcwcO5EO2G1bAwq82MzU4S1sxy3y2kM4m9CwjEfUowIxV1uu2a2q4EsK22BzEswrE8oO2SEtjg9xaxy',
     '__comet_req': '7',
-    'fb_dtsg': 'NAfu8n3L1rNSLfvLQ6h93i5Lqj0e6imqq5BgheMpaeF0D4_FPx8VOJg:17843671327157124:1748946019',
-    'jazoest': '26139',
-    'lsd': 'KKKuu9aFVaf2TwX1WzyaSw',
-    '__spin_r': '1024080374',
+    'fb_dtsg': 'NAfuBBgnSM1L7lwPfEUjHeAlJyw2fYOZDau6Vko0DBAQaqUWmFJgyTw:17843671327157124:1748946019',
+    'jazoest': '26346',
+    'lsd': 'M-HdCGlPr66DoDKCtwnPkZ',
+    '__spin_r': '1024076189',
     '__spin_b': 'trunk',
-    '__spin_t': '1750673326',
+    '__spin_t': '1750653243',
     '__crn': 'comet.igweb.PolarisProfilePostsTabRoute',
     'params': f'{{"referer_type":"ProfileMore","target_user_id":{user_id} }}',
         }
@@ -1007,8 +1115,9 @@ def fetch_instagram_info(username):
         Outlook = check_Outlook(username)
         gmail_checker = Gm(username)
         gmail_result = gmail_checker.check()
+        user = VortexInstaloader(user_id)
         reset_check = "🔐 Reset not available"
-        lookup_result = lookup_instagram(profile.username)
+        lookup_result = lookup_instagram(username)
         email = lookup_result.get("obfuscated_email")
         phone = lookup_result.get("obfuscated_phone")
         if email and phone:
@@ -1052,22 +1161,22 @@ def fetch_instagram_info(username):
 ══════════════════════════════        
 🌟 𝗜ɢ 𝗙ᴇᴛᴄʜᴇʀ 𝗙ʀᴏᴍ <b>ᎮᗯᑎᗩGƐ | Ѵᴏʀᴛᴇx •</b> 🌟       
 ══════════════════════════════
-✨ <b>{'Username'.ljust(23)}</b> ➟ <code>{profile.username}</code>
-📡  <b>{'Name'.ljust(23)}</b> ➟ <code>{profile.full_name or 'N/A'}</code>
-🆔 <b>{'User ID'.ljust(23)}</b> ➟ <code>{profile.userid}</code>
-🔗 <b>{'Profile Link'.ljust(23)}</b> ➟ <a href="https://www.instagram.com/{profile.username}">Click Here</a>
-👤 <b>{'Profile Picture'.ljust(23)}</b> ➟ {"<a href='" + profile.profile_pic_url + "'>📷 View</a>" if profile.profile_pic_url else 'Not Available'}
-📊 <b>{'Followers'.ljust(23)}</b> ➟ <b>{profile.followers}</b>
-🔄 <b>{'Following'.ljust(23)}</b> ➟ <b>{profile.followees}</b>
-📸 <b>{'Total Posts'.ljust(23)}</b> ➟ <b>{profile.mediacount}</b>
-📽️ <b>{'Reels'.ljust(23)}</b> ➟ <b>{profile.igtvcount if hasattr(profile, 'igtvcount') else 0}</b>
-📖 <b>{'Stories (Highlights)'.ljust(23)}</b> ➟ <b>{profile.highlight_reels if hasattr(profile, 'highlight_reels') else 0}</b>
-📝 <b>{'Bio'.ljust(23)}</b> ➟ <code>{(profile.biography[:90] + '...') if profile.biography and len(profile.biography) > 90 else (profile.biography or 'No Bio')}</code>
+✨ <b>{'Username'.ljust(23)}</b> ➟ <code>{user.get('username', 'N/A')}</code>
+📡  <b>{'Name'.ljust(23)}</b> ➟ <code>{user.get('full_name', 'N/A')}</code>
+🆔 <b>{'User ID'.ljust(23)}</b> ➟ <code>{user.get('pk', 'N/A')}</code>
+🔗 <b>{'Profile Link'.ljust(23)}</b> ➟ <a href="https://www.instagram.com/{username}">Click Here</a>
+👤 <b>{'Profile Picture'.ljust(23)}</b> ➟ {"<a href='" + user.get('hd_profile_pic_url_info', {}).get('url', '#') + "'>📷 View</a>" if user.get('hd_profile_pic_url_info', {}).get('url') else 'Not Available'}
+📊 <b>{'Followers'.ljust(23)}</b> ➟ <b>{user.get('follower_count', 'N/A')}</b>
+🔄 <b>{'Following'.ljust(23)}</b> ➟ <b>{user.get('following_count', 'N/A')}</b>
+📸 <b>{'Total Posts'.ljust(23)}</b> ➟ <b>{user.get('media_count', 'N/A')}</b>
+📝 <b>{'Bio'.ljust(23)}</b> ➟ <code>{user.get('biography', 'N/A')}</code>
 🌏 <b>{'Country'.ljust(23)}</b> ➟ <b>{flag}{country or 'N/A'}</b>
 📅 <b>{'Date Joined'.ljust(23)}</b> ➟ <b>{results.get("Date joined", "N/A")}</b>
-🔐 <b>{'Account Privacy'.ljust(23)}</b> ➟ <b>{'Private' if profile.is_private else 'Public'}</b>
-💌 <b>{'Already Verified'.ljust(23)}</b> ➟ <b>{'Yes' if profile.is_verified else 'No'}</b>
-⚕️ <b>{'Business Account'.ljust(23)}</b> ➟ <b>{'Yes' if profile.is_business_account else 'No'}</b>
+🔐 <b>{'Account Privacy'.ljust(23)}</b> ➟ <b>{user.get('is_private')}</b>
+💌 <b>{'Already Verified'.ljust(23)}</b> ➟ <b>{user.get('is_verified')}</b>
+⚕️ <b>{'Business Account'.ljust(23)}</b> ➟ <b>{user.get('is_business')}</b>
+🧰 <b>{'Professional Account'.ljust(23)}</b> ➟ <b>{user.get('is_professional_account')}</b>
+🗂️ <b>{'Category'.ljust(23)}</b>     ➟ <b>{user.get('category', 'N/A') if user.get('should_show_category') else 'Not Available'}</b>
 🔒 <b>{'Verified On'.ljust(23)}</b> ➟ <b>{results.get("Verified On", "N/A")}</b>
 🕵️ <b>{'Former Usernames'.ljust(23)}</b> ➟ <b>{results.get("Former usernames", "N/A")}</b>
 🛡️ <b>{'Linked With'.ljust(23)}</b> ➟ <b>{linked_info}</b>
