@@ -1290,35 +1290,36 @@ def fetch_instagram_info(username):
                         reset_check = "Unknown domain"
                 else:
                     reset_check = "🔐 Reset is different"
-                    result_msg = f"""
+result_msg = f"""
 ══════════════════════════════        
-🌟 𝗜ɢ 𝗙ᴇᴛᴄʜᴇʀ 𝗙ʀᴏ𝗺 <b>ᎮᗯᑎᗩGƐ | Ѵᴏʀᴛᴇx •</b> 🌟       
+🌟 𝗜ɢ 𝗙ᴇᴛᴄʜᴇʀ 𝗙ʀᴏᴍ <b>ᎮᗯᑎᗩGƐ | Ѵᴏʀᴛᴇx •</b> 🌟       
 ══════════════════════════════
-✨ <b>Username               </b> ➟ <code>{user.get('username', 'N/A')}</code>
-📡 <b>Name                  </b> ➟ <code>{user.get('full_name', 'N/A')}</code>
-🆔 <b>User ID               </b> ➟ <code>{user.get('pk', 'N/A')}</code>
-🔗 <b>Profile Link          </b> ➟ <a href="https://www.instagram.com/{username}">Click Here</a>
-👤 <b>Profile Picture       </b> ➟ {"<a href='" + user.get('hd_profile_pic_url_info', {}).get('url', '#') + "'>📷 View</a>" if user.get('hd_profile_pic_url_info', {}).get('url') else 'Not Available'}
-📊 <b>Followers             </b> ➟ <b>{user.get('follower_count', 'N/A')}</b>
-🔄 <b>Following             </b> ➟ <b>{user.get('following_count', 'N/A')}</b>
-📸 <b>Total Posts           </b> ➟ <b>{user.get('media_count', 'N/A')}</b>
-📝 <b>Bio                   </b> ➟ <code>{user.get('biography', 'N/A')}</code>
-🌏 <b>Country               </b> ➟ <b>{flag}{country or 'N/A'}</b>
-📅 <b>Date Joined           </b> ➟ <b>{results.get("Date joined", "N/A")}</b>
-🔐 <b>Account Privacy       </b> ➟ <b>{user.get('is_private')}</b>
-💌 <b>Already Verified      </b> ➟ <b>{user.get('is_verified')}</b>
-⚕️ <b>Business Account      </b> ➟ <b>{user.get('is_business')}</b>
-🧰 <b>Professional Account  </b> ➟ <b>{user.get('is_professional_account')}</b>
-🗂️ <b>Category              </b> ➟ <b>{user.get('category', 'N/A')}</b>
-🔒 <b>Verified On           </b> ➟ <b>{results.get("Verified On", "N/A")}</b>
-🕵️ <b>Former Usernames      </b> ➟ <b>{results.get("Former usernames", "N/A")}</b>
-🛡️ <b>Linked With           </b> ➟ <b>{linked_info}</b>
-🔐 <b>Reset Email           </b> ➟ <code>{reset_email or 'Not Available'}</code>
-📧 <b>Email Availability     </b> ➟ <code>{reset_check}</code>
+✨ <b>{'Username'.ljust(23)}</b> ➟ <code>{user.get('username', 'N/A')}</code>
+📡  <b>{'Name'.ljust(23)}</b> ➟ <code>{user.get('full_name', 'N/A')}</code>
+🆔 <b>{'User ID'.ljust(23)}</b> ➟ <code>{user.get('pk', 'N/A')}</code>
+🔗 <b>{'Profile Link'.ljust(23)}</b> ➟ <a href="https://www.instagram.com/{username}">Click Here</a>
+👤 <b>{'Profile Picture'.ljust(23)}</b> ➟ {"<a href='" + user.get('hd_profile_pic_url_info', {}).get('url', '#') + "'>📷 View</a>" if user.get('hd_profile_pic_url_info', {}).get('url') else 'Not Available'}
+📊 <b>{'Followers'.ljust(23)}</b> ➟ <b>{user.get('follower_count', 'N/A')}</b>
+🔄 <b>{'Following'.ljust(23)}</b> ➟ <b>{user.get('following_count', 'N/A')}</b>
+📸 <b>{'Total Posts'.ljust(23)}</b> ➟ <b>{user.get('media_count', 'N/A')}</b>
+📝 <b>{'Bio'.ljust(23)}</b> ➟ <code>{user.get('biography', 'N/A')}</code>
+🌏 <b>{'Country'.ljust(23)}</b> ➟ <b>{flag}{country or 'N/A'}</b>
+📅 <b>{'Date Joined'.ljust(23)}</b> ➟ <b>{results.get("Date joined", "N/A")}</b>
+🔐 <b>{'Account Privacy'.ljust(23)}</b> ➟ <b>{user.get('is_private')}</b>
+💌 <b>{'Already Verified'.ljust(23)}</b> ➟ <b>{user.get('is_verified')}</b>
+⚕️ <b>{'Business Account'.ljust(23)}</b> ➟ <b>{user.get('is_verified')}</b>
+🧰 <b>{'Professional Account'.ljust(23)}</b> ➟ <b>{user.get('is_professional_account')}</b>
+🗂️ <b>{'Category'.ljust(23)}</b>     ➟ <b>{user.get('category', 'N/A')}</b>
+🔒 <b>{'Verified On'.ljust(23)}</b> ➟ <b>{results.get("Verified On", "N/A")}</b>
+🕵️ <b>{'Former Usernames'.ljust(23)}</b> ➟ <b>{results.get("Former usernames", "N/A")}</b>
+🛡️ <b>{'Linked With'.ljust(23)}</b> ➟ <b>{linked_info}</b>
+🔐 <b>{'Reset Email'.ljust(23)}</b> ➟ <code>{reset_email or 'Not Available'}</code>
+📧 <b>{'Email Availability'.ljust(23)}</b> ➟ <code>{reset_check}</code>
 ══════════════════════════════
 💎 ✦ <b>Developer</b> ➟ <a href="https://t.me/PrayagRajj">ＰｒａｙａｇＲａｊｊ</a> ✦ 💎
 ══════════════════════════════
-""".strip()
+        """.strip() 
+
         return result_msg
 
     except Exception as e:
