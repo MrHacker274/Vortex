@@ -1291,37 +1291,37 @@ def fetch_instagram_info(username):
                 else:
                     reset_check = "🔐 Reset is different"
                     result_msg = f"""
-<b>🌟 IG Profile Insight • 𝗩𝗼𝗿𝘁𝗲𝘅 | ᏢᎳNᎪGᎬ 🌟</b>
-<pre>═════════════════════════════════════</pre>
-👤 <b>Username            :</b> <code>{user.get('username', 'N/A')}</code>
-🧾 <b>Full Name           :</b> <code>{user.get('full_name', 'N/A')}</code>
-🆔 <b>User ID             :</b> <code>{user.get('pk', 'N/A')}</code>
-🔗 <b>Profile Link        :</b> <a href="https://www.instagram.com/{username}">Open Instagram</a>
-📷 <b>Profile Picture     :</b> {"<a href='" + user.get('hd_profile_pic_url_info', {}).get('url', '#') + "'>📸 View</a>" if user.get('hd_profile_pic_url_info', {}).get('url') else 'Not Available'}
+<b>🚀 Instagram Intelligence Report</b>
+<b>╭───────────────────────────────╮</b>
+<b>🆔 Username       :</b> <code>{user.get('username', 'N/A')}</code>
+<b>📛 Full Name     :</b> <code>{user.get('full_name', 'N/A')}</code>
+<b>🔎 User ID       :</b> <code>{user.get('pk', 'N/A')}</code>
+<b>🔗 Profile URL   :</b> <a href="https://instagram.com/{username}">View Profile</a>
+<b>🖼️ Profile Pic   :</b> {"<a href='" + user.get('hd_profile_pic_url_info', {}).get('url', '#') + "'>📸 View</a>" if user.get('hd_profile_pic_url_info', {}).get('url') else 'Not Available'}
 
-📊 <b>Followers           :</b> <b>{user.get('follower_count', 'N/A')}</b>
-🔄 <b>Following           :</b> <b>{user.get('following_count', 'N/A')}</b>
-📸 <b>Total Posts         :</b> <b>{user.get('media_count', 'N/A')}</b>
+<b>📊 Followers     :</b> <b>{user.get('follower_count', 'N/A')}</b>
+<b>🔄 Following     :</b> <b>{user.get('following_count', 'N/A')}</b>
+<b>🖼️ Total Posts   :</b> <b>{user.get('media_count', 'N/A')}</b>
 
-📝 <b>Bio                 :</b> <code>{user.get('biography', 'N/A')}</code>
-🌍 <b>Country             :</b> <b>{flag}{country or 'N/A'}</b>
-📅 <b>Date Joined         :</b> <b>{results.get("Date joined", "N/A")}</b>
+<b>📝 Bio           :</b> <code>{user.get('biography', 'N/A')}</code>
+<b>🌍 Country       :</b> <b>{flag}{country or 'N/A'}</b>
+<b>📅 Joined On     :</b> <b>{results.get("Date joined", "N/A")}</b>
 
-🔐 <b>Private Account     :</b> <b>{"Yes" if user.get('is_private') else "No"}</b>
-✅ <b>Verified            :</b> <b>{"Yes" if user.get('is_verified') else "No"}</b>
-💼 <b>Business Account    :</b> <b>{"Yes" if user.get('is_business') else "No"}</b>
-🧰 <b>Professional        :</b> <b>{"Yes" if user.get('is_professional_account') else "No"}</b>
-🗂️ <b>Category            :</b> <b>{user.get('category', 'N/A')}</b>
-🔒 <b>Verified On         :</b> <b>{results.get("Verified On", "N/A")}</b>
-🕵️ <b>Former Usernames    :</b> <b>{results.get("Former usernames", "N/A")}</b>
-🛡️ <b>Linked With         :</b> <b>{linked_info}</b>
+<b>🔐 Private       :</b> <b>{"Yes" if user.get('is_private') else "No"}</b>
+<b>✔️ Verified      :</b> <b>{"Yes" if user.get('is_verified') else "No"}</b>
+<b>🏢 Business      :</b> <b>{"Yes" if user.get('is_business') else "No"}</b>
+<b>🧰 Professional  :</b> <b>{"Yes" if user.get('is_professional_account') else "No"}</b>
+<b>🗂️ Category      :</b> <b>{user.get('category', 'N/A')}</b>
+<b>📍 Verified On   :</b> <b>{results.get("Verified On", "N/A")}</b>
+<b>🕵️ Former Names :</b> <b>{results.get("Former usernames", 'N/A')}</b>
+<b>🔗 Linked To     :</b> <b>{linked_info}</b>
 
-📩 <b>Reset Email         :</b> <code>{reset_email or 'Not Available'}</code>
-📧 <b>Email Availability  :</b> <code>{reset_check}</code>
-<pre>═════════════════════════════════════</pre>
-💎 <b>Developer:</b> <a href="https://t.me/PrayagRajj">ＰｒａｙａｇＲａｊｊ</a>
-<pre>═════════════════════════════════════</pre>
-""".strip()
+<b>📬 Reset Email   :</b> <code>{reset_email or 'Not Available'}</code>
+<b>📧 Email Valid?  :</b> <code>{reset_check}</code>
+<b>╰───────────────────────────────╯</b>
+
+<b>👨‍💻 Bot by:</b> <a href="https://t.me/PrayagRajj">ＰｒａｙａｇＲａｊｊ</a>
+"""
 
         return result_msg
 
