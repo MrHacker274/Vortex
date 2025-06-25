@@ -1309,7 +1309,7 @@ def fetch_instagram_info(username):
 💌 <b>{'Already Verified'.ljust(23)}</b> ➟ <b>{user.get('is_verified')}</b>
 ⚕️ <b>{'Business Account'.ljust(23)}</b> ➟ <b>{user.get('is_business')}</b>
 🧰 <b>{'Professional Account'.ljust(23)}</b> ➟ <b>{user.get('is_professional_account')}</b>
-🗂️ <b>{'Category'.ljust(23)}</b>     ➟ <b>{user.get('category', 'N/A') if user.get('should_show_category') else 'Not Available'}</b>
+🗂️ <b>{'Category'.ljust(23)}</b>     ➟ <b>{user.get('category', 'N/A')}</b>
 🔒 <b>{'Verified On'.ljust(23)}</b> ➟ <b>{results.get("Verified On", "N/A")}</b>
 🕵️ <b>{'Former Usernames'.ljust(23)}</b> ➟ <b>{results.get("Former usernames", "N/A")}</b>
 🛡️ <b>{'Linked With'.ljust(23)}</b> ➟ <b>{linked_info}</b>
