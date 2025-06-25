@@ -1319,7 +1319,6 @@ def fetch_instagram_info(username):
 💎 ✦ <b>Developer</b> ➟ <a href="https://t.me/PrayagRajj">ＰｒａｙａｇＲａｊｊ</a> ✦ 💎
 ══════════════════════════════
 """.strip()
-
         return result_msg
 
     except Exception as e:
