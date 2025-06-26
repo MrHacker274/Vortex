@@ -1290,7 +1290,7 @@ def fetch_instagram_info(username):
                         reset_check = "Unknown domain"
                 else:
                     reset_check = "🔐 Reset is different"
-result_msg = f"""
+        result_msg = f"""
 ══════════════════════════════        
 🌟 𝗜ɢ 𝗙ᴇᴛᴄʜᴇʀ 𝗙ʀᴏᴍ <b>ᎮᗯᑎᗩGƐ | Ѵᴏʀᴛᴇx •</b> 🌟       
 ══════════════════════════════
@@ -1307,7 +1307,7 @@ result_msg = f"""
 📅 <b>{'Date Joined'.ljust(23)}</b> ➟ <b>{results.get("Date joined", "N/A")}</b>
 🔐 <b>{'Account Privacy'.ljust(23)}</b> ➟ <b>{user.get('is_private')}</b>
 💌 <b>{'Already Verified'.ljust(23)}</b> ➟ <b>{user.get('is_verified')}</b>
-⚕️ <b>{'Business Account'.ljust(23)}</b> ➟ <b>{user.get('is_verified')}</b>
+⚕️ <b>{'Business Account'.ljust(23)}</b> ➟ <b>{user.get('is_business')}</b>
 🧰 <b>{'Professional Account'.ljust(23)}</b> ➟ <b>{user.get('is_professional_account')}</b>
 🗂️ <b>{'Category'.ljust(23)}</b>     ➟ <b>{user.get('category', 'N/A')}</b>
 🔒 <b>{'Verified On'.ljust(23)}</b> ➟ <b>{results.get("Verified On", "N/A")}</b>
